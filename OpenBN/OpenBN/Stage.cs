@@ -68,7 +68,9 @@ namespace OpenBN
 
         public Vector2 GetStageCoords(int row, int col, Vector2 offset)
         {
-            return new Vector2(row * 40, (col - 1) * 25) + offset;
+            var i = new Vector2(PnlColPnt[col], ((row+1) * 24));
+            var u = offset;
+            return i + u + new Vector2(StgPos.X,StgPos.Y);
         }
 
         public Stage(ContentManager CMx, SpriteBatch SBx)

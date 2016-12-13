@@ -73,9 +73,9 @@ namespace OpenBN
         int BGFrame = 1;
         bool terminateGame = false;
         bool bgReady = false;
-        bool mute = false;
+        bool mute = true;
         bool latchArrowKeys = false;
-        public bool DisplayEnemyNames = true;
+        public bool DisplayEnemyNames = false;
 
         string debugTXT = "";
         
@@ -106,7 +106,7 @@ namespace OpenBN
             RenderQueue.Add(Stage);
 
             MegamanEXE = new UserNavi("MM", Content, spriteBatch, stageVect);
-            MegamanEXE.battleposoffset = new Vector2(-6, 59);
+
             MegamanEXE.btlcol = 2;
             MegamanEXE.btlrow = 2;
             MegamanEXE.enableRender = false;
@@ -117,6 +117,8 @@ namespace OpenBN
 
             if (!bgUpdater.IsBusy) bgUpdater.RunWorkerAsync();
             if (!flash.IsBusy) flash.RunWorkerAsync();
+            if (!UserNavBgWrk.IsBusy) UserNavBgWrk.RunWorkerAsync();
+
             SixtyHzBgWrkr.DoWork += SixtyHzBgWrkr_DoWork;
 
             EnemyNames.Add("Piranha");
@@ -129,6 +131,7 @@ namespace OpenBN
             {
                 if(MegamanEXE != null) MegamanEXE.Next();
                 Thread.Sleep(16);
+                return;
             } while (!terminateGame);
         }
 
@@ -164,7 +167,7 @@ namespace OpenBN
 
             do
             {
-                if (Input != null)
+                if (Input != null && MegamanEXE.finish)
                 {
                     /* Sorry for this crusty code */
 
@@ -177,24 +180,19 @@ namespace OpenBN
                     i.Value.DurDelta < 700 &&
                     i.Value.DurDelta > 50).Count();
 
-                    var BusterShot2 = Input.KeyboardStream
-                    .Where(i =>
-                    i.Key == Keys.X &&
-                    i.Value.KeyState == KeyState.Down &&
-                    i.Value.DurDelta < 700 &&
-                    i.Value.DurDelta > 50).Count();
-
-                    var BusterShot3 = Input.KeyboardStream
-                    .Where(i =>
-                    i.Key == Keys.X &&
-                    i.Value.KeyState == KeyState.Down &&
-                    i.Value.DurDelta > 700).Count();
-
                     if (BusterShot > 0 && MegamanEXE.finish)
                     {
-                        MegamanEXE.SetAnimation("BUSTER");
-                        Debug.Print("BstrShot");
+                        if (Input.KeyboardStream[Keys.X].OldDelta < 400)
+                        {
+                            MegamanEXE.SetAnimation("SWORD");
+                            Debug.Print("BstrShot");
+                        } else if (Input.KeyboardStream[Keys.X].OldDelta > 400)
+                        {
+                            MegamanEXE.SetAnimation("BUSTER");
+                            Debug.Print("Charge");
+                        }
                         Input.InputHandled(new Keys[] { Keys.X });
+
                     }
 
                     #endregion
@@ -206,14 +204,12 @@ namespace OpenBN
 
                     var movement = Input.KeyboardStream.Select(i => i.Key)
                                   .Where(i => Input.KeyboardStream[i].KeyState == KeyState.Down &&
-                                  Input.KeyboardStream[i].DurDelta < 1000 &&
-                                  Input.KeyboardStream[i].DurDelta > 50
-                                  ).Where(i => i == Keys.Left | i == Keys.Right | i == Keys.Up | i == Keys.Down);
+                                  Input.KeyboardStream[i].DurDelta < 1000)
+                                  .Where(i => i == Keys.Left | i == Keys.Right | i == Keys.Up | i == Keys.Down);
 
                     var movement2 = Input.KeyboardStream.Select(i => i.Key)
-                                  .Where(i => Input.KeyboardStream[i].KeyState == KeyState.Up &&
-                                  Input.KeyboardStream[i].DurDelta > 50
-                                  ).Where(i => i == Keys.Left | i == Keys.Right | i == Keys.Up | i == Keys.Down);
+                                  .Where(i => Input.KeyboardStream[i].KeyState == KeyState.Up)
+                                  .Where(i => i == Keys.Left | i == Keys.Right | i == Keys.Up | i == Keys.Down);
 
                     if (movement.Count() > 0 && MegamanEXE.finish){ latchArrowKeys = true;}
 
@@ -223,22 +219,22 @@ namespace OpenBN
 
                         switch (movement2.ToArray()[0])
                         {
-                            case Keys.Up:
+                            case Keys.Left:
                                 tmpcol--;
                                 break;
-                            case Keys.Down:
+                            case Keys.Right:
                                 tmpcol++;
                                 break;
-                            case Keys.Left:
+                            case Keys.Up:
                                 tmprow--;
                                 break;
-                            case Keys.Right:
+                            case Keys.Down:
                                 tmprow++;
                                 break;
                         }
                         Input.InputHandled(new Keys[] { Keys.Left, Keys.Right, Keys.Up, Keys.Down });
 
-                        if (Stage.IsMoveAllowed(tmpcol, tmprow))
+                        if (Stage.IsMoveAllowed(tmprow, tmpcol))
                         {
                             MegamanEXE.btlcol = tmpcol;
                             MegamanEXE.btlrow = tmprow;
@@ -260,6 +256,7 @@ namespace OpenBN
                     MegamanEXE.SetAnimation("DEFAULT");
                 }
                 Thread.Sleep(20);
+                if (MegamanEXE != null) MegamanEXE.Next();
             } while (!terminateGame);
         }
 
@@ -278,9 +275,7 @@ namespace OpenBN
                 Thread.Sleep(30);
 
             } while (flash_opacity >= 0);
-            PlayBgm(2);
-            if (!UserNavBgWrk.IsBusy) UserNavBgWrk.RunWorkerAsync();
-
+            PlayBgm(1);
             SixtyHzBgWrkr.RunWorkerAsync();
         }
 

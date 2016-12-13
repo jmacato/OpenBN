@@ -47,7 +47,7 @@ namespace OpenBN
         {
 
             //Reset Buffer after 500ms
-            if (gmt.TotalGameTime.Milliseconds%500 == 0)
+            if (gmt.TotalGameTime.Milliseconds%1000 == 0)
             {
                 InputHandled(MonitKeys);
             }

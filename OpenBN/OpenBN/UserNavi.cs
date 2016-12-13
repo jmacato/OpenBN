@@ -30,13 +30,16 @@ namespace OpenBN
         public bool finish { get; set; }
         public bool enableRender { get; set; }
 
-        public SpriteBatch SB{get; set;}
+        public SpriteBatch SB { get; set; }
         ContentManager Content;
 
         public void SetAnimation(string key)
         {
             CurAnimation = key;
             finish = false;
+            curframetext = Content.Load<Texture2D>(AnimationDict[CurAnimation][0]);
+            this.battleposoffset = new Vector2(-6, -curframetext.Height);
+
         }
 
         public void Next()
@@ -86,7 +89,10 @@ namespace OpenBN
         public void Draw()
         {
             if (enableRender)
+            {
+
                 SB.Draw(curframetext, new Rectangle((int)this.battlepos.X, (int)this.battlepos.Y, curframetext.Width, curframetext.Height), Color.White);
+            }
         }
     }
 
