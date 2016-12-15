@@ -19,7 +19,7 @@ namespace OpenBN
     public class BattleField : Microsoft.Xna.Framework.Game
     {
 
-        public string BGCode = "BG/SS";
+        public string BGCode = "BG/CA";
         public Size screenres = new Size(240, 160);
         public Vector2 screenresvect = new Vector2(240, 160);
         public int screenresscalar = 2;
@@ -38,7 +38,7 @@ namespace OpenBN
         Vector2 stagePos = new Vector2(0, 16);
         Vector2 stageBase = new Vector2(95, 1);
         Vector2 stageVect = new Vector2(40, 25);
-        
+
 
         //bgwrkr for bg scroll
         BackgroundWorker bgUpdater = new BackgroundWorker();
@@ -65,8 +65,17 @@ namespace OpenBN
         public SpriteFont Font1, Font2;
 
         private UserNavi MegamanEXE;
-        private Keys[] MonitoredList = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right };
+        private Keys[] MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right };
+
+        private Keys[] ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
+
         private Inputs Input;
+
+        public Dictionary<Keys, bool> KeyLatch = new Dictionary<Keys, bool>();
+
+
+        public int[] DirtyRAM = new int[1024];
+
 
         float flash_opacity = 1;
         int updateBGScroll = 0;
@@ -74,11 +83,13 @@ namespace OpenBN
         bool terminateGame = false;
         bool bgReady = false;
         bool mute = true;
+
+
         bool latchArrowKeys = false;
-        public bool DisplayEnemyNames = false;
+        public bool DisplayEnemyNames = true;
 
         string debugTXT = "";
-        
+
         protected override void Initialize()
         {
             base.Initialize();
@@ -87,7 +98,7 @@ namespace OpenBN
             UserNavBgWrk.DoWork += UserNavBgWrk_DoWork;
             flash.DoWork += Flash_DoWork;
 
-            Input = new Inputs(MonitoredList);
+            Input = new Inputs(MonitoredKeys);
 
             //Default font with gray shadow
             Font1 = Content.Load<SpriteFont>("Misc/exefont");
@@ -96,6 +107,11 @@ namespace OpenBN
             //Default font for enemy names
             Font2 = Content.Load<SpriteFont>("Misc/exefont2");
             Font2.Spacing = 1;
+
+            foreach (Keys x in MonitoredKeys)
+            {
+                KeyLatch.Add(x, false);
+            }
         }
 
 
@@ -124,12 +140,12 @@ namespace OpenBN
             EnemyNames.Add("Piranha");
             EnemyNames.Add("Swordy");
         }
-        
+
         private void SixtyHzBgWrkr_DoWork(object sender, DoWorkEventArgs e)
         {
             do
             {
-                if(MegamanEXE != null) MegamanEXE.Next();
+                if (MegamanEXE != null) MegamanEXE.Next();
                 Thread.Sleep(16);
                 return;
             } while (!terminateGame);
@@ -165,6 +181,8 @@ namespace OpenBN
             MegamanEXE.SetAnimation("TELEPORT");
             MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
 
+            int BusterState = 0;
+
             do
             {
                 if (Input != null && MegamanEXE.finish)
@@ -173,27 +191,42 @@ namespace OpenBN
 
                     #region Buster & Charge Shot
 
-                    var BusterShot = Input.KeyboardStream
-                    .Where(i =>
-                    i.Key == Keys.X &&
-                    i.Value.KeyState == KeyState.Up &&
-                    i.Value.DurDelta < 700 &&
-                    i.Value.DurDelta > 50).Count();
-
-                    if (BusterShot > 0 && MegamanEXE.finish)
+                    switch (Input.KbStream[Keys.X].KeyState)
                     {
-                        if (Input.KeyboardStream[Keys.X].OldDelta < 400)
-                        {
-                            MegamanEXE.SetAnimation("SWORD");
-                            Debug.Print("BstrShot");
-                        } else if (Input.KeyboardStream[Keys.X].OldDelta > 400)
-                        {
-                            MegamanEXE.SetAnimation("BUSTER");
-                            Debug.Print("Charge");
-                        }
-                        Input.InputHandled(new Keys[] { Keys.X });
+                        case KeyState.Down:
+                            if (Input.KbStream[Keys.X].DurDelta > 250 && Input.KbStream[Keys.X].DurDelta < 1000)
+                            {
+                                if (BusterState == 1) break;
+                                Debug.Print("chrg_Anim_start");
+                                BusterState = 1;
+                            }
+                            else if (Input.KbStream[Keys.X].DurDelta > 1000)
+                            {
+                                if (BusterState == 2) break;
+                                Debug.Print("chrg_Anim_start2");
+                                BusterState = 2;
+                            }
+                            KeyLatch[Keys.X] = true;
+                            break;
+                        case KeyState.Up:
+                            if (KeyLatch[Keys.X] == true)
+                            {
+                                KeyLatch[Keys.X] = false;
 
+                                if (Input.KbStream[Keys.X].DurDelta < 800)
+                                {
+                                    Debug.Print("BstrSht");
+                                    BusterState = 0;
+                                }
+                                else if (Input.KbStream[Keys.X].DurDelta > 800)
+                                {
+                                    Debug.Print("ChgSht");
+                                    BusterState = 0;
+                                }
+                            }
+                            break;
                     }
+
 
                     #endregion
 
@@ -202,45 +235,49 @@ namespace OpenBN
                     int tmpcol = MegamanEXE.btlcol;
                     int tmprow = MegamanEXE.btlrow;
 
-                    var movement = Input.KeyboardStream.Select(i => i.Key)
-                                  .Where(i => Input.KeyboardStream[i].KeyState == KeyState.Down &&
-                                  Input.KeyboardStream[i].DurDelta < 1000)
-                                  .Where(i => i == Keys.Left | i == Keys.Right | i == Keys.Up | i == Keys.Down);
-
-                    var movement2 = Input.KeyboardStream.Select(i => i.Key)
-                                  .Where(i => Input.KeyboardStream[i].KeyState == KeyState.Up)
-                                  .Where(i => i == Keys.Left | i == Keys.Right | i == Keys.Up | i == Keys.Down);
-
-                    if (movement.Count() > 0 && MegamanEXE.finish){ latchArrowKeys = true;}
-
-                    if (movement2.Count() > 0 && latchArrowKeys) {
-
-                        latchArrowKeys = false;
-
-                        switch (movement2.ToArray()[0])
+                    foreach (Keys ky_ar in ArrowKeys)
                         {
-                            case Keys.Left:
-                                tmpcol--;
-                                break;
-                            case Keys.Right:
-                                tmpcol++;
-                                break;
-                            case Keys.Up:
-                                tmprow--;
-                                break;
-                            case Keys.Down:
-                                tmprow++;
-                                break;
-                        }
-                        Input.InputHandled(new Keys[] { Keys.Left, Keys.Right, Keys.Up, Keys.Down });
+                            var arrw_ks = Input.KbStream[ky_ar].KeyState;
+                            var arrw_dt = Input.KbStream[ky_ar].DurDelta;
 
-                        if (Stage.IsMoveAllowed(tmprow, tmpcol))
-                        {
-                            MegamanEXE.btlcol = tmpcol;
-                            MegamanEXE.btlrow = tmprow;
-                            MegamanEXE.SetAnimation("TELEPORT0");
-                        }
+                            switch (arrw_ks)
+                            {
+                                case KeyState.Up:
+                                if (KeyLatch[ky_ar] == true)
+                                    {
+                                        switch (ky_ar)
+                                        {
+                                            case Keys.Left:
+                                                tmpcol--;
+                                                break;
+                                            case Keys.Right:
+                                                tmpcol++;
+                                                break;
+                                            case Keys.Up:
+                                                tmprow--;
+                                                break;
+                                            case Keys.Down:
+                                                tmprow++;
+                                                break;
+                                        }
+                                        if (Stage.IsMoveAllowed(tmprow, tmpcol))
+                                        {
+                                            MegamanEXE.btlcol = tmpcol;
+                                            MegamanEXE.btlrow = tmprow;
+                                            MegamanEXE.SetAnimation("TELEPORT0");
+                                        }
+                                    KeyLatch[ky_ar] = false;
+                                    }
 
+                                    break;
+                                case KeyState.Down:
+                                    if (KeyLatch[ky_ar] == false)
+                                    {
+                                        KeyLatch[ky_ar] = true;
+                                    }
+                                    break;
+                            }
+                        
                     }
                     #endregion
 
@@ -335,12 +372,12 @@ namespace OpenBN
 
 
         protected override void UnloadContent()
-        {terminateGame = true;}
+        { terminateGame = true; }
 
         protected override void Update(GameTime gameTime)
         {
             //Send fresh data to input handler
-            Input.Update(Keyboard.GetState(),gameTime);
+            Input.Update(Keyboard.GetState(), gameTime);
             base.Update(gameTime);
         }
 
@@ -363,13 +400,13 @@ namespace OpenBN
                 myBackground.Draw(spriteBatch);
             }
 
-            if (RenderQueue.Count > 0){foreach (IBattleEntity s in RenderQueue){s.Draw();}}
+            if (RenderQueue.Count > 0) { foreach (IBattleEntity s in RenderQueue) { s.Draw(); } }
 
             DrawEnemyNames();
             DrawDebugText();
 
             //Draw the flash
-            if (flash.IsBusy){spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity);}
+            if (flash.IsBusy) { spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity); }
             spriteBatch.End();
 
             //Set rendering back to the back buffer
@@ -411,7 +448,7 @@ namespace OpenBN
         /// </summary>
         private void DrawEnemyNames()
         {
-            if(!DisplayEnemyNames) { return; }
+            if (!DisplayEnemyNames) { return; }
             Vector2 TextOffset = Vector2.Zero;
             for (int i = 0; i < EnemyNames.Count; i++)
             {
@@ -429,25 +466,25 @@ namespace OpenBN
                 RectangleFill(RectFill, Color.FromNonPremultiplied(40, 40, 40, 255));
                 //Draw it
                 spriteBatch.DrawString(Font2, EnemyName, TextPos, Color.White);
-                TextOffset += (FontVect * cancelX) + new Vector2(0,1);
+                TextOffset += (FontVect * cancelX) + new Vector2(0, 1);
             }
         }
-       
+
         /// <summary>
         /// Draw some text on right center side
         /// for debugging
         /// </summary>
         private void DrawDebugText()
         {
-             
-                //Measure text length and store to vector
-                var FontVect = Font2.MeasureString(debugTXT);
-                //Calculate vectors
-                var InitTextPos = (screenresvect/2) - FontVect + ((screenresvect/2)*cancelY);
-                var TextPos = InitTextPos;
-                //Draw it
-                spriteBatch.DrawString(Font2, debugTXT, TextPos, Color.Black * 0.9f);
-            
+
+            //Measure text length and store to vector
+            var FontVect = Font2.MeasureString(debugTXT);
+            //Calculate vectors
+            var InitTextPos = (screenresvect / 2) - FontVect + ((screenresvect / 2) * cancelY);
+            var TextPos = InitTextPos;
+            //Draw it
+            spriteBatch.DrawString(Font2, debugTXT, TextPos, Color.Black * 0.9f);
+
         }
 
 

@@ -21,24 +21,23 @@ namespace OpenBN
     /// </summary>
     public class Inputs
     {
-        public Dictionary<Keys, ExtraKeyState> KeyboardStream = new Dictionary<Keys, ExtraKeyState>();
+        public Dictionary<Keys, ExtraKeyState> KbStream = new Dictionary<Keys, ExtraKeyState>();
 
         public Keys[] MonitKeys;
+        KeyboardState oldKeyboardState;
 
         public Inputs(Keys[] MonitoredKeys)
         {
             MonitKeys = MonitoredKeys;
             foreach (Keys x in MonitoredKeys)
             {
-                KeyboardStream.Add(x, new ExtraKeyState(KeyState.Up));
+                KbStream.Add(x, new ExtraKeyState(KeyState.Up));
             }
         }
-
-        KeyboardState oldKeyboardState;
         
         public KeyValuePair<Keys, ExtraKeyState>[] GetActiveKeys()
         {
-          return KeyboardStream.Select(i => i)
+          return KbStream.Select(i => i)
                                     .Where(p => p.Value.KeyState == KeyState.Down)
                                     .ToArray();
         }
@@ -46,27 +45,27 @@ namespace OpenBN
         public void Update(KeyboardState keyTrigger, GameTime gmt)
         {
 
-            //Reset Buffer after 500ms
-            if (gmt.TotalGameTime.Milliseconds%1000 == 0)
-            {
-                InputHandled(MonitKeys);
-            }
+            ////Reset Buffer after 500ms
+            //if (gmt.TotalGameTime.Milliseconds%1000 == 0)
+            //{
+            //    InputHandled(MonitKeys);
+            //}
 
             //Set oldkbdstate to initial value
             if (oldKeyboardState == null) { oldKeyboardState = keyTrigger; return; }
 
             foreach (Keys u in oldKeyboardState.GetPressedKeys())
             {
-                if (!KeyboardStream.ContainsKey(u)) continue; 
-                if (keyTrigger.IsKeyUp(u)) KeyboardStream[u].KeyState = KeyState.Up;
-                if (keyTrigger.IsKeyDown(u)) KeyboardStream[u].KeyState = KeyState.Down;
+                if (!KbStream.ContainsKey(u)) continue; 
+                if (keyTrigger.IsKeyUp(u)) KbStream[u].KeyState = KeyState.Up;
+                if (keyTrigger.IsKeyDown(u)) KbStream[u].KeyState = KeyState.Down;
             }
 
             foreach (Keys x in keyTrigger.GetPressedKeys())
             {
-                if (KeyboardStream.ContainsKey(x)) //Check if it is in the monitored keys list
+                if (KbStream.ContainsKey(x)) //Check if it is in the monitored keys list
                 {
-                    var y = KeyboardStream[x];
+                    var y = KbStream[x];
                     if (y.KeyState == KeyState.Up)
                     {
                         y.KeyState = KeyState.Down;
@@ -82,6 +81,7 @@ namespace OpenBN
                     }
                 }
             }
+
             oldKeyboardState = keyTrigger;
         }
 
@@ -89,15 +89,26 @@ namespace OpenBN
         {
             foreach(Keys y in x)
             {
-                if (KeyboardStream.ContainsKey(y)) //Check if it is in the monitored keys list
+                if (KbStream.ContainsKey(y)) //Check if it is in the monitored keys list
                 {
-                    KeyboardStream[y].KeyState = KeyState.Down;
-                    KeyboardStream[y].RegisterDuration = DateTime.Now.TimeOfDay;
-                    KeyboardStream[y].OldDelta = 0;
-                    KeyboardStream[y].DurDelta = 0;
+                    KbStream[y].KeyState = KeyState.Down;
+                    KbStream[y].RegisterDuration = DateTime.Now.TimeOfDay;
+                    KbStream[y].OldDelta = 0;
+                    KbStream[y].DurDelta = 0;
                 }
             }
         }
+
+        public bool KeyStateToBool(KeyState x)
+        {
+            switch (x)
+            {
+                case KeyState.Down: return true;
+                case KeyState.Up: return false;
+                default: throw new InvalidCastException();
+            }
+        }
+
     }
 
     public class ExtraKeyState
