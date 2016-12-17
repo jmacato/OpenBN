@@ -42,7 +42,7 @@ namespace OpenBN
 
         }
 
-        public void Next()
+        public void Update()
         {
             if (finish) return;
 
@@ -56,7 +56,7 @@ namespace OpenBN
             curframetext = Content.Load<Texture2D>(AnimationDict[CurAnimation][CurFrame - 1]);
         }
 
-        public UserNavi(string navicode, ContentManager Contentx, SpriteBatch spriteBtch, Vector2 StageVct)
+        public UserNavi(string navicode, ContentManager Contentx, SpriteBatch spriteBtch)
         {
             Content = Contentx; //Set content manager
             SB = spriteBtch;

@@ -7,7 +7,7 @@ namespace OpenBN
         string ID { get; set; }
         SpriteBatch SB { get; set; }
         void Draw();
-        void Next();
+        void Update();
     }
 
 }

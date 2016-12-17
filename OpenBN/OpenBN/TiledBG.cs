@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace OpenBN
 {
@@ -9,6 +10,7 @@ namespace OpenBN
         void Update(Rectangle screenRectangle);
         void Draw(SpriteBatch spriteBatch);
     }
+
     public class TiledBackground : IBackground
     {
         private readonly Texture2D _texture;
@@ -47,4 +49,42 @@ namespace OpenBN
             }
         }
     }
+
+    public class AnimatedSprite
+    {
+        /// <summary>
+        /// Set Animation Frame Buffer
+        /// </summary>
+        public List<Texture2D> TextureList { get; }
+
+        /// <summary>
+        /// Commands list:
+        /// Fxx (hex 0-FF) - Current Frame, if no succeding D command, default to single frame
+        /// Dxx (hex 2-FF) - How many frames the current target frame should be displayed.
+        /// LPP            - Loop animation
+        /// RXX            - Loop animation 0xXX times
+        /// </summary>
+        public List<string> Commands { get; }
+
+        public bool AnimationFinished { get; private set;}
+
+        public bool IsLooping { get; set; }
+
+        public void StopLoop()
+        {
+
+        }
+
+        public void Update()
+        {
+
+        }
+
+        public void Render()
+        {
+
+        }
+
+    }
+
 }

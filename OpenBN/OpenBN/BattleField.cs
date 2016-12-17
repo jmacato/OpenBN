@@ -35,10 +35,8 @@ namespace OpenBN
         SpriteBatch spriteBatch;
 
         Vector2 bgpos = new Vector2(0, 0);
-        Vector2 stagePos = new Vector2(0, 16);
+        Vector2 stagePos = new Vector2(0, 0);
         Vector2 stageBase = new Vector2(95, 1);
-        Vector2 stageVect = new Vector2(40, 25);
-
 
         //bgwrkr for bg scroll
         BackgroundWorker bgUpdater = new BackgroundWorker();
@@ -60,6 +58,7 @@ namespace OpenBN
         private Texture2D bg1;
         private Texture2D flsh;
         private Texture2D enamehdr;
+
         private TiledBackground myBackground;
 
         public SpriteFont Font1, Font2;
@@ -73,9 +72,9 @@ namespace OpenBN
 
         public Dictionary<Keys, bool> KeyLatch = new Dictionary<Keys, bool>();
 
+        //       public int[] DirtyRAM = new int[1024];
 
-        public int[] DirtyRAM = new int[1024];
-
+        private CustomWindow CustWindow;
 
         float flash_opacity = 1;
         int updateBGScroll = 0;
@@ -84,8 +83,6 @@ namespace OpenBN
         bool bgReady = false;
         bool mute = true;
 
-
-        bool latchArrowKeys = false;
         public bool DisplayEnemyNames = true;
 
         string debugTXT = "";
@@ -118,10 +115,14 @@ namespace OpenBN
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            Stage = new Stage(Content, spriteBatch);
+            Stage = new Stage(Content);
+            Stage.SB = spriteBatch;
+            CustWindow = new CustomWindow(Content);
+            CustWindow.SB = spriteBatch;
+
             RenderQueue.Add(Stage);
 
-            MegamanEXE = new UserNavi("MM", Content, spriteBatch, stageVect);
+            MegamanEXE = new UserNavi("MM", Content, spriteBatch);
 
             MegamanEXE.btlcol = 2;
             MegamanEXE.btlrow = 2;
@@ -145,9 +146,12 @@ namespace OpenBN
         {
             do
             {
-                if (MegamanEXE != null) MegamanEXE.Next();
-                Thread.Sleep(16);
-                return;
+                //if (MegamanEXE != null) MegamanEXE.Next();
+                CustWindow.Update();
+
+                debugTXT = Stage.StgPos.Y.ToString();
+
+                Thread.Sleep(11);
             } while (!terminateGame);
         }
 
@@ -157,7 +161,7 @@ namespace OpenBN
             graphics.IsFullScreen = false;
             graphics.PreferredBackBufferWidth = screenres.W * screenresscalar;
             graphics.PreferredBackBufferHeight = screenres.H * screenresscalar;
-            this.Window.Title = "OpenBN Alpha";
+            this.Window.Title = "OpenBN";
             Content.RootDirectory = "Content";
 
             this.Window.AllowUserResizing = false;
@@ -178,7 +182,7 @@ namespace OpenBN
             MegamanEXE.btlcol = 1;
             MegamanEXE.btlrow = 1;
             MegamanEXE.enableRender = true;
-            MegamanEXE.SetAnimation("TELEPORT");
+            MegamanEXE.SetAnimation("DEFAULT");
             MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
 
             int BusterState = 0;
@@ -191,19 +195,56 @@ namespace OpenBN
 
                     #region Buster & Charge Shot
 
-                    switch (Input.KbStream[Keys.X].KeyState)
+
+                    var ks_z = Input.KbStream[Keys.Z];
+                    switch (ks_z.KeyState)
                     {
                         case KeyState.Down:
-                            if (Input.KbStream[Keys.X].DurDelta > 250 && Input.KbStream[Keys.X].DurDelta < 1000)
+                            if (KeyLatch[Keys.Z] == false)
+                            {
+                                //  bgminst.Pitch = 0.1f;
+                                KeyLatch[Keys.Z] = true;
+
+
+                            }
+                            break;
+                        case KeyState.Up:
+                            if (KeyLatch[Keys.Z] == true)
+                            {
+                                //  bgminst.Pitch = 0;
+                                KeyLatch[Keys.Z] = false;
+                                if (CustWindow.showCust)
+                                {
+                                    CustWindow.Hide();
+                                    Stage.showCust = false;
+                                }
+                                else
+                                {
+                                    CustWindow.Show();
+                                    Stage.showCust = true;
+
+                                }
+                            }
+                            break;
+                    }
+
+
+                    var ks_x = Input.KbStream[Keys.X];
+                    switch (ks_x.KeyState)
+                    {
+                        case KeyState.Down:
+                            if (ks_x.DurDelta < 800)
                             {
                                 if (BusterState == 1) break;
                                 Debug.Print("chrg_Anim_start");
+                                PlaySfx(14);
                                 BusterState = 1;
                             }
-                            else if (Input.KbStream[Keys.X].DurDelta > 1000)
+                            else if (ks_x.DurDelta > 1500)
                             {
                                 if (BusterState == 2) break;
                                 Debug.Print("chrg_Anim_start2");
+                                PlaySfx(15);
                                 BusterState = 2;
                             }
                             KeyLatch[Keys.X] = true;
@@ -212,16 +253,29 @@ namespace OpenBN
                             if (KeyLatch[Keys.X] == true)
                             {
                                 KeyLatch[Keys.X] = false;
-
-                                if (Input.KbStream[Keys.X].DurDelta < 800)
+                                if (ks_x.DurDelta < 800)
                                 {
                                     Debug.Print("BstrSht");
+                                    MegamanEXE.SetAnimation("BUSTER");
+                                    PlaySfx(7);
                                     BusterState = 0;
+                                    break;
                                 }
-                                else if (Input.KbStream[Keys.X].DurDelta > 800)
+                                else if (Input.KbStream[Keys.X].DurDelta > 1500)
                                 {
                                     Debug.Print("ChgSht");
+                                    MegamanEXE.SetAnimation("BUSTER");
+                                    PlaySfx(76);
                                     BusterState = 0;
+                                    break;
+                                }
+                                else
+                                {
+                                    if (BusterState > 0)
+                                    {
+                                        BusterState = 0;
+                                        KeyLatch[Keys.X] = false;
+                                    }
                                 }
                             }
                             break;
@@ -236,48 +290,49 @@ namespace OpenBN
                     int tmprow = MegamanEXE.btlrow;
 
                     foreach (Keys ky_ar in ArrowKeys)
+                    {
+                        // if (!MegamanEXE.finish) break;
+                        var arrw_ks = Input.KbStream[ky_ar].KeyState;
+                        var arrw_dt = Input.KbStream[ky_ar].DurDelta;
+
+                        switch (arrw_ks)
                         {
-                            var arrw_ks = Input.KbStream[ky_ar].KeyState;
-                            var arrw_dt = Input.KbStream[ky_ar].DurDelta;
-
-                            switch (arrw_ks)
-                            {
-                                case KeyState.Up:
+                            case KeyState.Up:
                                 if (KeyLatch[ky_ar] == true)
+                                {
+                                    switch (ky_ar)
                                     {
-                                        switch (ky_ar)
-                                        {
-                                            case Keys.Left:
-                                                tmpcol--;
-                                                break;
-                                            case Keys.Right:
-                                                tmpcol++;
-                                                break;
-                                            case Keys.Up:
-                                                tmprow--;
-                                                break;
-                                            case Keys.Down:
-                                                tmprow++;
-                                                break;
-                                        }
-                                        if (Stage.IsMoveAllowed(tmprow, tmpcol))
-                                        {
-                                            MegamanEXE.btlcol = tmpcol;
-                                            MegamanEXE.btlrow = tmprow;
-                                            MegamanEXE.SetAnimation("TELEPORT0");
-                                        }
+                                        case Keys.Left:
+                                            tmpcol--;
+                                            break;
+                                        case Keys.Right:
+                                            tmpcol++;
+                                            break;
+                                        case Keys.Up:
+                                            tmprow--;
+                                            break;
+                                        case Keys.Down:
+                                            tmprow++;
+                                            break;
+                                    }
+                                    if (Stage.IsMoveAllowed(tmprow, tmpcol))
+                                    {
+                                        MegamanEXE.btlcol = tmpcol;
+                                        MegamanEXE.btlrow = tmprow;
+                                        MegamanEXE.SetAnimation("TELEPORT0");
+                                    }
                                     KeyLatch[ky_ar] = false;
-                                    }
+                                }
 
-                                    break;
-                                case KeyState.Down:
-                                    if (KeyLatch[ky_ar] == false)
-                                    {
-                                        KeyLatch[ky_ar] = true;
-                                    }
-                                    break;
-                            }
-                        
+                                break;
+                            case KeyState.Down:
+                                if (KeyLatch[ky_ar] == false)
+                                {
+                                    KeyLatch[ky_ar] = true;
+                                }
+                                break;
+                        }
+
                     }
                     #endregion
 
@@ -286,14 +341,14 @@ namespace OpenBN
                 if (MegamanEXE.CurAnimation == "TELEPORT0" && MegamanEXE.finish)
                 {
                     MegamanEXE.SetAnimation("TELEPORT");
-                    MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
                 }
                 else if (MegamanEXE.CurAnimation != "DEFAULT" && MegamanEXE.finish)
                 {
                     MegamanEXE.SetAnimation("DEFAULT");
                 }
-                Thread.Sleep(20);
-                if (MegamanEXE != null) MegamanEXE.Next();
+                Thread.Sleep(16);
+                if (MegamanEXE != null) MegamanEXE.Update();
+                MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
             } while (!terminateGame);
         }
 
@@ -314,6 +369,9 @@ namespace OpenBN
             } while (flash_opacity >= 0);
             PlayBgm(1);
             SixtyHzBgWrkr.RunWorkerAsync();
+
+
+
         }
 
         //Handles the scrolling BG
@@ -384,6 +442,7 @@ namespace OpenBN
         protected override void Draw(GameTime gameTime)
         {
             if (terminateGame) return;
+            MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
 
             SpriteBatch targetBatch = new SpriteBatch(GraphicsDevice);
             RenderTarget2D target = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
@@ -404,6 +463,7 @@ namespace OpenBN
 
             DrawEnemyNames();
             DrawDebugText();
+            CustWindow.Draw();
 
             //Draw the flash
             if (flash.IsBusy) { spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity); }
@@ -483,7 +543,7 @@ namespace OpenBN
             var InitTextPos = (screenresvect / 2) - FontVect + ((screenresvect / 2) * cancelY);
             var TextPos = InitTextPos;
             //Draw it
-            spriteBatch.DrawString(Font2, debugTXT, TextPos, Color.Black * 0.9f);
+            spriteBatch.DrawString(Font2, debugTXT, TextPos, Color.White);
 
         }
 
@@ -532,6 +592,8 @@ namespace OpenBN
             bgminst = x.CreateInstance();
             bgminst.IsLooped = true;
             bgminst.Play();
+            bgminst.Volume = 0.80f;
+            //   bgminst.Pitch = 0.1f;
         }
 
         /// <summary>

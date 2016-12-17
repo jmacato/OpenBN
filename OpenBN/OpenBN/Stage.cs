@@ -38,9 +38,38 @@ namespace OpenBN
                 StagePnlType.NORMAL,StagePnlType.NORMAL,StagePnlType.NORMAL,StagePnlType.NORMAL,StagePnlType.NORMAL,StagePnlType.NORMAL
             };
 
-
-    public void Draw()
+        public bool showCust { get; set; }
+        public int lolxy = 71;
+        public void Draw()
         {
+            if (showCust)
+            {
+                lolxy = (int)MathHelper.Clamp(lolxy + 2, 71, 87);
+                StgPos = new Point(0,lolxy);
+            }
+            else
+            {
+                lolxy = (int)MathHelper.Clamp(lolxy - 1.5f, 71, 87);
+                StgPos = new Point(0, lolxy);
+            }
+
+
+            for (int i = 0; i < 3; i++) // For each row
+            {
+                for (int j = 0; j < 6; j++) // For each col
+                {
+                    //Get the linear index of the col/row pair
+                    var u = GetIndex(i, j);
+                    //Designate colors accrd. to DefaultPnlColr
+                    var x = DefaultPnlColr[u];
+                    //Designate specific pos with offset of the StgPos
+                    var y = new Point(PnlColPnt[j] + StgPos.X, PnlRowPnt[i] + StgPos.Y);
+                    PanelArray[u].StgPnlPos = y;
+                }
+            }
+
+
+
             //Draw the red squares first coz blue panels takes the higher z-order
             //on the game
             foreach (Panel Pnl in PanelArray)
@@ -61,22 +90,23 @@ namespace OpenBN
             }
         }
 
-        public void Next()
+        public void Update()
         {
             //Animate the panels if necessary
         }
 
         public Vector2 GetStageCoords(int row, int col, Vector2 offset)
         {
-            var i = new Vector2(PnlColPnt[col], ((row+1) * 24));
+            var i = new Vector2(PnlColPnt[col], ((row + 1) * 24) - 5);
             var u = offset;
-            return i + u + new Vector2(StgPos.X,StgPos.Y);
+            return i + u + new Vector2(StgPos.X, StgPos.Y);
         }
 
-        public Stage(ContentManager CMx, SpriteBatch SBx)
+
+
+        public Stage(ContentManager CMx)
         {
             CM = CMx;
-            SB = SBx;
 
             StgPos = new Point(0, 71);
 
@@ -144,9 +174,8 @@ namespace OpenBN
 
             return false;
         }
-
-
     }
+
 
     public class Panel
     {
