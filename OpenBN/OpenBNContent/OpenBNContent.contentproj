@@ -1022,26 +1022,6 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Navi\MM\TELEPORT\MM_01_11.png">
-      <Name>MM_01_11</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Navi\MM\TELEPORT\MM_01_12.png">
-      <Name>MM_01_12</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Navi\MM\TELEPORT\MM_01_13.png">
-      <Name>MM_01_13</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Navi\MM\TELEPORT\MM_01_14.png">
-      <Name>MM_01_14</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
     <Compile Include="Navi\MM\THROW\MM_01_23.png">
       <Name>MM_01_23</Name>
       <Importer>TextureImporter</Importer>
@@ -1179,28 +1159,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Navi\MM\TELEPORT0\MM_01_15.png">
-      <Name>MM_01_15</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Navi\MM\TELEPORT0\MM_01_16.png">
-      <Name>MM_01_16</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Navi\MM\TELEPORT0\MM_01_17.png">
-      <Name>MM_01_17</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Navi\MM\TELEPORT\MM_01_10.png">
-      <Name>MM_01_10</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="BattleObj\STGB0.png">
       <Name>STGB0</Name>
       <Importer>TextureImporter</Importer>
@@ -1256,6 +1214,50 @@
   <ItemGroup>
     <Compile Include="Misc\CustomWindow.png">
       <Name>CustomWindow</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Navi\MM\TELEPORT0\MM_01_14.png">
+      <Name>MM_01_14</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Navi\MM\TELEPORT0\MM_01_16.png">
+      <Name>MM_01_16</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Navi\MM\TELEPORT0\MM_01_17.png">
+      <Name>MM_01_17</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Navi\MM\TELEPORT\MM_01_10.png">
+      <Name>MM_01_10</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Navi\MM\TELEPORT\MM_01_11.png">
+      <Name>MM_01_11</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Navi\MM\TELEPORT\MM_01_12.png">
+      <Name>MM_01_12</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Navi\MM\TELEPORT\MM_01_13.png">
+      <Name>MM_01_13</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Navi\MM\TELEPORT\MM_01_15.png">
+      <Name>MM_01_15</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

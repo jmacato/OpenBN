@@ -67,6 +67,11 @@ namespace OpenBN
                 var u = CustSrcRects["CustWind"];
                 var y = new Rectangle((int)custPos.X, 0, u.Width, u.Height);
                 SB.Draw(customtextures, y, u, Color.White);
+
+                var hp = CustSrcRects["HPBAR"];
+                var hprct = new Rectangle((int)custPos.X + 122, 2, hp.Width, hp.Height);
+                SB.Draw(customtextures, hprct, hp, Color.White);
+
             }
         }
     }
