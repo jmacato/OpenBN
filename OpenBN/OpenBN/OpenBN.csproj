@@ -73,16 +73,16 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CustomWindow.cs" />
-    <Compile Include="IBattleEntities.cs" />
+    <Compile Include="Battle Elements\CustomWindow.cs" />
+    <Compile Include="Interfaces\IBattleEntities.cs" />
     <Compile Include="InputHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="BattleField.cs" />
-    <Compile Include="Stage.cs" />
+    <Compile Include="Battle Elements\Stage.cs" />
     <Compile Include="Structs.cs" />
-    <Compile Include="TiledBG.cs" />
-    <Compile Include="UserNavi.cs" />
+    <Compile Include="Battle Elements\TiledBG.cs" />
+    <Compile Include="Battle Elements\UserNavi.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

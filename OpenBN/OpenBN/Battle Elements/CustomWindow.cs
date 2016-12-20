@@ -14,13 +14,16 @@ namespace OpenBN
         public string ID { get; set; }
         public SpriteBatch SB { get; set; }
         public ContentManager CM { get; set; }
+        public int CurrentHP { get; set; }
+        public int MaxHP { get; set; }
 
-        private Texture2D customtextures;
-        private Dictionary<string, Rectangle> CustSrcRects;
-        private Dictionary<string, Rectangle> CustTextures = new Dictionary<string, Rectangle>();
+        Texture2D customtextures;
+        Dictionary<string, Rectangle> CustSrcRects;
+        Dictionary<string, Rectangle> CustTextures = new Dictionary<string, Rectangle>();
+        SpriteFont HPFontNorm, HPFontCrit;
 
         public bool showCust { get; private set; }
-        private Vector2 custPos = new Vector2(-120,0);
+        Vector2 custPos = new Vector2(-120,0);
 
         public CustomWindow(ContentManager x)
         {
@@ -36,6 +39,16 @@ namespace OpenBN
                 };
 
             customtextures = CM.Load<Texture2D>("Misc/CustomWindow");
+            HPFontNorm = CM.Load<SpriteFont>("Misc/exe-hp-font-norm");
+            HPFontCrit = CM.Load<SpriteFont>("Misc/exe-hp-font-crit");
+
+            HPFontNorm.Spacing = 1;
+            HPFontCrit.Spacing = 1;
+
+
+            CurrentHP = 200;
+            MaxHP = 2000;
+
             showCust = false;
         }
 
@@ -71,6 +84,20 @@ namespace OpenBN
                 var hp = CustSrcRects["HPBAR"];
                 var hprct = new Rectangle((int)custPos.X + 122, 2, hp.Width, hp.Height);
                 SB.Draw(customtextures, hprct, hp, Color.White);
+
+                SpriteFont hpfnt;
+
+                if (CurrentHP >= MaxHP * 0.20)
+                {
+                    hpfnt = HPFontNorm;
+                } else
+                {
+                    hpfnt = HPFontCrit;
+                }
+                int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
+                Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 5 ,hprct.Y);
+                SB.DrawString(hpfnt, CurrentHP.ToString(), hptxtrct, Color.White);
+
 
             }
         }

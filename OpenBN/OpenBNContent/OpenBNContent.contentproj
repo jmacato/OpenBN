@@ -1262,6 +1262,20 @@
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Misc\exe-hp-font-crit.png">
+      <Name>exe-hp-font-crit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>FontTextureProcessor</Processor>
+      <ProcessorParameters_FirstCharacter>0</ProcessorParameters_FirstCharacter>
+    </Compile>
+    <Compile Include="Misc\exe-hp-font-norm.png">
+      <Name>exe-hp-font-norm</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>FontTextureProcessor</Processor>
+      <ProcessorParameters_FirstCharacter>0</ProcessorParameters_FirstCharacter>
+    </Compile>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

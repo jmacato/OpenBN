@@ -76,9 +76,9 @@ namespace OpenBN
         int BGFrame = 1;
         bool terminateGame = false;
         bool bgReady = false;
-        bool mute = true;
+        bool mute = false;
 
-        public bool DisplayEnemyNames = false;
+        public bool DisplayEnemyNames = true;
 
         string debugTXT = "";
 
@@ -253,7 +253,7 @@ namespace OpenBN
                             if (KeyLatch[Keys.X] == true)
                             {
                                 KeyLatch[Keys.X] = false;
-                                if (ks_x.DurDelta < 800)
+                                if (ks_x.DurDelta < 1500)
                                 {
                                     Debug.Print("BstrSht");
                                     MegamanEXE.SetAnimation("BUSTER");
@@ -369,9 +369,8 @@ namespace OpenBN
                 {
                     MegamanEXE.SetAnimation("DEFAULT");
                 }
+                Thread.Sleep(10);
                 if (MegamanEXE != null) MegamanEXE.Update();
-                Thread.Sleep(16);
-
             } while (!terminateGame);
         }
 
@@ -459,6 +458,7 @@ namespace OpenBN
         {
             //Send fresh data to input handler
             Input.Update(Keyboard.GetState(), gameTime);
+
             base.Update(gameTime);
         }
 
