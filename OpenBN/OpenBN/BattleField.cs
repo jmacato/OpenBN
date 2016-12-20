@@ -48,28 +48,30 @@ namespace OpenBN
         Dictionary<int, string> sfxdict = new Dictionary<int, string>();
         Dictionary<int, string> bgmdict = new Dictionary<int, string>();
 
+        Dictionary<Keys, bool> KeyLatch = new Dictionary<Keys, bool>();
+        Dictionary<int, Texture2D> BGDict = new Dictionary<int, Texture2D>();
+
         //For bgm looping
         SoundEffectInstance bgminst;
 
         List<IBattleEntity> RenderQueue = new List<IBattleEntity>();
         List<string> EnemyNames = new List<string>(3);
 
+
         Inputs Input;
         Stage Stage;
         TiledBackground myBackground;
         UserNavi MegamanEXE;
+        CustomWindow CustWindow;
 
-        Texture2D bg1;
         Texture2D flsh;
-        Texture2D enamehdr;
         SpriteFont Font1, Font2;
 
         Keys[] MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right };
         Keys[] ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
 
-        Dictionary<Keys, bool> KeyLatch = new Dictionary<Keys, bool>();
+        RenderTarget2D EnemyNameCache;
 
-        CustomWindow CustWindow;
 
         float flash_opacity = 1;
         int updateBGScroll = 0;
@@ -82,6 +84,8 @@ namespace OpenBN
 
         string debugTXT = "";
 
+
+
         protected override void Initialize()
         {
             base.Initialize();
@@ -89,6 +93,8 @@ namespace OpenBN
             bgUpdater.DoWork += BgUpdater_DoWork;
             UserNavBgWrk.DoWork += UserNavBgWrk_DoWork;
             flash.DoWork += Flash_DoWork;
+            SixtyHzBgWrkr.DoWork += SixtyHzBgWrkr_DoWork;
+
 
             Input = new Inputs(MonitoredKeys);
 
@@ -104,6 +110,7 @@ namespace OpenBN
             {
                 KeyLatch.Add(x, false);
             }
+
         }
 
 
@@ -127,26 +134,19 @@ namespace OpenBN
             LoadSfx();
             LoadBgm();
 
-            if (!bgUpdater.IsBusy) bgUpdater.RunWorkerAsync();
-            if (!flash.IsBusy) flash.RunWorkerAsync();
-            if (!UserNavBgWrk.IsBusy) UserNavBgWrk.RunWorkerAsync();
+            EnemyNames.Add("Mettaur");
+            EnemyNames.Add("Mettaur");
 
-            SixtyHzBgWrkr.DoWork += SixtyHzBgWrkr_DoWork;
+            flash.RunWorkerAsync();
 
-            EnemyNames.Add("Piranha");
-            EnemyNames.Add("Swordy");
         }
 
         private void SixtyHzBgWrkr_DoWork(object sender, DoWorkEventArgs e)
         {
             do
             {
-                //if (MegamanEXE != null) MegamanEXE.Next();
                 CustWindow.Update();
-
-              //  debugTXT = Stage.StgPos.Y.ToString();
-
-                Thread.Sleep(11);
+                Thread.Sleep(12);
             } while (!terminateGame);
         }
 
@@ -318,7 +318,7 @@ namespace OpenBN
                                             tmp2++;
                                             break;
                                     }
-                                    if (Stage.IsMoveAllowed(tmp2 ,tmp1))
+                                    if (Stage.IsMoveAllowed(tmp2, tmp1))
                                     {
                                         switch (ky_ar)
                                         {
@@ -378,10 +378,19 @@ namespace OpenBN
         private void Flash_DoWork(object sender, DoWorkEventArgs e)
         {
 
-            flsh = Content.Load<Texture2D>("Misc/flash");
-            enamehdr = Content.Load<Texture2D>("Misc/ENmeHdr");
+            flsh = RectangleFill(new Rectangle(0, 0, screenres.W, screenres.H), ColorHelper.FromHex(0xF8F8F8), false);
+
             flash_opacity = 1;
             PlaySfx(21);
+
+
+            for (int bgi = 1; bgi < 32; bgi++)
+            {
+                BGDict.Add(bgi - 1, Content.Load<Texture2D>(BGCode + "/bg" + bgi.ToString()));
+            }
+
+            bgUpdater.RunWorkerAsync();
+
             Thread.Sleep(1000); //-10% Opacity per frame
             do
             {
@@ -389,10 +398,11 @@ namespace OpenBN
                 Thread.Sleep(30);
 
             } while (flash_opacity >= 0);
-            PlayBgm(1);
+            PlayBgm(2);
             SixtyHzBgWrkr.RunWorkerAsync();
             CustWindow.Show();
             Stage.showCust = true;
+            UserNavBgWrk.RunWorkerAsync();
 
         }
 
@@ -401,8 +411,7 @@ namespace OpenBN
         {
             //do { Thread.Sleep(10); } while (haltingflag);
             //haltingflag = true;
-            bg1 = Content.Load<Texture2D>(BGCode + "/bg1");
-            myBackground = new TiledBackground(bg1, 240, 160);
+            myBackground = new TiledBackground(BGDict[2], 240, 160);
             myBackground._startCoord = bgpos;
             bool scrolltick = false;
             var scrollcnt2 = 0;
@@ -425,7 +434,11 @@ namespace OpenBN
                     else
                     {
                         bgpos.X = (bgpos.X - 1) % 128;
-                        bgpos.Y = (bgpos.Y - 1) % 64;
+
+                        if (bgpos.X % 2 != 0)
+                        {
+                            bgpos.Y = (bgpos.Y - 1) % 64;
+                        }
                         scrolltick = false;
                         scrollcnt2++;
                         scrollcnt = 0;
@@ -438,11 +451,10 @@ namespace OpenBN
                     if (BGFrame > 1 && BGFrame < 11) { framedur = 7; } else { framedur = 20; }
                     BGFrame++;
                     if (terminateGame) return;
-                    bg1 = Content.Load<Texture2D>(BGCode + "/bg" + BGFrame.ToString());
-                    myBackground = new TiledBackground(bg1, 240, 160);
+                    myBackground = new TiledBackground(BGDict[BGFrame], 240, 160);
                     updateBGScroll = 0;
                 }
-                Thread.Sleep(8);
+                Thread.Sleep(7);
                 updateBGScroll++;
                 scrollcnt++;
             } while (!terminateGame | e.Cancel == false);
@@ -509,48 +521,84 @@ namespace OpenBN
         }
 
         /// <summary>
-        /// Creates a rect with color fill
+        /// Creates a rect with color fill, with option to create another texture.
         /// </summary>
         /// <param name="Rect">Parameters of the target rect</param>
         /// <param name="Colr">The color to fill</param>
         /// <returns></returns>
-        private Texture2D RectangleFill(Rectangle Rect, Color Colr)
+        private Texture2D RectangleFill(Rectangle Rect, Color Colr, bool Draw = true)
         {
+
             // Make a 1x1 texture named pixel.  
             Texture2D pixel = new Texture2D(GraphicsDevice, 1, 1);
             // Create a 1D array of color data to fill the pixel texture with.  
             Color[] colorData = { Colr };
             // Set the texture data with our color information.  
             pixel.SetData<Color>(colorData);
-            spriteBatch.Draw(pixel, Rect, Color.White);
+
+            if (Draw)
+            {
+                //They just wanna draw it
+                spriteBatch.Draw(pixel, Rect, Color.White);
+            } else
+            {
+                //They want ze copy of it
+                RenderTarget2D FilledRect = new RenderTarget2D(GraphicsDevice, Rect.Width, Rect.Height);
+                GraphicsDevice.SetRenderTarget(FilledRect);
+                GraphicsDevice.Clear(Color.Transparent);
+                spriteBatch.Begin();
+                spriteBatch.Draw(pixel, Rect, Color.White);
+                spriteBatch.End();
+                GraphicsDevice.SetRenderTarget(null);
+                pixel = FilledRect;
+            }
+
             return pixel;
         }
 
+
         /// <summary>
         /// Draws the black bg & enemy names, upto 3 names allowed.
+        /// With built-in caching to avoid tearing in the BG.
         /// </summary>
         private void DrawEnemyNames()
         {
             if (!DisplayEnemyNames) { return; }
-            Vector2 TextOffset = Vector2.Zero;
-            for (int i = 0; i < EnemyNames.Count; i++)
+            if (EnemyNameCache == null)
             {
-                var EnemyName = EnemyNames[i];
-                //Measure text length and store to vector
-                var FontVect = Font2.MeasureString(EnemyName);
-                //Calculate vectors
-                var InitTextPos = (screenresvect - FontVect) * cancelY - new Vector2(0, -2);
-                var TextPos = TextOffset + InitTextPos;
-                var RectFill = new Rectangle((int)TextPos.X, (int)TextPos.Y + 2, (int)FontVect.X, (int)FontVect.Y - 4);
-                var HeaderTextPos = TextPos - new Vector2(enamehdr.Width, -2);
-                //Draw that diagonal thingy before text
-                spriteBatch.Draw(enamehdr, HeaderTextPos, Color.White);
-                //Fill background
-                RectangleFill(RectFill, Color.FromNonPremultiplied(40, 40, 40, 255));
-                //Draw it
-                spriteBatch.DrawString(Font2, EnemyName, TextPos, Color.White);
-                TextOffset += (FontVect * cancelX) + new Vector2(0, 1);
+                var enamehdr = Content.Load<Texture2D>("Misc/ENmeHdr");
+                // Do this frame-expensive operations once
+                EnemyNameCache = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
+                GraphicsDevice.SetRenderTarget(EnemyNameCache);
+                GraphicsDevice.Clear(Color.Transparent);
+                Vector2 TextOffset = Vector2.Zero;
+                for (int i = 0; i < EnemyNames.Count; i++)
+                {
+                    var EnemyName = EnemyNames[i];
+                    //Measure text length and store to vector
+                    var FontVect = Font2.MeasureString(EnemyName);
+                    //Calculate vectors
+                    var InitTextPos = (screenresvect - FontVect) * cancelY - new Vector2(0, -2);
+                    var TextPos = TextOffset + InitTextPos;
+                    var RectFill = new Rectangle((int)TextPos.X, (int)TextPos.Y + 2, (int)FontVect.X, (int)FontVect.Y - 4);
+                    var HeaderTextPos = TextPos - new Vector2(enamehdr.Width, -2);
+                    //Draw that diagonal thingy before text
+                    spriteBatch.Draw(enamehdr, HeaderTextPos, Color.White);
+                    //Fill background
+                    RectangleFill(RectFill, ColorHelper.FromHex(0x282828));
+                    //Draw it
+                    spriteBatch.DrawString(Font2, EnemyName, TextPos, Color.White);
+                    TextOffset += (FontVect * cancelX) + new Vector2(0, 1);
+                }
+                GraphicsDevice.SetRenderTarget(null);
+                spriteBatch.Draw(EnemyNameCache, new Rectangle(0, 0, EnemyNameCache.Width, EnemyNameCache.Height), Color.White);
             }
+            else
+            {
+                //Draw ze cache
+                spriteBatch.Draw(EnemyNameCache, new Rectangle(0, 0, EnemyNameCache.Width, EnemyNameCache.Height), Color.White);
+            }
+
         }
 
         /// <summary>
@@ -599,12 +647,7 @@ namespace OpenBN
 
             }
         }
-
-        private void WaitTillNextFrame()
-        {
-
-        }
-
+        
         /// <summary>
         /// Play BG music on loop
         /// </summary>
@@ -664,7 +707,7 @@ namespace OpenBN
             int viewportY = (GraphicsDevice.Viewport.Height / 2) - (viewportHeight / 2);
 
             Viewbox = new Rectangle(viewportX, viewportY, viewportWidth, viewportHeight);
-
         }
+
     }
 }

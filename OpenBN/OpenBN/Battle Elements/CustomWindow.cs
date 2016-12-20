@@ -46,8 +46,8 @@ namespace OpenBN
             HPFontCrit.Spacing = 1;
 
 
-            CurrentHP = 200;
-            MaxHP = 2000;
+            CurrentHP = 9999;
+            MaxHP = 9999;
 
             showCust = false;
         }

@@ -33,13 +33,6 @@
     <Folder Include="Screens\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Misc\flash.png">
-      <Name>flash</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="SFX\SFX-01.wav">
       <Name>SFX-01</Name>
       <Importer>WavImporter</Importer>
