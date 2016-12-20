@@ -35,8 +35,6 @@ namespace OpenBN
         SpriteBatch spriteBatch;
 
         Vector2 bgpos = new Vector2(0, 0);
-        Vector2 stagePos = new Vector2(0, 0);
-        Vector2 stageBase = new Vector2(95, 1);
 
         //bgwrkr for bg scroll
         BackgroundWorker bgUpdater = new BackgroundWorker();
@@ -180,47 +178,11 @@ namespace OpenBN
             do
             {
 
+                if (CustWindow.showCust) continue;
 
                 if (Input != null && MegamanEXE.finish)
                 {
-                    /* Sorry for this crusty code */
-
                     #region Buster & Charge Shot
-
-
-                    var ks_z = Input.KbStream[Keys.Z];
-                    switch (ks_z.KeyState)
-                    {
-                        case KeyState.Down:
-                            if (KeyLatch[Keys.Z] == false)
-                            {
-                                //  bgminst.Pitch = 0.1f;
-                                KeyLatch[Keys.Z] = true;
-
-
-                            }
-                            break;
-                        case KeyState.Up:
-                            if (KeyLatch[Keys.Z] == true)
-                            {
-                                //  bgminst.Pitch = 0;
-                                KeyLatch[Keys.Z] = false;
-                                if (CustWindow.showCust)
-                                {
-                                    CustWindow.Hide();
-                                    Stage.showCust = false;
-                                }
-                                else
-                                {
-                                    CustWindow.Show();
-                                    Stage.showCust = true;
-
-                                }
-                            }
-                            break;
-                    }
-
-
                     var ks_x = Input.KbStream[Keys.X];
                     switch (ks_x.KeyState)
                     {
@@ -272,14 +234,8 @@ namespace OpenBN
                             }
                             break;
                     }
-
-
                     #endregion
-
                     #region Stage Movement
-
-
-
                     foreach (Keys ky_ar in ArrowKeys)
                     {
                         // if (!MegamanEXE.finish) break;
@@ -345,12 +301,10 @@ namespace OpenBN
 
                     }
                     #endregion
-
                 }
 
                 if (MegamanEXE.CurAnimation == "TELEPORT0" && MegamanEXE.finish)
                 {
-
                     debugTXT = "  c" + tmpcol.ToString() + " r" + tmprow.ToString();
                     MegamanEXE.btlcol = tmpcol;
                     MegamanEXE.btlrow = tmprow;
@@ -361,7 +315,9 @@ namespace OpenBN
                 {
                     MegamanEXE.SetAnimation("DEFAULT");
                 }
+
                 Thread.Sleep(10);
+
                 if (MegamanEXE != null) MegamanEXE.Update();
             } while (!terminateGame);
         }
@@ -382,6 +338,7 @@ namespace OpenBN
             }
 
             bgUpdater.RunWorkerAsync();
+            UserNavBgWrk.RunWorkerAsync();
 
             Thread.Sleep(1000); //-10% Opacity per frame
             do
@@ -394,7 +351,6 @@ namespace OpenBN
             SixtyHzBgWrkr.RunWorkerAsync();
             CustWindow.Show();
             Stage.showCust = true;
-            UserNavBgWrk.RunWorkerAsync();
 
         }
 
@@ -462,6 +418,36 @@ namespace OpenBN
         {
             //Send fresh data to input handler
             Input.Update(Keyboard.GetState(), gameTime);
+
+            var ks_z = Input.KbStream[Keys.Z];
+            switch (ks_z.KeyState)
+            {
+                case KeyState.Down:
+                    if (KeyLatch[Keys.Z] == false)
+                    {
+                        //  bgminst.Pitch = 0.1f;
+                        KeyLatch[Keys.Z] = true;
+                    }
+                    break;
+                case KeyState.Up:
+                    if (KeyLatch[Keys.Z] == true)
+                    {
+                        //  bgminst.Pitch = 0;
+                        KeyLatch[Keys.Z] = false;
+                        if (CustWindow.showCust)
+                        {
+                            CustWindow.Hide();
+                            Stage.showCust = false;
+                        }
+                        else
+                        {
+                            CustWindow.Show();
+                            Stage.showCust = true;
+
+                        }
+                    }
+                    break;
+            }
 
             base.Update(gameTime);
         }
@@ -559,18 +545,21 @@ namespace OpenBN
             if (!DisplayEnemyNames) { return; }
             if (EnemyNameCache == null)
             {
-               // var enamehdr = Content.Load<Texture2D>("Misc/ENmeHdr");
+                //Load Font
                 var Font2 = Fonts.List["Normal2"];
                 // Do this frame-expensive operations once
                 EnemyNameCache = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
                 GraphicsDevice.SetRenderTarget(EnemyNameCache);
                 GraphicsDevice.Clear(Color.Transparent);
+
                 Vector2 TextOffset = new Vector2(-Font2.MeasureString("{").X, 0);
+
                 for (int i = 0; i < EnemyNames.Count; i++)
                 {
                     var EnemyName = EnemyNames[i];
                     //Measure text length and store to vector
                     var FontVect = Font2.MeasureString(EnemyName);
+
                     //Calculate vectors
                     var InitTextPos = (screenresvect - FontVect) * cancelY - new Vector2(2, -2);
                     var TextPos = TextOffset + InitTextPos;
@@ -580,15 +569,16 @@ namespace OpenBN
                         (int)TextPos.Y + 2, (int)(FontVect.X) + 2,
                         (int)FontVect.Y - 4);
 
-                    //var HeaderTextPos = TextPos - new Vector2(enamehdr.Width, -2);
-                    //Draw that diagonal thingy before text
-                    // spriteBatch.Draw(enamehdr, HeaderTextPos, Color.White);
                     //Fill background
                     RectangleFill(RectFill, ColorHelper.FromHex(0x282828));
-                    //Draw it
+
+                    // { character is the chevron chr. in the Normal2 font.
                     EnemyName = "{" + EnemyName;
+
+                    //Draw it
                     spriteBatch.DrawString(Font2, EnemyName, TextPos, Color.White);
                     TextOffset += (FontVect * cancelX) + new Vector2(0, 1);
+                    Debug.Print("Drawn!");
                 }
                 GraphicsDevice.SetRenderTarget(null);
                 spriteBatch.Draw(EnemyNameCache, new Rectangle(0, 0, EnemyNameCache.Width, EnemyNameCache.Height), Color.White);
@@ -598,9 +588,6 @@ namespace OpenBN
                 //Draw ze cache
                 spriteBatch.Draw(EnemyNameCache, new Rectangle(0, 0, EnemyNameCache.Width, EnemyNameCache.Height), Color.White);
             }
-
-
-
         }
 
         /// <summary>
@@ -609,18 +596,16 @@ namespace OpenBN
         /// </summary>
         private void DrawDebugText()
         {
-
+            var Font1 = Fonts.List["Normal"];
             //Measure text length and store to vector
-            var FontVect = Fonts.List["Normal2"].MeasureString(debugTXT);
+            var FontVect = Font1.MeasureString(debugTXT);
             //Calculate vectors
             var InitTextPos = (screenresvect / 2) - FontVect + ((screenresvect / 2) * cancelY);
             var TextPos = InitTextPos;
             //Draw it
-            spriteBatch.DrawString(Fonts.List["Normal2"], debugTXT, TextPos, Color.White);
-
+            spriteBatch.DrawString(Font1, debugTXT, TextPos, Color.White);
         }
-
-
+        
         /// <summary>
         /// Load references for the Sound Effects files
         /// </summary>
