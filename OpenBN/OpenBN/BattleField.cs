@@ -65,20 +65,19 @@ namespace OpenBN
         CustomWindow CustWindow;
 
         Texture2D flsh;
-        SpriteFont Font1, Font2;
 
         Keys[] MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right };
         Keys[] ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
 
         RenderTarget2D EnemyNameCache;
-
+        FontHelper Fonts;
 
         float flash_opacity = 1;
         int updateBGScroll = 0;
         int BGFrame = 1;
         bool terminateGame = false;
         bool bgReady = false;
-        bool mute = false;
+        bool mute = true;
 
         public bool DisplayEnemyNames = true;
 
@@ -97,14 +96,7 @@ namespace OpenBN
 
 
             Input = new Inputs(MonitoredKeys);
-
-            //Default font with gray shadow
-            Font1 = Content.Load<SpriteFont>("Misc/exefont");
-            Font1.Spacing = 1;
-
-            //Default font for enemy names
-            Font2 = Content.Load<SpriteFont>("Misc/exefont2");
-            Font2.Spacing = 1;
+            Fonts = new FontHelper(Content);
 
             foreach (Keys x in MonitoredKeys)
             {
@@ -540,7 +532,8 @@ namespace OpenBN
             {
                 //They just wanna draw it
                 spriteBatch.Draw(pixel, Rect, Color.White);
-            } else
+            }
+            else
             {
                 //They want ze copy of it
                 RenderTarget2D FilledRect = new RenderTarget2D(GraphicsDevice, Rect.Width, Rect.Height);
@@ -566,27 +559,34 @@ namespace OpenBN
             if (!DisplayEnemyNames) { return; }
             if (EnemyNameCache == null)
             {
-                var enamehdr = Content.Load<Texture2D>("Misc/ENmeHdr");
+               // var enamehdr = Content.Load<Texture2D>("Misc/ENmeHdr");
+                var Font2 = Fonts.List["Normal2"];
                 // Do this frame-expensive operations once
                 EnemyNameCache = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
                 GraphicsDevice.SetRenderTarget(EnemyNameCache);
                 GraphicsDevice.Clear(Color.Transparent);
-                Vector2 TextOffset = Vector2.Zero;
+                Vector2 TextOffset = new Vector2(-Font2.MeasureString("{").X, 0);
                 for (int i = 0; i < EnemyNames.Count; i++)
                 {
                     var EnemyName = EnemyNames[i];
                     //Measure text length and store to vector
                     var FontVect = Font2.MeasureString(EnemyName);
                     //Calculate vectors
-                    var InitTextPos = (screenresvect - FontVect) * cancelY - new Vector2(0, -2);
+                    var InitTextPos = (screenresvect - FontVect) * cancelY - new Vector2(2, -2);
                     var TextPos = TextOffset + InitTextPos;
-                    var RectFill = new Rectangle((int)TextPos.X, (int)TextPos.Y + 2, (int)FontVect.X, (int)FontVect.Y - 4);
-                    var HeaderTextPos = TextPos - new Vector2(enamehdr.Width, -2);
+                    var RectFill = 
+                        new Rectangle(
+                        (int)(TextPos.X - TextOffset.X),
+                        (int)TextPos.Y + 2, (int)(FontVect.X) + 2,
+                        (int)FontVect.Y - 4);
+
+                    //var HeaderTextPos = TextPos - new Vector2(enamehdr.Width, -2);
                     //Draw that diagonal thingy before text
-                    spriteBatch.Draw(enamehdr, HeaderTextPos, Color.White);
+                    // spriteBatch.Draw(enamehdr, HeaderTextPos, Color.White);
                     //Fill background
                     RectangleFill(RectFill, ColorHelper.FromHex(0x282828));
                     //Draw it
+                    EnemyName = "{" + EnemyName;
                     spriteBatch.DrawString(Font2, EnemyName, TextPos, Color.White);
                     TextOffset += (FontVect * cancelX) + new Vector2(0, 1);
                 }
@@ -611,12 +611,12 @@ namespace OpenBN
         {
 
             //Measure text length and store to vector
-            var FontVect = Font2.MeasureString(debugTXT);
+            var FontVect = Fonts.List["Normal2"].MeasureString(debugTXT);
             //Calculate vectors
             var InitTextPos = (screenresvect / 2) - FontVect + ((screenresvect / 2) * cancelY);
             var TextPos = InitTextPos;
             //Draw it
-            spriteBatch.DrawString(Font2, debugTXT, TextPos, Color.White);
+            spriteBatch.DrawString(Fonts.List["Normal2"], debugTXT, TextPos, Color.White);
 
         }
 
@@ -649,7 +649,7 @@ namespace OpenBN
 
             }
         }
-        
+
         /// <summary>
         /// Play BG music on loop
         /// </summary>

@@ -18,11 +18,20 @@ namespace OpenBN
 {
     public class FontHelper
     {
-        Dictionary<string, SpriteFont> List = new Dictionary<string, SpriteFont>();
+       public Dictionary<string, SpriteFont> List { get; set; }
 
         public FontHelper(ContentManager Content)
         {
-            
+            List = new Dictionary<string, SpriteFont>();
+            DirectoryInfo dir = new DirectoryInfo(Content.RootDirectory + "/Fonts");
+            FileInfo[] files = dir.GetFiles("*.*");
+            foreach (FileInfo file in files)
+            {
+                var key = file.Name.Split('.')[0];
+                var val = Content.Load<SpriteFont>("Fonts/" + key);
+                val.Spacing = 1;
+                List.Add(key, val);
+            }
         }
 
     }

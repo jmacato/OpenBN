@@ -1269,6 +1269,53 @@
       <ProcessorParameters_FirstCharacter>0</ProcessorParameters_FirstCharacter>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Fonts\ChipCodesA.png">
+      <Name>ChipCodesA</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>FontTextureProcessor</Processor>
+      <ProcessorParameters_FirstCharacter>%40</ProcessorParameters_FirstCharacter>
+    </Compile>
+    <Compile Include="Fonts\ChipCodesB.png">
+      <Name>ChipCodesB</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>FontTextureProcessor</Processor>
+      <ProcessorParameters_FirstCharacter>%40</ProcessorParameters_FirstCharacter>
+    </Compile>
+    <Compile Include="Fonts\ChipDesc.png">
+      <Name>ChipDesc</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>FontTextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Fonts\HPFont.png">
+      <Name>HPFont</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>FontTextureProcessor</Processor>
+      <ProcessorParameters_FirstCharacter>0</ProcessorParameters_FirstCharacter>
+    </Compile>
+    <Compile Include="Fonts\HPFontMinus.png">
+      <Name>HPFontMinus</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>FontTextureProcessor</Processor>
+      <ProcessorParameters_FirstCharacter>0</ProcessorParameters_FirstCharacter>
+    </Compile>
+    <Compile Include="Fonts\HPFontPlus.png">
+      <Name>HPFontPlus</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>FontTextureProcessor</Processor>
+      <ProcessorParameters_FirstCharacter>0</ProcessorParameters_FirstCharacter>
+    </Compile>
+    <Compile Include="Fonts\Normal.png">
+      <Name>Normal</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>FontTextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Fonts\Normal2.png">
+      <Name>Normal2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>FontTextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
