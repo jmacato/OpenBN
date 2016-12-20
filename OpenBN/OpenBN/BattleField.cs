@@ -599,6 +599,8 @@ namespace OpenBN
                 spriteBatch.Draw(EnemyNameCache, new Rectangle(0, 0, EnemyNameCache.Width, EnemyNameCache.Height), Color.White);
             }
 
+
+
         }
 
         /// <summary>
