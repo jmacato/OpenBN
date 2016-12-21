@@ -14,23 +14,29 @@ namespace OpenBN
         public string ID { get; set; }
         public SpriteBatch SB { get; set; }
         public ContentManager CM { get; set; }
-        public int CurrentHP { get; set; }
-        public int LastHP { get; set; }
+        public int CurrentHP { get; private set; }
+        public int LastHP { get; private set; }
         public int MaxHP { get; set; }
+        public string ChipCodeStr = "@ABCD";
 
-        int HPState = 0;
+        int HPState;
 
         Texture2D customtextures;
         Dictionary<string, Rectangle> CustSrcRects;
         Dictionary<string, Rectangle> CustTextures = new Dictionary<string, Rectangle>();
         SpriteFont HPFontNorm, HPFontCrit, HPFontRecv;
 
+        FontHelper Fonts;
+
+        SpriteBatch SBx;
+
         public bool showCust { get; private set; }
 
         Vector2 custPos = new Vector2(-120,0);
 
-        public CustomWindow(ContentManager x, FontHelper Fonts)
+        public CustomWindow(ContentManager x, FontHelper Font)
         {
+            Fonts = Font;
             CM = x;
             CustSrcRects = new Dictionary<string, Rectangle>()
 
@@ -52,15 +58,25 @@ namespace OpenBN
             HPFontRecv.Spacing = 1;
 
             MaxHP = 9999;
-            CurrentHP = 0;
+            CurrentHP = MaxHP;
             LastHP = CurrentHP;
 
             showCust = false;
         }
 
+        Random Rnd = new Random();
+
         public void Show()
         {
             showCust = true;
+            ChipCodeStr = "";
+            for (int i = 0; i < 5; i++)
+            {
+                var x = Rnd.Next(64, 90);
+                x = Rnd.Next(64, 90);
+                ChipCodeStr += (char)x;
+            }
+
         }
 
         public void Hide()
@@ -90,12 +106,12 @@ namespace OpenBN
             {
                 if (CurrentHP < LastHP)
                 {
-                    CurrentHP = (int)MathHelper.Clamp(CurrentHP + 15, CurrentHP, LastHP);
+                    CurrentHP = (int)MathHelper.Clamp(CurrentHP + 9, CurrentHP, LastHP);
                     HPState = 2;
                 }
                 else if (CurrentHP > LastHP)
                 {
-                    CurrentHP = (int)MathHelper.Clamp(CurrentHP - 15, LastHP, CurrentHP);
+                    CurrentHP = (int)MathHelper.Clamp(CurrentHP - 9, LastHP, CurrentHP);
                     HPState = 1;
                 }
             }
@@ -103,7 +119,7 @@ namespace OpenBN
 
         public void SetHP(int TargetHP)
         {
-            LastHP = (int)MathHelper.Clamp(TargetHP, 0, MaxHP);
+            LastHP = (int)MathHelper.Clamp(LastHP + TargetHP, 0, MaxHP);
         }
 
         public void Draw()
@@ -115,7 +131,7 @@ namespace OpenBN
                 SB.Draw(customtextures, y, u, Color.White);
 
                 var hp = CustSrcRects["HPBAR"];
-                var hprct = new Rectangle((int)custPos.X + 122, 2, hp.Width, hp.Height);
+                var hprct = new Rectangle((int)custPos.X + 122, 1, hp.Width, hp.Height);
                 SB.Draw(customtextures, hprct, hp, Color.White);
 
                 SpriteFont hpfnt;
@@ -134,11 +150,22 @@ namespace OpenBN
                 }
 
                 int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
-                Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 5 ,hprct.Y);
+                Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6 ,hprct.Y);
                 SB.DrawString(hpfnt, CurrentHP.ToString(), hptxtrct, Color.White);
-
+                DrawMiniChipCodes(custPos.X);
 
             }
         }
+
+        public void DrawMiniChipCodes(float x)
+        {
+            var startpoint = new Vector2(x+8, 119);
+            var ChipCodes = Fonts.List["ChipCodesB"];
+            var Measure = ChipCodes.MeasureString(ChipCodeStr);
+            ChipCodes.Spacing = 0;
+            SB.DrawString(ChipCodes, ChipCodeStr, startpoint, Color.White);
+        }
+
+
     }
 }

@@ -64,7 +64,9 @@ namespace OpenBN
 
         Texture2D flsh;
 
-        Keys[] MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Q, Keys.W};
+        Keys[] MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z,
+                                            Keys.Up, Keys.Down, Keys.Left, Keys.Right,
+                                            Keys.Q, Keys.W, Keys.R, Keys.M};
         Keys[] ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
 
         RenderTarget2D EnemyNameCache;
@@ -75,13 +77,9 @@ namespace OpenBN
         int BGFrame = 1;
         bool terminateGame = false;
         bool bgReady = false;
-        bool mute = true;
-
+        bool mute = false;
         public bool DisplayEnemyNames = true;
-
         string debugTXT = "";
-
-
 
         protected override void Initialize()
         {
@@ -91,21 +89,16 @@ namespace OpenBN
             UserNavBgWrk.DoWork += UserNavBgWrk_DoWork;
             flash.DoWork += Flash_DoWork;
             SixtyHzBgWrkr.DoWork += SixtyHzBgWrkr_DoWork;
-
-
-
-
             foreach (Keys x in MonitoredKeys)
             {
                 KeyLatch.Add(x, false);
             }
-
         }
-
-
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            flsh = RectangleFill(new Rectangle(0, 0, screenres.W, screenres.H), ColorHelper.FromHex(0xF8F8F8), false);
+
             Stage = new Stage(Content);
             Stage.SB = spriteBatch;
             Input = new Inputs(MonitoredKeys);
@@ -127,6 +120,7 @@ namespace OpenBN
 
             EnemyNames.Add("Mettaur");
             EnemyNames.Add("Mettaur");
+
 
             flash.RunWorkerAsync();
 
@@ -327,20 +321,15 @@ namespace OpenBN
         private void Flash_DoWork(object sender, DoWorkEventArgs e)
         {
 
-            flsh = RectangleFill(new Rectangle(0, 0, screenres.W, screenres.H), ColorHelper.FromHex(0xF8F8F8), false);
-
             flash_opacity = 1;
             PlaySfx(21);
-
-
+            
             for (int bgi = 1; bgi < 32; bgi++)
             {
                 BGDict.Add(bgi - 1, Content.Load<Texture2D>(BGCode + "/bg" + bgi.ToString()));
             }
-
             bgUpdater.RunWorkerAsync();
             UserNavBgWrk.RunWorkerAsync();
-
             Thread.Sleep(1000); //-10% Opacity per frame
             do
             {
@@ -352,7 +341,6 @@ namespace OpenBN
             SixtyHzBgWrkr.RunWorkerAsync();
             CustWindow.Show();
             Stage.showCust = true;
-
         }
 
         //Handles the scrolling BG
@@ -410,8 +398,6 @@ namespace OpenBN
             bgReady = false;
             return;
         }
-
-
         protected override void UnloadContent()
         { terminateGame = true; }
 
@@ -421,6 +407,10 @@ namespace OpenBN
             Input.Update(Keyboard.GetState(), gameTime);
 
             var ks_z = Input.KbStream[Keys.Z];
+            var ks_q = Input.KbStream[Keys.Q];
+            var ks_r = Input.KbStream[Keys.R];
+            var ks_m = Input.KbStream[Keys.M];
+
             switch (ks_z.KeyState)
             {
                 case KeyState.Down:
@@ -447,7 +437,6 @@ namespace OpenBN
                     break;
             }
 
-            var ks_q = Input.KbStream[Keys.Q];
             switch (ks_q.KeyState)
             {
                 case KeyState.Down:
@@ -459,8 +448,42 @@ namespace OpenBN
                 case KeyState.Up:
                     if (KeyLatch[Keys.Q] == true)
                     {
-                        CustWindow.SetHP(CustWindow.LastHP + 500);
+                        CustWindow.SetHP(-500);
                         KeyLatch[Keys.Q] = false;
+                    }
+                    break;
+            }
+
+            switch (ks_r.KeyState)
+            {
+                case KeyState.Down:
+                    if (KeyLatch[Keys.R] == false)
+                    {
+                        KeyLatch[Keys.R] = true;
+                    }
+                    break;
+                case KeyState.Up:
+                    if (KeyLatch[Keys.R] == true)
+                    {
+                        CustWindow.SetHP(500);
+                        KeyLatch[Keys.R] = false;
+                    }
+                    break;
+            }
+
+            switch (ks_m.KeyState)
+            {
+                case KeyState.Down:
+                    if (KeyLatch[Keys.M] == false)
+                    {
+                        KeyLatch[Keys.M] = true;
+                    }
+                    break;
+                case KeyState.Up:
+                    if (KeyLatch[Keys.M] == true)
+                    {
+                        mute = !mute;
+                        KeyLatch[Keys.M] = false;
                     }
                     break;
             }
@@ -537,14 +560,16 @@ namespace OpenBN
             }
             else
             {
+                var SprtBtch = new SpriteBatch(GraphicsDevice);
                 //They want ze copy of it
                 RenderTarget2D FilledRect = new RenderTarget2D(GraphicsDevice, Rect.Width, Rect.Height);
                 GraphicsDevice.SetRenderTarget(FilledRect);
                 GraphicsDevice.Clear(Color.Transparent);
-                spriteBatch.Begin();
-                spriteBatch.Draw(pixel, Rect, Color.White);
-                spriteBatch.End();
+                SprtBtch.Begin();
+                SprtBtch.Draw(pixel, Rect, Color.White);
+                SprtBtch.End();
                 GraphicsDevice.SetRenderTarget(null);
+                SprtBtch = null;
                 pixel = FilledRect;
             }
 
