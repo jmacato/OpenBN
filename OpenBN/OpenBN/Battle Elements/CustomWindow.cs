@@ -65,7 +65,6 @@ namespace OpenBN
         }
 
         Random Rnd = new Random();
-
         public void Show()
         {
             showCust = true;
@@ -165,7 +164,5 @@ namespace OpenBN
             ChipCodes.Spacing = 0;
             SB.DrawString(ChipCodes, ChipCodeStr, startpoint, Color.White);
         }
-
-
     }
 }

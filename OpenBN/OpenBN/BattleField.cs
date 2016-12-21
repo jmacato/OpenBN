@@ -483,6 +483,16 @@ namespace OpenBN
                     if (KeyLatch[Keys.M] == true)
                     {
                         mute = !mute;
+
+                        if (mute)
+                        {
+                            SoundEffect.MasterVolume = 0f;
+
+                        } else
+                        {
+                            SoundEffect.MasterVolume = 1f;
+                        }
+
                         KeyLatch[Keys.M] = false;
                     }
                     break;
