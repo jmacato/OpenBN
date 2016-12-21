@@ -19,7 +19,7 @@ namespace OpenBN
     public class BattleField : Microsoft.Xna.Framework.Game
     {
 
-        public string BGCode = "BG/CA";
+        public string BGCode = "BG/SS";
         public Size screenres = new Size(240, 160);
         public Vector2 screenresvect = new Vector2(240, 160);
         public int screenresscalar = 2;
@@ -77,7 +77,7 @@ namespace OpenBN
         int BGFrame = 1;
         bool terminateGame = false;
         bool bgReady = false;
-        bool mute = false;
+        bool mute = true;
         public bool DisplayEnemyNames = true;
         string debugTXT = "";
 
