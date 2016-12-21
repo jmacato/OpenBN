@@ -64,7 +64,7 @@ namespace OpenBN
 
         Texture2D flsh;
 
-        Keys[] MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right };
+        Keys[] MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Q, Keys.W};
         Keys[] ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
 
         RenderTarget2D EnemyNameCache;
@@ -93,8 +93,7 @@ namespace OpenBN
             SixtyHzBgWrkr.DoWork += SixtyHzBgWrkr_DoWork;
 
 
-            Input = new Inputs(MonitoredKeys);
-            Fonts = new FontHelper(Content);
+
 
             foreach (Keys x in MonitoredKeys)
             {
@@ -109,7 +108,9 @@ namespace OpenBN
             spriteBatch = new SpriteBatch(GraphicsDevice);
             Stage = new Stage(Content);
             Stage.SB = spriteBatch;
-            CustWindow = new CustomWindow(Content);
+            Input = new Inputs(MonitoredKeys);
+            Fonts = new FontHelper(Content);
+            CustWindow = new CustomWindow(Content, Fonts);
             CustWindow.SB = spriteBatch;
 
             RenderQueue.Add(Stage);
@@ -425,14 +426,12 @@ namespace OpenBN
                 case KeyState.Down:
                     if (KeyLatch[Keys.Z] == false)
                     {
-                        //  bgminst.Pitch = 0.1f;
                         KeyLatch[Keys.Z] = true;
                     }
                     break;
                 case KeyState.Up:
                     if (KeyLatch[Keys.Z] == true)
                     {
-                        //  bgminst.Pitch = 0;
                         KeyLatch[Keys.Z] = false;
                         if (CustWindow.showCust)
                         {
@@ -443,8 +442,25 @@ namespace OpenBN
                         {
                             CustWindow.Show();
                             Stage.showCust = true;
-
                         }
+                    }
+                    break;
+            }
+
+            var ks_q = Input.KbStream[Keys.Q];
+            switch (ks_q.KeyState)
+            {
+                case KeyState.Down:
+                    if (KeyLatch[Keys.Q] == false)
+                    {
+                        KeyLatch[Keys.Q] = true;
+                    }
+                    break;
+                case KeyState.Up:
+                    if (KeyLatch[Keys.Q] == true)
+                    {
+                        CustWindow.SetHP(CustWindow.LastHP + 500);
+                        KeyLatch[Keys.Q] = false;
                     }
                     break;
             }

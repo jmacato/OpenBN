@@ -18,7 +18,7 @@ namespace OpenBN
 {
     public class FontHelper
     {
-       public Dictionary<string, SpriteFont> List { get; set; }
+       public Dictionary<string, SpriteFont> List { get; private set; }
 
         public FontHelper(ContentManager Content)
         {
