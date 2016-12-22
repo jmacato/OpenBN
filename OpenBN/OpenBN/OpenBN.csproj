@@ -95,6 +95,7 @@
     <Content Include="GameThumbnail.png">
       <XnaPlatformSpecific>true</XnaPlatformSpecific>
     </Content>
+    <Content Include="SASL Definition.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenBNContent\OpenBNContent.contentproj">

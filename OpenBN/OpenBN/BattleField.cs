@@ -87,8 +87,7 @@ namespace OpenBN
         protected override void Initialize()
         {
             base.Initialize();
-
-
+            
             //Assign bgwrkrs
             bgUpdater.DoWork += BgUpdater_DoWork;
             UserNavBgWrk.DoWork += UserNavBgWrk_DoWork;

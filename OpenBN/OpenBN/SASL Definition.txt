@@ -1,0 +1,20 @@
+Sprite Animation Scripting Language v0.1
+
+Master Texture should have the same filename as 
+the script. 
+
+script files ends with .SASL extension.
+ 
+
+-- DEF_FRAME (id)<0-9A-Z_> <X,Y,W,H>
+  > Define frame
+
+-- BEGIN (animation name)<0-9A-Z_>
+	
+	-- SHOW <frame_id>
+	-- WAIT <1-60frames>
+		
+	-- LOOP
+	-- STOP
+
+-- END
