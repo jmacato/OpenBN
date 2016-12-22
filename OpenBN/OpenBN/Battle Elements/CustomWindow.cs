@@ -125,9 +125,14 @@ namespace OpenBN
         {
             if (customtextures != null)
             {
-                var u = CustSrcRects["CustWind"];
-                var y = new Rectangle((int)custPos.X, 0, u.Width, u.Height);
-                SB.Draw(customtextures, y, u, Color.White);
+                if (custPos.X != -120)
+                {
+                    var u = CustSrcRects["CustWind"];
+                    var y = new Rectangle((int)custPos.X, 0, u.Width, u.Height);
+                    SB.Draw(customtextures, y, u, Color.White);
+                    DrawMiniChipCodes(custPos.X);
+
+                }
 
                 var hp = CustSrcRects["HPBAR"];
                 var hprct = new Rectangle((int)custPos.X + 122, 1, hp.Width, hp.Height);
@@ -151,7 +156,6 @@ namespace OpenBN
                 int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
                 Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6 ,hprct.Y);
                 SB.DrawString(hpfnt, CurrentHP.ToString(), hptxtrct, Color.White);
-                DrawMiniChipCodes(custPos.X);
 
             }
         }

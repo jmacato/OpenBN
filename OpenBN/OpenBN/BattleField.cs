@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Audio;
+using OpenBN.ScriptedSprites;
 
 namespace OpenBN
 {
@@ -77,7 +78,7 @@ namespace OpenBN
         int BGFrame = 1;
         bool terminateGame = false;
         bool bgReady = false;
-        bool mute = true;
+        bool mute = false;
         public bool DisplayEnemyNames = true;
         string debugTXT = "";
 
