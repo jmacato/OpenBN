@@ -48,7 +48,6 @@ namespace OpenBN
         Dictionary<int, string> bgmdict = new Dictionary<int, string>();
 
         Dictionary<Keys, bool> KeyLatch = new Dictionary<Keys, bool>();
-        Dictionary<int, Texture2D> BGDict = new Dictionary<int, Texture2D>();
 
         //For bgm looping
         SoundEffectInstance bgminst;
@@ -56,13 +55,11 @@ namespace OpenBN
         List<IBattleEntity> RenderQueue = new List<IBattleEntity>();
         List<string> EnemyNames = new List<string>(3);
 
-
         Inputs Input;
         Stage Stage;
         TiledBackground myBackground;
         UserNavi MegamanEXE;
         CustomWindow CustWindow;
-
         Texture2D flsh;
 
         Keys[] MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z,
@@ -119,6 +116,7 @@ namespace OpenBN
             LoadSfx();
             LoadBgm();
 
+            EnemyNames.Add("Mettaur");
             EnemyNames.Add("Mettaur");
             EnemyNames.Add("Mettaur");
 
