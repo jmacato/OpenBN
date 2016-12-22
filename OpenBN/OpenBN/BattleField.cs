@@ -78,7 +78,7 @@ namespace OpenBN
         int BGFrame = 1;
         bool terminateGame = false;
         bool bgReady = false;
-        bool mute = false;
+        bool mute = true;
         public bool DisplayEnemyNames = true;
         string debugTXT = "";
 
@@ -121,7 +121,6 @@ namespace OpenBN
 
             EnemyNames.Add("Mettaur");
             EnemyNames.Add("Mettaur");
-
 
             flash.RunWorkerAsync();
 
@@ -324,11 +323,7 @@ namespace OpenBN
 
             flash_opacity = 1;
             PlaySfx(21);
-            
-            for (int bgi = 1; bgi < 32; bgi++)
-            {
-                BGDict.Add(bgi - 1, Content.Load<Texture2D>(BGCode + "/bg" + bgi.ToString()));
-            }
+
             bgUpdater.RunWorkerAsync();
             UserNavBgWrk.RunWorkerAsync();
             Thread.Sleep(1000); //-10% Opacity per frame
@@ -347,56 +342,51 @@ namespace OpenBN
         //Handles the scrolling BG
         private void BgUpdater_DoWork(object sender, DoWorkEventArgs e)
         {
-            //do { Thread.Sleep(10); } while (haltingflag);
-            //haltingflag = true;
-            myBackground = new TiledBackground(BGDict[2], 240, 160);
+            
+            string[] bgcodelist = { "SS", "SK", "AD", "CA", "GH" };
+
+            Random rnd = new Random();
+
+            var bgcode = bgcodelist[(int)rnd.Next(bgcodelist.Count())];
+
+            var xs = Content.RootDirectory + "/BG/"+ bgcode + "/BG.sasl";
+            var xx = File.ReadAllText(xs);
+
+            var ss = new SSParser(xx, Content.Load<Texture2D>("BG/" + bgcode + "/" + bgcode), graphics.GraphicsDevice);
+
+            myBackground = new TiledBackground(ss.Animation.CurrentFrame, 240, 160);
             myBackground._startCoord = bgpos;
+            bgReady = true;
             bool scrolltick = false;
             var scrollcnt2 = 0;
             var scrollcnt = 0;
-            int framedur = 3;
-            bgReady = true;
-
             do
             {
-                //Freaky stuff
                 if (terminateGame) return;
-                if (scrollcnt == 4) { scrolltick = true; }
+                if (scrollcnt == 2) { scrolltick = true; }
                 if (scrolltick)
                 {
-                    if (scrollcnt2 > 12)
-                    {
-                        scrollcnt2 = 0;
-                        scrollcnt = 0;
-                    }
+                    if (scrollcnt2 > 10){scrollcnt2 = 0;scrollcnt = 0;}
                     else
                     {
                         bgpos.X = (bgpos.X - 1) % 128;
-
                         if (bgpos.X % 2 != 0)
-                        {
-                            bgpos.Y = (bgpos.Y - 1) % 64;
-                        }
+                        {bgpos.Y = (bgpos.Y - 1) % 64;}
                         scrolltick = false;
                         scrollcnt2++;
                         scrollcnt = 0;
                     }
                 }
+                
+                ss.Animation.Next();
 
-                if (updateBGScroll == framedur)
-                {
-                    if (BGFrame + 1 == 31) { BGFrame = 0; }
-                    if (BGFrame > 1 && BGFrame < 11) { framedur = 7; } else { framedur = 20; }
-                    BGFrame++;
-                    if (terminateGame) return;
-                    myBackground = new TiledBackground(BGDict[BGFrame], 240, 160);
-                    updateBGScroll = 0;
-                }
-                Thread.Sleep(7);
-                updateBGScroll++;
+                myBackground._texture = ss.Animation.CurrentFrame;
+                Thread.Sleep(16);
                 scrollcnt++;
-            } while (!terminateGame | e.Cancel == false);
+
+            } while (!terminateGame);
             bgReady = false;
+
             return;
         }
         protected override void UnloadContent()
@@ -489,7 +479,8 @@ namespace OpenBN
                         {
                             SoundEffect.MasterVolume = 0f;
 
-                        } else
+                        }
+                        else
                         {
                             SoundEffect.MasterVolume = 1f;
                         }
@@ -615,7 +606,7 @@ namespace OpenBN
                     //Calculate vectors
                     var InitTextPos = (screenresvect - FontVect) * cancelY - new Vector2(2, -2);
                     var TextPos = TextOffset + InitTextPos;
-                    var RectFill = 
+                    var RectFill =
                         new Rectangle(
                         (int)(TextPos.X - TextOffset.X),
                         (int)TextPos.Y + 2, (int)(FontVect.X) + 2,
@@ -657,7 +648,7 @@ namespace OpenBN
             //Draw it
             spriteBatch.DrawString(Font1, debugTXT, TextPos, Color.White);
         }
-        
+
         /// <summary>
         /// Load references for the Sound Effects files
         /// </summary>

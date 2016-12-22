@@ -13,7 +13,7 @@ namespace OpenBN
 
     public class TiledBackground : IBackground
     {
-        private readonly Texture2D _texture;
+        public Texture2D _texture;
         readonly int _horizontalTileCount;
         readonly int _verticalTileCount;
         public Vector2 _startCoord;

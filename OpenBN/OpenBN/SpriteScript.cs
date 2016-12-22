@@ -9,12 +9,11 @@ namespace OpenBN.ScriptedSprites
 {
     class SSParser
     {
+       public Animation Animation;
         public SSParser(string script, Texture2D texture, GraphicsDevice graphics)
         {
-            Animation Animation = new Animation();
-
+            Animation = new Animation();
             SpriteBatch SB = new SpriteBatch(graphics);
-
             var t = script.Split("\r\n".ToCharArray());
             int i = 0;
             foreach (string y in t)
@@ -36,10 +35,11 @@ namespace OpenBN.ScriptedSprites
                         var dstrect = new Rectangle(0, 0, r_w, r_h);
 
                         RenderTarget2D frm_hndlr = new RenderTarget2D(graphics, r_w, r_h);
-
+                        graphics.SetRenderTarget(frm_hndlr);
                         SB.Begin();
                         SB.Draw(texture, dstrect, srcrect, Color.White);
                         SB.End();
+                        graphics.SetRenderTarget(null);
 
                         Animation.Frames.Add(ptr, frm_hndlr);
                         break;
@@ -53,23 +53,29 @@ namespace OpenBN.ScriptedSprites
                         break;
 
                     case "WAIT":
+                        i++;
                         var WT = new AnimationCommand();
-                        WT.Cmd = AnimationCommands.SHOW;
+                        WT.Cmd = AnimationCommands.WAIT;
                         WT.Args = Convert.ToInt16(x[1]);
                         Animation.Commands.Add(i, WT);
                         break;
 
                     case "LOOP":
+                        i++;
                         var LP = new AnimationCommand();
-                        LP.Cmd = AnimationCommands.SHOW;
+                        LP.Cmd = AnimationCommands.LOOP;
                         LP.Args = 0;
                         Animation.Commands.Add(i, LP);
                         break;
                 }
             }
             SB.Dispose();
-        }
+            Animation.FirstFrame = Animation.Commands.Keys.First();
+            Animation.PC = Animation.FirstFrame;
+            Animation.Next();
 
+        }
+        
     }
 
     public class Animation
@@ -78,33 +84,40 @@ namespace OpenBN.ScriptedSprites
         public Dictionary<int, AnimationCommand> Commands { get; set; }
         public Texture2D CurrentFrame { get; private set; }
         public int frmptr { get; private set; }
-        public int PC { get; private set; }
+        public int PC { get; set; }
+        public int FirstFrame;
 
         public Animation()
         {
+            FirstFrame = 0;
             PC = 0;
             frmptr = 0;
+            Commands = new Dictionary<int, AnimationCommand>();
+            Frames = new Dictionary<int, Texture2D>();
         }
 
         int wait = 0;
 
         public bool Next()
         {
-            if (wait == 0) { PC++; } else { wait--; return true; }
+            if (wait != 0) { wait--; return true; }
             switch (Commands[PC].Cmd)
             {
                 case AnimationCommands.SHOW:
                     CurrentFrame = Frames[Commands[PC].Args];
                     break;
                 case AnimationCommands.LOOP:
-                    PC = 0;
+                    PC = FirstFrame;
                     return true;
                 case AnimationCommands.STOP:
                     return false;
                 case AnimationCommands.WAIT:
                     wait = Commands[PC].Args;
-                    return true;
+                    break;
             }
+
+            PC++;
+            PC = (int)MathHelper.Clamp(PC,FirstFrame,Commands.Count);
             return false;
         }
 
