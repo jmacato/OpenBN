@@ -61,6 +61,11 @@ namespace OpenBN
         CustomWindow CustWindow;
         Texture2D flsh;
 
+        
+        SpriteBatch targetBatch;
+        RenderTarget2D target;
+
+
         Keys[] MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z,
                                             Keys.Up, Keys.Down, Keys.Left, Keys.Right,
                                             Keys.Q, Keys.W, Keys.R, Keys.M};
@@ -72,7 +77,7 @@ namespace OpenBN
         float flash_opacity = 1;
         bool terminateGame = false;
         bool bgReady = false;
-        bool mute = true;
+        bool mute = false;
         public bool DisplayEnemyNames = true;
         string debugTXT = "";
 
@@ -93,6 +98,7 @@ namespace OpenBN
         }
         protected override void LoadContent()
         {
+            SoundEffect.MasterVolume = 0f;
             spriteBatch = new SpriteBatch(GraphicsDevice);
             targetBatch = new SpriteBatch(GraphicsDevice);
             target =  new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
@@ -129,8 +135,12 @@ namespace OpenBN
         {
             do
             {
-                CustWindow.Update();
-                Thread.Sleep(12);
+                if (this.IsActive)
+                {
+                    CustWindow.Update();
+                    Thread.Sleep(12);
+                }
+
             } while (!terminateGame);
         }
 
@@ -171,6 +181,7 @@ namespace OpenBN
 
             do
             {
+                if (CustWindow.showCust) continue;
                 if (Input != null && MegamanEXE.finish)
                 {
                     #region Buster & Charge Shot
@@ -338,7 +349,6 @@ namespace OpenBN
         //Handles the scrolling BG
         private void BgUpdater_DoWork(object sender, DoWorkEventArgs e)
         {
-            
             string[] bgcodelist = { "SS", "SK", "AD", "CA", "GH" };
 
             Random rnd = new Random();
@@ -352,12 +362,9 @@ namespace OpenBN
 
             myBackground = new TiledBackground(ss.Animation.CurrentFrame, 240, 160);
             myBackground._startCoord = bgpos;
-            bgReady = true;
-
             var scrollcnt = 0;
-
             do {} while ((int)flash_opacity != 0);
-
+            bgReady = true;
             do
             {
                 if (terminateGame) return;
@@ -486,25 +493,22 @@ namespace OpenBN
         }
 
 
-        SpriteBatch targetBatch;
-        RenderTarget2D target;
-
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-
+            GraphicsDevice.Clear(Color.White);
             //Render Objects, Back to front layer
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
             //Draw the background
-            if (bgUpdater.IsBusy && bgReady)
+            if (bgReady)
             {
                 myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0));
                 myBackground.Draw(spriteBatch);
-            }
+                if (RenderQueue.Count > 0) { foreach (IBattleEntity s in RenderQueue) { s.Draw(); } }
 
-            if (RenderQueue.Count > 0) { foreach (IBattleEntity s in RenderQueue) { s.Draw(); } }
+            }
 
             DrawEnemyNames();
             DrawDebugText();
@@ -571,7 +575,7 @@ namespace OpenBN
 
 
         /// <summary>
-        /// Draws the black bg & enemy names, upto 3 names allowed.
+        /// Draws the black bg & enemy names.
         /// With built-in caching to avoid tearing in the BG.
         /// </summary>
         private void DrawEnemyNames()

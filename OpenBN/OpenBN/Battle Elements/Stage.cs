@@ -1,12 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-
 
 namespace OpenBN
 {
@@ -40,6 +35,7 @@ namespace OpenBN
 
         public bool showCust { get; set; }
         public int lolxy = 71;
+
         public void Draw()
         {
             if (showCust)
@@ -49,10 +45,9 @@ namespace OpenBN
             }
             else
             {
-                lolxy = (int)MathHelper.Clamp(lolxy - 1.5f, 71, 87);
+                lolxy = (int)MathHelper.Clamp(lolxy - 2, 71, 87);
                 StgPos = new Point(0, lolxy);
             }
-
 
             for (int i = 0; i < 3; i++) // For each row
             {
@@ -97,7 +92,8 @@ namespace OpenBN
 
         public Vector2 GetStageCoords(int row, int col, Vector2 offset)
         {
-            var i = new Vector2(PnlColPnt[col], ((row + 1) * 24) - 5);
+            var y = ((row + 1) * 24) - 5;
+            var i = new Vector2(PnlColPnt[col], y);
             var u = offset;
             return i + u + new Vector2(StgPos.X, StgPos.Y);
         }
