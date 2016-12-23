@@ -68,7 +68,7 @@ namespace OpenBN
 
         RenderTarget2D EnemyNameCache;
         FontHelper Fonts;
-        SSParser ss;
+        SSParser BG_SS;
         Effect Desaturate;
 
         float flash_opacity = 1;
@@ -87,7 +87,7 @@ namespace OpenBN
         protected override void Initialize()
         {
             base.Initialize();
-            
+
             //Assign bgwrkrs
             bgUpdater.DoWork += BgUpdater_DoWork;
             UserNavBgWrk.DoWork += UserNavBgWrk_DoWork;
@@ -163,7 +163,7 @@ namespace OpenBN
             var xx = File.ReadAllText(xs);
             ss = new SSParser(xx, Content.Load<Texture2D>("BG/" + bgcode + "/" + bgcode), graphics.GraphicsDevice);
 
-            myBackground = new TiledBackground(ss.Animation.CurrentFrame, 240, 160);
+            myBackground = new TiledBackground(BG_SS.Animation.CurrentFrame, 240, 160);
             myBackground._startCoord = bgpos;
         }
 
@@ -179,7 +179,7 @@ namespace OpenBN
                 }
                 else
                 {
-                    desat-=0.1f;
+                    desat -= 0.1f;
                     desat = MathHelper.Clamp(desat, 0, 1);
                     Desaturate.Parameters["ColourAmount"].SetValue(desat);
                     Thread.Sleep(12);
@@ -414,8 +414,8 @@ namespace OpenBN
                         { bgpos.Y = (bgpos.Y - 1) % 64; }
                         scrollcnt = 0;
                     }
-                    ss.Animation.Next();
-                    myBackground._texture = ss.Animation.CurrentFrame;
+                    BG_SS.Animation.Next();
+                    myBackground._texture = BG_SS.Animation.CurrentFrame;
                     Thread.Sleep(16);
                     scrollcnt++;
                 }
@@ -437,7 +437,7 @@ namespace OpenBN
                 //Send fresh data to input handler
                 Input.Update(Keyboard.GetState(), gameTime);
                 MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
-                foreach(IBattleEntity Renderable in RenderQueue)
+                foreach (IBattleEntity Renderable in RenderQueue)
                 {
                     Renderable.Update();
                 }
@@ -569,7 +569,7 @@ namespace OpenBN
             }
             else
             {
-               // .SetValue(0.9f);
+                // .SetValue(0.9f);
                 targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, Desaturate);
             }
 
@@ -581,7 +581,7 @@ namespace OpenBN
             base.Draw(gameTime);
         }
 
-        
+
 
         #region Helper Functions
 
