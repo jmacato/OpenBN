@@ -121,6 +121,8 @@ namespace OpenBN
             LastHP = (int)MathHelper.Clamp(LastHP + TargetHP, 0, MaxHP);
         }
 
+        SpriteFont hpfnt;
+
         public void Draw()
         {
             if (customtextures != null)
@@ -138,7 +140,6 @@ namespace OpenBN
                 var hprct = new Rectangle((int)custPos.X + 122, 1, hp.Width, hp.Height);
                 SB.Draw(customtextures, hprct, hp, Color.White);
 
-                SpriteFont hpfnt;
 
                 switch (HPState)
                 {

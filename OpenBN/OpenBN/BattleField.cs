@@ -20,7 +20,6 @@ namespace OpenBN
     public class BattleField : Microsoft.Xna.Framework.Game
     {
 
-        public string BGCode = "BG/SS";
         public Size screenres = new Size(240, 160);
         public Vector2 screenresvect = new Vector2(240, 160);
         public int screenresscalar = 2;
@@ -71,8 +70,6 @@ namespace OpenBN
         FontHelper Fonts;
 
         float flash_opacity = 1;
-        int updateBGScroll = 0;
-        int BGFrame = 1;
         bool terminateGame = false;
         bool bgReady = false;
         bool mute = true;
@@ -82,6 +79,8 @@ namespace OpenBN
         protected override void Initialize()
         {
             base.Initialize();
+
+
             //Assign bgwrkrs
             bgUpdater.DoWork += BgUpdater_DoWork;
             UserNavBgWrk.DoWork += UserNavBgWrk_DoWork;
@@ -95,6 +94,8 @@ namespace OpenBN
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            targetBatch = new SpriteBatch(GraphicsDevice);
+            target =  new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
             flsh = RectangleFill(new Rectangle(0, 0, screenres.W, screenres.H), ColorHelper.FromHex(0xF8F8F8), false);
 
             Stage = new Stage(Content);
@@ -170,9 +171,6 @@ namespace OpenBN
 
             do
             {
-
-                if (CustWindow.showCust) continue;
-
                 if (Input != null && MegamanEXE.finish)
                 {
                     #region Buster & Charge Shot
@@ -318,23 +316,23 @@ namespace OpenBN
         //Handles the flashing intro and SFX
         private void Flash_DoWork(object sender, DoWorkEventArgs e)
         {
+                flash_opacity = 1;
+                PlaySfx(21);
 
-            flash_opacity = 1;
-            PlaySfx(21);
+                bgUpdater.RunWorkerAsync();
+                UserNavBgWrk.RunWorkerAsync();
+                Thread.Sleep(1000); //-10% Opacity per frame
+                do
+                {
+                    flash_opacity -= 0.1f;
+                    Thread.Sleep(30);
 
-            bgUpdater.RunWorkerAsync();
-            UserNavBgWrk.RunWorkerAsync();
-            Thread.Sleep(1000); //-10% Opacity per frame
-            do
-            {
-                flash_opacity -= 0.1f;
-                Thread.Sleep(30);
-
-            } while (flash_opacity >= 0);
-            PlayBgm(2);
-            SixtyHzBgWrkr.RunWorkerAsync();
-            CustWindow.Show();
-            Stage.showCust = true;
+                } while (flash_opacity >= 0);
+                PlayBgm(2);
+                SixtyHzBgWrkr.RunWorkerAsync();
+                CustWindow.Show();
+                Stage.showCust = true;
+                return;
         }
 
         //Handles the scrolling BG
@@ -355,25 +353,20 @@ namespace OpenBN
             myBackground = new TiledBackground(ss.Animation.CurrentFrame, 240, 160);
             myBackground._startCoord = bgpos;
             bgReady = true;
-            bool scrolltick = false;
-            var scrollcnt2 = 0;
+
             var scrollcnt = 0;
+
+            do {} while ((int)flash_opacity != 0);
+
             do
             {
                 if (terminateGame) return;
-                if (scrollcnt == 2) { scrolltick = true; }
-                if (scrolltick)
+                if (scrollcnt % 2 == 0)
                 {
-                    if (scrollcnt2 > 10){scrollcnt2 = 0;scrollcnt = 0;}
-                    else
-                    {
                         bgpos.X = (bgpos.X - 1) % 128;
                         if (bgpos.X % 2 != 0)
                         {bgpos.Y = (bgpos.Y - 1) % 64;}
-                        scrolltick = false;
-                        scrollcnt2++;
                         scrollcnt = 0;
-                    }
                 }
                 
                 ss.Animation.Next();
@@ -394,6 +387,7 @@ namespace OpenBN
         {
             //Send fresh data to input handler
             Input.Update(Keyboard.GetState(), gameTime);
+            MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
 
             var ks_z = Input.KbStream[Keys.Z];
             var ks_q = Input.KbStream[Keys.Q];
@@ -491,13 +485,12 @@ namespace OpenBN
             base.Update(gameTime);
         }
 
+
+        SpriteBatch targetBatch;
+        RenderTarget2D target;
+
         protected override void Draw(GameTime gameTime)
         {
-            if (terminateGame) return;
-            MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
-
-            SpriteBatch targetBatch = new SpriteBatch(GraphicsDevice);
-            RenderTarget2D target = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
