@@ -14,6 +14,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Audio;
 using OpenBN.ScriptedSprites;
+using System.Reflection;
 
 namespace OpenBN
 {
@@ -84,8 +85,16 @@ namespace OpenBN
         Keys[] ArrowKeys;
         #endregion
 
+        bool manualTick = true;
+        int manualTickCount = 0;
+        System.Windows.Forms.Timer mTimer;
+        float desat = 1;
+
+
         protected override void Initialize()
         {
+            mTimer.Start();
+
             base.Initialize();
 
             //Assign bgwrkrs
@@ -96,6 +105,9 @@ namespace OpenBN
 
             this.Activated += BattleField_Activated;
             this.Deactivated += BattleField_Deactivated;
+
+            Exiting += BattleField_Exiting;
+
             foreach (Keys x in MonitoredKeys)
             {
                 KeyLatch.Add(x, false);
@@ -161,12 +173,15 @@ namespace OpenBN
             var bgcode = bgcodelist[(int)rnd.Next(bgcodelist.Count())];
             var xs = Content.RootDirectory + "/BG/" + bgcode + "/BG.sasl";
             var xx = File.ReadAllText(xs);
-            ss = new SSParser(xx, Content.Load<Texture2D>("BG/" + bgcode + "/" + bgcode), graphics.GraphicsDevice);
+            BG_SS = new SSParser(xx, Content.Load<Texture2D>("BG/" + bgcode + "/" + bgcode), graphics.GraphicsDevice);
 
             myBackground = new TiledBackground(BG_SS.Animation.CurrentFrame, 240, 160);
             myBackground._startCoord = bgpos;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void SixtyHzBgWrkr_DoWork(object sender, DoWorkEventArgs e)
         {
             do
@@ -174,11 +189,12 @@ namespace OpenBN
                 if (this.IsActive)
                 {
                     CustWindow.Update();
-                    Thread.Sleep(12);
                     desat = 1;
+                    Thread.Sleep(12);
                 }
                 else
                 {
+                    Debug.Print(desat.ToString());
                     desat -= 0.1f;
                     desat = MathHelper.Clamp(desat, 0, 1);
                     Desaturate.Parameters["ColourAmount"].SetValue(desat);
@@ -188,10 +204,19 @@ namespace OpenBN
             } while (!terminateGame);
         }
 
-        float desat = 1;
 
         public BattleField()
         {
+            // Necessary enchantments to ward off the updater bug
+            // UUU LAA UUU LAA *summons cybeasts instead*
+            {
+                mTimer = new System.Windows.Forms.Timer { Interval = (int)(TargetElapsedTime.TotalMilliseconds) };
+                mTimer.Tick += (s, e) => { if (manualTickCount > 2) { manualTick = true; Tick(); manualTick = false; } manualTickCount++; };
+                object host = typeof(Game).GetField("host", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this);
+                host.GetType().BaseType.GetField("Suspend", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(host, null);
+                host.GetType().BaseType.GetField("Resume", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(host, null);
+            }
+
             graphics = new GraphicsDeviceManager(this);
             graphics.IsFullScreen = false;
             graphics.PreferredBackBufferWidth = screenres.W * screenresscalar;
@@ -203,6 +228,13 @@ namespace OpenBN
             this.Window.ClientSizeChanged += Window_ClientSizeChanged;
         }
 
+
+        private void BattleField_Exiting(object sender, EventArgs e)
+        {
+            terminateGame = true;
+            mTimer.Dispose();
+        }
+
         private void Window_ClientSizeChanged(object sender, EventArgs e)
         {
             UpdateViewbox();
@@ -211,6 +243,9 @@ namespace OpenBN
             graphics.ApplyChanges();
         }
 
+        /// <summary>
+        /// Handles User Navi's controls
+        /// </summary>
         private void UserNavBgWrk_DoWork(object sender, DoWorkEventArgs e)
         {
 
@@ -375,7 +410,9 @@ namespace OpenBN
             } while (!terminateGame);
         }
 
-        //Handles the flashing intro and SFX
+        /// <summary>
+        /// Handles the flashing intro and SFX
+        /// </summary>
         private void Flash_DoWork(object sender, DoWorkEventArgs e)
         {
             flash_opacity = 1;
@@ -399,7 +436,9 @@ namespace OpenBN
             return;
         }
 
-        //Handles the scrolling BG
+        /// <summary>
+        ///  Handles the diagonally scrolling BG
+        /// </summary>
         private void BgUpdater_DoWork(object sender, DoWorkEventArgs e)
         {
             do
@@ -427,13 +466,14 @@ namespace OpenBN
 
         }
 
-        protected override void UnloadContent()
-        { terminateGame = true; }
-
         protected override void Update(GameTime gameTime)
         {
             if (this.IsActive)
             {
+                if (!manualTick)
+                {
+                    manualTickCount = 0;
+                }
                 //Send fresh data to input handler
                 Input.Update(Keyboard.GetState(), gameTime);
                 MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
