@@ -83,6 +83,9 @@ namespace OpenBN
         Keys[] MonitoredKeys;
         Keys[] ArrowKeys;
         #endregion
+        System.Windows.Forms.Form myForm;
+
+        public bool IsGameActive { get; private set; }
 
         public BattleField()
         {
@@ -94,8 +97,9 @@ namespace OpenBN
                 object host = typeof(Game).GetField("host", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this);
                 host.GetType().BaseType.GetField("Suspend", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(host, null);
                 host.GetType().BaseType.GetField("Resume", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(host, null);
+                myForm = (System.Windows.Forms.Form)System.Windows.Forms.Form.FromHandle(this.Window.Handle);
             }
-
+    
             graphics = new GraphicsDeviceManager(this);
             graphics.IsFullScreen = false;
             graphics.PreferredBackBufferWidth = screenres.W * screenresscalar;
@@ -165,11 +169,14 @@ namespace OpenBN
         protected override void OnDeactivated(object sender, EventArgs e)
         {
             Debug.Print("d");
+            IsGameActive = false;
             // if (ContentLoaded) PlaySfx(60);
         }
         protected override void OnActivated(object sender, EventArgs e)
         {
             Debug.Print("t");
+            IsGameActive = true;
+
             //  if (ContentLoaded) PlaySfx(60);
         }
 
@@ -207,9 +214,19 @@ namespace OpenBN
         {
             do
             {
-                if (this.IsActive)
+                if (IsGameActive)
                 {
                     CustWindow.Update();
+
+                    switch (myForm.WindowState)
+                    {
+                        case System.Windows.Forms.FormWindowState.Normal:
+                            IsGameActive = true;
+                            break;
+                        case System.Windows.Forms.FormWindowState.Minimized:
+                            IsGameActive = false;
+                            break;
+                    }
 
                     if (desat < 1)
                     {
@@ -254,7 +271,7 @@ namespace OpenBN
 
             do
             {
-                if (this.IsActive && !CustWindow.showCust)
+                if (IsGameActive && !CustWindow.showCust)
                 {
                     if (Input != null && MegamanEXE.finish)
                     {
@@ -451,7 +468,7 @@ namespace OpenBN
 
         protected override void Update(GameTime gameTime)
         {
-            if (this.IsActive)
+            if (IsGameActive)
             {
                 if (!manualTick)
                 {
@@ -584,7 +601,7 @@ namespace OpenBN
             UpdateViewbox();
 
             // Convert to grayscale when inactive.
-            if (this.IsActive)
+            if (IsGameActive)
             {
                 targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
