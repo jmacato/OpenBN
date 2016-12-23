@@ -17,7 +17,7 @@ namespace OpenBN
         public int MaxHP { get; set; }
         public string ChipCodeStr = "@ABCD";
 
-        int HPState;
+        public int HPState;
 
         Texture2D customtextures;
         Dictionary<string, Rectangle> CustSrcRects;
@@ -48,7 +48,9 @@ namespace OpenBN
             HPFontNorm = Fonts.List["HPFont"];
             HPFontCrit = Fonts.List["HPFontMinus"];
             HPFontRecv = Fonts.List["HPFontPlus"];
-
+            CustWinRect = CustSrcRects["CustWind"];
+            hp = CustSrcRects["HPBAR"];
+            ChipCodes = Fonts.List["ChipCodesB"];
             HPFontNorm.Spacing = 1;
             HPFontCrit.Spacing = 1;
             HPFontRecv.Spacing = 1;
@@ -58,8 +60,11 @@ namespace OpenBN
             LastHP = CurrentHP;
 
             showCust = false;
-        }
+            DrawEnabled = true;
+            hpfnt = HPFontNorm;
 
+        }
+        bool DrawEnabled = false;
         Random Rnd = new Random();
         public void Show()
         {
@@ -91,6 +96,19 @@ namespace OpenBN
                     custPos.X = MathHelper.Clamp(custPos.X-10,-120, 0);
             }
 
+                switch (HPState)
+                {
+                    case 1:
+                        hpfnt = HPFontCrit;
+                        break;
+                    case 2:
+                        hpfnt = HPFontRecv;
+                        break;
+                    default:
+                        hpfnt = HPFontNorm;
+                        break;
+                }
+
             HPState = 0;
 
             if (CurrentHP >= MaxHP * 0.20)
@@ -118,37 +136,24 @@ namespace OpenBN
         }
 
         SpriteFont hpfnt;
+        Rectangle CustWinRect, hp;
+
 
         public void Draw()
         {
-            if (customtextures != null)
+            if (customtextures != null && DrawEnabled)
             {
                 if (custPos.X != -120)
                 {
-                    var u = CustSrcRects["CustWind"];
-                    var y = new Rectangle((int)custPos.X, 0, u.Width, u.Height);
-                    SB.Draw(customtextures, y, u, Color.White);
+                    var y = new Rectangle((int)custPos.X, 0, CustWinRect.Width, CustWinRect.Height);
+                    SB.Draw(customtextures, y, CustWinRect, Color.White);
                     DrawMiniChipCodes(custPos.X);
 
                 }
 
-                var hp = CustSrcRects["HPBAR"];
                 var hprct = new Rectangle((int)custPos.X + 122, 1, hp.Width, hp.Height);
                 SB.Draw(customtextures, hprct, hp, Color.White);
 
-
-                switch (HPState)
-                {
-                    case 1:
-                        hpfnt = HPFontCrit;
-                        break;
-                    case 2:
-                        hpfnt = HPFontRecv;
-                        break;
-                    default:
-                        hpfnt = HPFontNorm;
-                        break;
-                }
 
                 int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
                 Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6 ,hprct.Y);
@@ -157,10 +162,11 @@ namespace OpenBN
             }
         }
 
+        SpriteFont ChipCodes;
+        
         public void DrawMiniChipCodes(float x)
         {
             var startpoint = new Vector2(x+8, 119);
-            var ChipCodes = Fonts.List["ChipCodesB"];
             var Measure = ChipCodes.MeasureString(ChipCodeStr);
             ChipCodes.Spacing = 0;
             SB.DrawString(ChipCodes, ChipCodeStr, startpoint, Color.White);

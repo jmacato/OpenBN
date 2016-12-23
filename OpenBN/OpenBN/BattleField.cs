@@ -20,6 +20,8 @@ namespace OpenBN
     public class BattleField : Microsoft.Xna.Framework.Game
     {
 
+        #region Declares
+
         public Size screenres = new Size(240, 160);
         public Vector2 screenresvect = new Vector2(240, 160);
         public int screenresscalar = 2;
@@ -61,25 +63,26 @@ namespace OpenBN
         CustomWindow CustWindow;
         Texture2D flsh;
 
-        
         SpriteBatch targetBatch;
         RenderTarget2D target;
 
-
-        Keys[] MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z,
-                                            Keys.Up, Keys.Down, Keys.Left, Keys.Right,
-                                            Keys.Q, Keys.W, Keys.R, Keys.M};
-        Keys[] ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
-
         RenderTarget2D EnemyNameCache;
         FontHelper Fonts;
+        SSParser ss;
+        Effect Desaturate;
 
         float flash_opacity = 1;
         bool terminateGame = false;
-        bool bgReady = false;
         bool mute = false;
         public bool DisplayEnemyNames = true;
         string debugTXT = "";
+
+        public int InactiveWaitMs = 10;
+        int scrollcnt = 0;
+
+        Keys[] MonitoredKeys;
+        Keys[] ArrowKeys;
+        #endregion
 
         protected override void Initialize()
         {
@@ -96,13 +99,17 @@ namespace OpenBN
                 KeyLatch.Add(x, false);
             }
         }
+
         protected override void LoadContent()
         {
+
             SoundEffect.MasterVolume = 0f;
             spriteBatch = new SpriteBatch(GraphicsDevice);
             targetBatch = new SpriteBatch(GraphicsDevice);
-            target =  new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
+            target = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
             flsh = RectangleFill(new Rectangle(0, 0, screenres.W, screenres.H), ColorHelper.FromHex(0xF8F8F8), false);
+            MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Q, Keys.W, Keys.R, Keys.M};
+            ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
 
             Stage = new Stage(Content);
             Stage.SB = spriteBatch;
@@ -111,8 +118,9 @@ namespace OpenBN
             CustWindow = new CustomWindow(Content, Fonts);
             CustWindow.SB = spriteBatch;
 
+            Desaturate = Content.Load<Effect>("Shaders/Desaturate");
+            Input.Halt = true;
             RenderQueue.Add(Stage);
-
             MegamanEXE = new UserNavi("MM", Content, spriteBatch);
 
             MegamanEXE.btlcol = 2;
@@ -127,8 +135,23 @@ namespace OpenBN
             EnemyNames.Add("Mettaur");
             EnemyNames.Add("Mettaur");
 
+            LoadBG();
+
             flash.RunWorkerAsync();
 
+        }
+
+        private void LoadBG()
+        {
+            string[] bgcodelist = { "SS", "SK", "AD", "CA", "GH" };
+            Random rnd = new Random();
+            var bgcode = bgcodelist[(int)rnd.Next(bgcodelist.Count())];
+            var xs = Content.RootDirectory + "/BG/" + bgcode + "/BG.sasl";
+            var xx = File.ReadAllText(xs);
+            ss = new SSParser(xx, Content.Load<Texture2D>("BG/" + bgcode + "/" + bgcode), graphics.GraphicsDevice);
+
+            myBackground = new TiledBackground(ss.Animation.CurrentFrame, 240, 160);
+            myBackground._startCoord = bgpos;
         }
 
         private void SixtyHzBgWrkr_DoWork(object sender, DoWorkEventArgs e)
@@ -140,6 +163,7 @@ namespace OpenBN
                     CustWindow.Update();
                     Thread.Sleep(12);
                 }
+                else { Thread.Sleep(InactiveWaitMs); }
 
             } while (!terminateGame);
         }
@@ -181,317 +205,310 @@ namespace OpenBN
 
             do
             {
-                if (CustWindow.showCust) continue;
-                if (Input != null && MegamanEXE.finish)
+                if (this.IsActive && !CustWindow.showCust)
                 {
-                    #region Buster & Charge Shot
-                    var ks_x = Input.KbStream[Keys.X];
-                    switch (ks_x.KeyState)
+                    if (Input != null && MegamanEXE.finish)
                     {
-                        case KeyState.Down:
-                            if (ks_x.DurDelta < 800)
-                            {
-                                if (BusterState == 1) break;
-                                Debug.Print("chrg_Anim_start");
-                                PlaySfx(14);
-                                BusterState = 1;
-                            }
-                            else if (ks_x.DurDelta > 1500)
-                            {
-                                if (BusterState == 2) break;
-                                Debug.Print("chrg_Anim_start2");
-                                PlaySfx(15);
-                                BusterState = 2;
-                            }
-                            KeyLatch[Keys.X] = true;
-                            break;
-                        case KeyState.Up:
-                            if (KeyLatch[Keys.X] == true)
-                            {
-                                KeyLatch[Keys.X] = false;
-                                if (ks_x.DurDelta < 1500)
-                                {
-                                    Debug.Print("BstrSht");
-                                    MegamanEXE.SetAnimation("BUSTER");
-                                    PlaySfx(7);
-                                    BusterState = 0;
-                                    break;
-                                }
-                                else if (Input.KbStream[Keys.X].DurDelta > 1500)
-                                {
-                                    Debug.Print("ChgSht");
-                                    MegamanEXE.SetAnimation("BUSTER");
-                                    PlaySfx(76);
-                                    BusterState = 0;
-                                    break;
-                                }
-                                else
-                                {
-                                    if (BusterState > 0)
-                                    {
-                                        BusterState = 0;
-                                        KeyLatch[Keys.X] = false;
-                                    }
-                                }
-                            }
-                            break;
-                    }
-                    #endregion
-                    #region Stage Movement
-                    foreach (Keys ky_ar in ArrowKeys)
-                    {
-                        // if (!MegamanEXE.finish) break;
-                        var arrw_ks = Input.KbStream[ky_ar].KeyState;
-                        var arrw_dt = Input.KbStream[ky_ar].DurDelta;
-                        int tmp1 = 0;
-                        int tmp2 = 0;
-                        switch (arrw_ks)
+                        #region Buster & Charge Shot
+                        var ks_x = Input.KbStream[Keys.X];
+                        switch (ks_x.KeyState)
                         {
-                            case KeyState.Up:
-                                if (KeyLatch[ky_ar] == true && MegamanEXE.finish)
+                            case KeyState.Down:
+                                if (ks_x.DurDelta < 800)
                                 {
-                                    tmp1 = tmpcol;
-                                    tmp2 = tmprow;
-
-                                    switch (ky_ar)
+                                    if (BusterState == 1) break;
+                                    Debug.Print("chrg_Anim_start");
+                                    PlaySfx(14);
+                                    BusterState = 1;
+                                }
+                                else if (ks_x.DurDelta > 1500)
+                                {
+                                    if (BusterState == 2) break;
+                                    Debug.Print("chrg_Anim_start2");
+                                    PlaySfx(15);
+                                    BusterState = 2;
+                                }
+                                KeyLatch[Keys.X] = true;
+                                break;
+                            case KeyState.Up:
+                                if (KeyLatch[Keys.X] == true)
+                                {
+                                    KeyLatch[Keys.X] = false;
+                                    if (ks_x.DurDelta < 1500)
                                     {
-                                        case Keys.Left:
-                                            tmp1--;
-                                            break;
-                                        case Keys.Right:
-                                            tmp1++;
-                                            break;
-                                        case Keys.Up:
-                                            tmp2--;
-                                            break;
-                                        case Keys.Down:
-                                            tmp2++;
-                                            break;
-                                    }
-                                    if (Stage.IsMoveAllowed(tmp2, tmp1))
-                                    {
-                                        switch (ky_ar)
-                                        {
-                                            case Keys.Left:
-                                                tmpcol--;
-                                                break;
-                                            case Keys.Right:
-                                                tmpcol++;
-                                                break;
-                                            case Keys.Up:
-                                                tmprow--;
-                                                break;
-                                            case Keys.Down:
-                                                tmprow++;
-                                                break;
-                                        }
-                                        MegamanEXE.SetAnimation("TELEPORT0");
-                                        KeyLatch[ky_ar] = false;
+                                        Debug.Print("BstrSht");
+                                        MegamanEXE.SetAnimation("BUSTER");
+                                        PlaySfx(7);
+                                        BusterState = 0;
                                         break;
                                     }
-                                    KeyLatch[ky_ar] = false;
-                                }
-
-                                break;
-                            case KeyState.Down:
-                                if (KeyLatch[ky_ar] == false)
-                                {
-                                    KeyLatch[ky_ar] = true;
+                                    else if (Input.KbStream[Keys.X].DurDelta > 1500)
+                                    {
+                                        Debug.Print("ChgSht");
+                                        MegamanEXE.SetAnimation("BUSTER");
+                                        PlaySfx(76);
+                                        BusterState = 0;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        if (BusterState > 0)
+                                        {
+                                            BusterState = 0;
+                                            KeyLatch[Keys.X] = false;
+                                        }
+                                    }
                                 }
                                 break;
                         }
+                        #endregion
+                        #region Stage Movement
+                        foreach (Keys ky_ar in ArrowKeys)
+                        {
+                            // if (!MegamanEXE.finish) break;
+                            var arrw_ks = Input.KbStream[ky_ar].KeyState;
+                            var arrw_dt = Input.KbStream[ky_ar].DurDelta;
+                            int tmp1 = 0;
+                            int tmp2 = 0;
+                            switch (arrw_ks)
+                            {
+                                case KeyState.Up:
+                                    if (KeyLatch[ky_ar] == true && MegamanEXE.finish)
+                                    {
+                                        tmp1 = tmpcol;
+                                        tmp2 = tmprow;
 
+                                        switch (ky_ar)
+                                        {
+                                            case Keys.Left:
+                                                tmp1--;
+                                                break;
+                                            case Keys.Right:
+                                                tmp1++;
+                                                break;
+                                            case Keys.Up:
+                                                tmp2--;
+                                                break;
+                                            case Keys.Down:
+                                                tmp2++;
+                                                break;
+                                        }
+                                        if (Stage.IsMoveAllowed(tmp2, tmp1))
+                                        {
+                                            switch (ky_ar)
+                                            {
+                                                case Keys.Left:
+                                                    tmpcol--;
+                                                    break;
+                                                case Keys.Right:
+                                                    tmpcol++;
+                                                    break;
+                                                case Keys.Up:
+                                                    tmprow--;
+                                                    break;
+                                                case Keys.Down:
+                                                    tmprow++;
+                                                    break;
+                                            }
+                                            MegamanEXE.SetAnimation("TELEPORT0");
+                                            KeyLatch[ky_ar] = false;
+                                            break;
+                                        }
+                                        KeyLatch[ky_ar] = false;
+                                    }
+
+                                    break;
+                                case KeyState.Down:
+                                    if (KeyLatch[ky_ar] == false)
+                                    {
+                                        KeyLatch[ky_ar] = true;
+                                    }
+                                    break;
+                            }
+                        }
+                        #endregion
                     }
-                    #endregion
-                }
 
-                if (MegamanEXE.CurAnimation == "TELEPORT0" && MegamanEXE.finish)
+                    if (MegamanEXE.CurAnimation == "TELEPORT0" && MegamanEXE.finish)
+                    {
+                        debugTXT = "  c" + tmpcol.ToString() + " r" + tmprow.ToString();
+                        MegamanEXE.btlcol = tmpcol;
+                        MegamanEXE.btlrow = tmprow;
+                        MegamanEXE.battlepos = Stage.GetStageCoords(tmprow, tmpcol, MegamanEXE.battleposoffset);
+                        MegamanEXE.SetAnimation("TELEPORT");
+                    }
+                    else if (MegamanEXE.CurAnimation != "DEFAULT" && MegamanEXE.finish)
+                    {
+                        MegamanEXE.SetAnimation("DEFAULT");
+                    }
+
+                    Thread.Sleep(10);
+
+                    if (MegamanEXE != null) MegamanEXE.Update();
+                }
+                else
                 {
-                    debugTXT = "  c" + tmpcol.ToString() + " r" + tmprow.ToString();
-                    MegamanEXE.btlcol = tmpcol;
-                    MegamanEXE.btlrow = tmprow;
-                    MegamanEXE.battlepos = Stage.GetStageCoords(tmprow, tmpcol, MegamanEXE.battleposoffset);
-                    MegamanEXE.SetAnimation("TELEPORT");
+                    Thread.Sleep(InactiveWaitMs);
                 }
-                else if (MegamanEXE.CurAnimation != "DEFAULT" && MegamanEXE.finish)
-                {
-                    MegamanEXE.SetAnimation("DEFAULT");
-                }
-
-                Thread.Sleep(10);
-
-                if (MegamanEXE != null) MegamanEXE.Update();
             } while (!terminateGame);
         }
 
         //Handles the flashing intro and SFX
         private void Flash_DoWork(object sender, DoWorkEventArgs e)
         {
-                flash_opacity = 1;
-                PlaySfx(21);
+            flash_opacity = 1;
+            PlaySfx(21);
+            UserNavBgWrk.RunWorkerAsync();
 
-                bgUpdater.RunWorkerAsync();
-                UserNavBgWrk.RunWorkerAsync();
-                Thread.Sleep(1000); //-10% Opacity per frame
-                do
-                {
-                    flash_opacity -= 0.1f;
-                    Thread.Sleep(30);
+            bgUpdater.RunWorkerAsync();
+            Thread.Sleep(1000); //-10% Opacity per frame
+            do
+            {
+                flash_opacity -= 0.1f;
+                Thread.Sleep(30);
+            } while (flash_opacity >= 0);
 
-                } while (flash_opacity >= 0);
-                PlayBgm(2);
-                SixtyHzBgWrkr.RunWorkerAsync();
-                CustWindow.Show();
-                Stage.showCust = true;
-                return;
+
+            PlayBgm(2);
+            SixtyHzBgWrkr.RunWorkerAsync();
+            CustWindow.Show();
+            Stage.showCust = true;
+            Input.Halt = false;
+            return;
         }
 
         //Handles the scrolling BG
         private void BgUpdater_DoWork(object sender, DoWorkEventArgs e)
         {
-            string[] bgcodelist = { "SS", "SK", "AD", "CA", "GH" };
-
-            Random rnd = new Random();
-
-            var bgcode = bgcodelist[(int)rnd.Next(bgcodelist.Count())];
-
-            var xs = Content.RootDirectory + "/BG/"+ bgcode + "/BG.sasl";
-            var xx = File.ReadAllText(xs);
-
-            var ss = new SSParser(xx, Content.Load<Texture2D>("BG/" + bgcode + "/" + bgcode), graphics.GraphicsDevice);
-
-            myBackground = new TiledBackground(ss.Animation.CurrentFrame, 240, 160);
-            myBackground._startCoord = bgpos;
-            var scrollcnt = 0;
-            do {} while ((int)flash_opacity != 0);
-            bgReady = true;
             do
             {
-                if (terminateGame) return;
-                if (scrollcnt % 2 == 0)
+                if (this.IsActive)
                 {
+                    if (terminateGame) return;
+                    if (scrollcnt % 2 == 0)
+                    {
                         bgpos.X = (bgpos.X - 1) % 128;
                         if (bgpos.X % 2 != 0)
-                        {bgpos.Y = (bgpos.Y - 1) % 64;}
+                        { bgpos.Y = (bgpos.Y - 1) % 64; }
                         scrollcnt = 0;
+                    }
+                    ss.Animation.Next();
+                    myBackground._texture = ss.Animation.CurrentFrame;
+                    Thread.Sleep(16);
+                    scrollcnt++;
                 }
-                
-                ss.Animation.Next();
-
-                myBackground._texture = ss.Animation.CurrentFrame;
-                Thread.Sleep(16);
-                scrollcnt++;
-
+                else
+                {
+                    Thread.Sleep(InactiveWaitMs);
+                }
             } while (!terminateGame);
-            bgReady = false;
 
-            return;
         }
+
         protected override void UnloadContent()
         { terminateGame = true; }
 
         protected override void Update(GameTime gameTime)
         {
-            //Send fresh data to input handler
-            Input.Update(Keyboard.GetState(), gameTime);
-            MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
-
-            var ks_z = Input.KbStream[Keys.Z];
-            var ks_q = Input.KbStream[Keys.Q];
-            var ks_r = Input.KbStream[Keys.R];
-            var ks_m = Input.KbStream[Keys.M];
-
-            switch (ks_z.KeyState)
+            if (this.IsActive)
             {
-                case KeyState.Down:
-                    if (KeyLatch[Keys.Z] == false)
-                    {
-                        KeyLatch[Keys.Z] = true;
-                    }
-                    break;
-                case KeyState.Up:
-                    if (KeyLatch[Keys.Z] == true)
-                    {
-                        KeyLatch[Keys.Z] = false;
-                        if (CustWindow.showCust)
+                //Send fresh data to input handler
+                Input.Update(Keyboard.GetState(), gameTime);
+                MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
+
+                var ks_z = Input.KbStream[Keys.Z];
+                var ks_q = Input.KbStream[Keys.Q];
+                var ks_r = Input.KbStream[Keys.R];
+                var ks_m = Input.KbStream[Keys.M];
+
+                switch (ks_z.KeyState)
+                {
+                    case KeyState.Down:
+                        if (KeyLatch[Keys.Z] == false)
                         {
-                            CustWindow.Hide();
-                            Stage.showCust = false;
+                            KeyLatch[Keys.Z] = true;
                         }
-                        else
+                        break;
+                    case KeyState.Up:
+                        if (KeyLatch[Keys.Z] == true)
                         {
-                            CustWindow.Show();
-                            Stage.showCust = true;
+                            KeyLatch[Keys.Z] = false;
+                            if (CustWindow.showCust)
+                            {
+                                CustWindow.Hide();
+                                Stage.showCust = false;
+                            }
+                            else
+                            {
+                                CustWindow.Show();
+                                Stage.showCust = true;
+                            }
                         }
-                    }
-                    break;
-            }
-
-            switch (ks_q.KeyState)
-            {
-                case KeyState.Down:
-                    if (KeyLatch[Keys.Q] == false)
-                    {
-                        KeyLatch[Keys.Q] = true;
-                    }
-                    break;
-                case KeyState.Up:
-                    if (KeyLatch[Keys.Q] == true)
-                    {
-                        CustWindow.SetHP(-500);
-                        KeyLatch[Keys.Q] = false;
-                    }
-                    break;
-            }
-
-            switch (ks_r.KeyState)
-            {
-                case KeyState.Down:
-                    if (KeyLatch[Keys.R] == false)
-                    {
-                        KeyLatch[Keys.R] = true;
-                    }
-                    break;
-                case KeyState.Up:
-                    if (KeyLatch[Keys.R] == true)
-                    {
-                        CustWindow.SetHP(500);
-                        KeyLatch[Keys.R] = false;
-                    }
-                    break;
-            }
-
-            switch (ks_m.KeyState)
-            {
-                case KeyState.Down:
-                    if (KeyLatch[Keys.M] == false)
-                    {
-                        KeyLatch[Keys.M] = true;
-                    }
-                    break;
-                case KeyState.Up:
-                    if (KeyLatch[Keys.M] == true)
-                    {
-                        mute = !mute;
-
-                        if (mute)
+                        break;
+                }
+                switch (ks_q.KeyState)
+                {
+                    case KeyState.Down:
+                        if (KeyLatch[Keys.Q] == false)
                         {
-                            SoundEffect.MasterVolume = 0f;
-
+                            KeyLatch[Keys.Q] = true;
                         }
-                        else
+                        break;
+                    case KeyState.Up:
+                        if (KeyLatch[Keys.Q] == true)
                         {
-                            SoundEffect.MasterVolume = 1f;
+                            CustWindow.SetHP(-500);
+                            KeyLatch[Keys.Q] = false;
                         }
+                        break;
+                }
+                switch (ks_r.KeyState)
+                {
+                    case KeyState.Down:
+                        if (KeyLatch[Keys.R] == false)
+                        {
+                            KeyLatch[Keys.R] = true;
+                        }
+                        break;
+                    case KeyState.Up:
+                        if (KeyLatch[Keys.R] == true)
+                        {
+                            CustWindow.SetHP(500);
+                            KeyLatch[Keys.R] = false;
+                        }
+                        break;
+                }
+                switch (ks_m.KeyState)
+                {
+                    case KeyState.Down:
+                        if (KeyLatch[Keys.M] == false)
+                        {
+                            KeyLatch[Keys.M] = true;
+                        }
+                        break;
+                    case KeyState.Up:
+                        if (KeyLatch[Keys.M] == true)
+                        {
+                            mute = !mute;
 
-                        KeyLatch[Keys.M] = false;
-                    }
-                    break;
+                            if (mute)
+                            {
+                                SoundEffect.MasterVolume = 0f;
+
+                            }
+                            else
+                            {
+                                SoundEffect.MasterVolume = 1f;
+                            }
+
+                            KeyLatch[Keys.M] = false;
+                        }
+                        break;
+                }
             }
-
+            else { Thread.Sleep(InactiveWaitMs); }
             base.Update(gameTime);
         }
-
 
         protected override void Draw(GameTime gameTime)
         {
@@ -501,14 +518,10 @@ namespace OpenBN
             //Render Objects, Back to front layer
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
-            //Draw the background
-            if (bgReady)
-            {
-                myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0));
-                myBackground.Draw(spriteBatch);
-                if (RenderQueue.Count > 0) { foreach (IBattleEntity s in RenderQueue) { s.Draw(); } }
 
-            }
+            myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0));
+            myBackground.Draw(spriteBatch);
+            if (RenderQueue.Count > 0) { foreach (IBattleEntity s in RenderQueue) { s.Draw(); } }
 
             DrawEnemyNames();
             DrawDebugText();
@@ -524,8 +537,17 @@ namespace OpenBN
             //Update screen metrics
             UpdateViewbox();
 
-            //Render target to back buffer
-            targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
+            // Convert to grayscale when inactive.
+            if (this.IsActive)
+            {
+                targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
+
+            }
+            else
+            {
+                targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, Desaturate);
+            }
+
             GraphicsDevice.Clear(Color.Black);
             targetBatch.Draw(target, Viewbox, Color.White);
             targetBatch.End();
@@ -533,6 +555,8 @@ namespace OpenBN
             //Loop again
             base.Draw(gameTime);
         }
+
+        #region Helper Functions
 
         /// <summary>
         /// Creates a rect with color fill, with option to create another texture.
@@ -733,6 +757,8 @@ namespace OpenBN
 
             Viewbox = new Rectangle(viewportX, viewportY, viewportWidth, viewportHeight);
         }
+
+        #endregion
 
     }
 }

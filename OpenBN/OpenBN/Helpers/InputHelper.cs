@@ -41,6 +41,10 @@ namespace OpenBN
                                     .Where(p => p.Value.KeyState == KeyState.Down)
                                     .ToArray();
         }
+        
+        public bool Halt {
+            get; set;
+        }
 
         public void Update(KeyboardState keyTrigger, GameTime gmt)
         {
@@ -52,6 +56,9 @@ namespace OpenBN
             //}
 
             //Set oldkbdstate to initial value
+
+            if (Halt) return;
+
             if (oldKeyboardState == null) { oldKeyboardState = keyTrigger; return; }
 
             foreach (Keys u in oldKeyboardState.GetPressedKeys())
