@@ -28,7 +28,7 @@ namespace OpenBN
 
         public bool showCust { get; private set; }
 
-        Vector2 custPos = new Vector2(-120,0);
+        Vector2 custPos = new Vector2(-120, 0);
 
         public CustomWindow(ContentManager x, FontHelper Font)
         {
@@ -89,25 +89,26 @@ namespace OpenBN
             if (showCust)
             {
                 if (custPos.X != 0)
-                    custPos.X = MathHelper.Clamp(custPos.X+10,-120,0);
-            } else
+                    custPos.X = MathHelper.Clamp(custPos.X + 10, -120, 0);
+            }
+            else
             {
                 if (custPos.X != -120)
-                    custPos.X = MathHelper.Clamp(custPos.X-10,-120, 0);
+                    custPos.X = MathHelper.Clamp(custPos.X - 10, -120, 0);
             }
 
-                switch (HPState)
-                {
-                    case 1:
-                        hpfnt = HPFontCrit;
-                        break;
-                    case 2:
-                        hpfnt = HPFontRecv;
-                        break;
-                    default:
-                        hpfnt = HPFontNorm;
-                        break;
-                }
+            switch (HPState)
+            {
+                case 1:
+                    hpfnt = HPFontCrit;
+                    break;
+                case 2:
+                    hpfnt = HPFontRecv;
+                    break;
+                default:
+                    hpfnt = HPFontNorm;
+                    break;
+            }
 
             HPState = 0;
 
@@ -156,17 +157,17 @@ namespace OpenBN
 
 
                 int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
-                Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6 ,hprct.Y);
+                Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
                 SB.DrawString(hpfnt, CurrentHP.ToString(), hptxtrct, Color.White);
 
             }
         }
 
         SpriteFont ChipCodes;
-        
+
         public void DrawMiniChipCodes(float x)
         {
-            var startpoint = new Vector2(x+8, 119);
+            var startpoint = new Vector2(x + 8, 119);
             var Measure = ChipCodes.MeasureString(ChipCodeStr);
             ChipCodes.Spacing = 0;
             SB.DrawString(ChipCodes, ChipCodeStr, startpoint, Color.White);

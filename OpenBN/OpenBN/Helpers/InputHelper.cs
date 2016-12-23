@@ -42,21 +42,11 @@ namespace OpenBN
                                     .ToArray();
         }
         
-        public bool Halt {
-            get; set;
-        }
+        public bool Halt {get; set;}
 
         public void Update(KeyboardState keyTrigger, GameTime gmt)
         {
-
-            ////Reset Buffer after 500ms
-            //if (gmt.TotalGameTime.Milliseconds%1000 == 0)
-            //{
-            //    InputHandled(MonitKeys);
-            //}
-
-            //Set oldkbdstate to initial value
-
+            
             if (Halt) return;
 
             if (oldKeyboardState == null) { oldKeyboardState = keyTrigger; return; }
