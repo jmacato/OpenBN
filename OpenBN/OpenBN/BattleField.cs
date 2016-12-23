@@ -94,10 +94,23 @@ namespace OpenBN
             UserNavBgWrk.DoWork += UserNavBgWrk_DoWork;
             flash.DoWork += Flash_DoWork;
             SixtyHzBgWrkr.DoWork += SixtyHzBgWrkr_DoWork;
+
+            this.Activated += BattleField_Activated;
+            this.Deactivated += BattleField_Deactivated;
             foreach (Keys x in MonitoredKeys)
             {
                 KeyLatch.Add(x, false);
             }
+        }
+
+        private void BattleField_Deactivated(object sender, EventArgs e)
+        {
+            PlaySfx(60);
+        }
+
+        private void BattleField_Activated(object sender, EventArgs e)
+        {
+            PlaySfx(60);
         }
 
         protected override void LoadContent()
@@ -119,6 +132,8 @@ namespace OpenBN
             CustWindow.SB = spriteBatch;
 
             Desaturate = Content.Load<Effect>("Shaders/Desaturate");
+
+
             Input.Halt = true;
             RenderQueue.Add(Stage);
             MegamanEXE = new UserNavi("MM", Content, spriteBatch);
@@ -138,7 +153,6 @@ namespace OpenBN
             LoadBG();
 
             flash.RunWorkerAsync();
-
         }
 
         private void LoadBG()
@@ -162,11 +176,20 @@ namespace OpenBN
                 {
                     CustWindow.Update();
                     Thread.Sleep(12);
+                    desat = 1;
                 }
-                else { Thread.Sleep(InactiveWaitMs); }
+                else
+                {
+                    desat-=0.1f;
+                    desat = MathHelper.Clamp(desat, 0, 1);
+                    Desaturate.Parameters["ColourAmount"].SetValue(desat);
+                    Thread.Sleep(12);
+                }
 
             } while (!terminateGame);
         }
+
+        float desat = 1;
 
         public BattleField()
         {
@@ -344,7 +367,7 @@ namespace OpenBN
 
                     Thread.Sleep(10);
 
-                    if (MegamanEXE != null) MegamanEXE.Update();
+                    if (MegamanEXE != null) MegamanEXE.Next();
                 }
                 else
                 {
@@ -415,7 +438,10 @@ namespace OpenBN
                 //Send fresh data to input handler
                 Input.Update(Keyboard.GetState(), gameTime);
                 MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
-
+                foreach(IBattleEntity Renderable in RenderQueue)
+                {
+                    Renderable.Update();
+                }
                 var ks_z = Input.KbStream[Keys.Z];
                 var ks_q = Input.KbStream[Keys.Q];
                 var ks_r = Input.KbStream[Keys.R];
@@ -494,7 +520,6 @@ namespace OpenBN
                             if (mute)
                             {
                                 SoundEffect.MasterVolume = 0f;
-
                             }
                             else
                             {
@@ -545,6 +570,7 @@ namespace OpenBN
             }
             else
             {
+               // .SetValue(0.9f);
                 targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, Desaturate);
             }
 
@@ -555,6 +581,8 @@ namespace OpenBN
             //Loop again
             base.Draw(gameTime);
         }
+
+        
 
         #region Helper Functions
 

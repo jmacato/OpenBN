@@ -44,6 +44,11 @@ namespace OpenBN
 
         public void Update()
         {
+
+        }
+
+        public void Next()
+        {
             if (finish) return;
 
             if (AnimationDict[CurAnimation].Count() < CurFrame + 1)

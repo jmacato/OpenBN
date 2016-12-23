@@ -38,34 +38,8 @@ namespace OpenBN
 
         public void Draw()
         {
-            if (showCust)
-            {
-                lolxy = (int)MathHelper.Clamp(lolxy + 2, 71, 87);
-                StgPos = new Point(0,lolxy);
-            }
-            else
-            {
-                lolxy = (int)MathHelper.Clamp(lolxy - 2, 71, 87);
-                StgPos = new Point(0, lolxy);
-            }
 
-            for (int i = 0; i < 3; i++) // For each row
-            {
-                for (int j = 0; j < 6; j++) // For each col
-                {
-                    //Get the linear index of the col/row pair
-                    var u = GetIndex(i, j);
-                    //Designate colors accrd. to DefaultPnlColr
-                    var x = DefaultPnlColr[u];
-                    //Designate specific pos with offset of the StgPos
-                    var y = new Point(PnlColPnt[j] + StgPos.X, PnlRowPnt[i] + StgPos.Y);
-                    PanelArray[u].StgPnlPos = y;
-                }
-            }
-
-
-
-            //Draw the red squares first coz blue panels takes the higher z-order
+           //Draw the red squares first coz blue panels takes the higher z-order
             //on the game
             foreach (Panel Pnl in PanelArray)
             {
@@ -88,6 +62,34 @@ namespace OpenBN
         public void Update()
         {
             //Animate the panels if necessary
+
+            if (showCust)
+            {
+                lolxy = (int)MathHelper.Clamp(lolxy + 2, 71, 87);
+                StgPos = new Point(0, lolxy);
+            }
+            else
+            {
+                lolxy = (int)MathHelper.Clamp(lolxy - 2, 71, 87);
+                StgPos = new Point(0, lolxy);
+            }
+
+
+            for (int i = 0; i < 3; i++) // For each row
+            {
+                for (int j = 0; j < 6; j++) // For each col
+                {
+                    //Get the linear index of the col/row pair
+                    var u = GetIndex(i, j);
+                    //Designate colors accrd. to DefaultPnlColr
+                    var x = DefaultPnlColr[u];
+                    //Designate specific pos with offset of the StgPos
+                    var y = new Point(PnlColPnt[j] + StgPos.X, PnlRowPnt[i] + StgPos.Y);
+                    PanelArray[u].StgPnlPos = y;
+                }
+            }
+
+
         }
 
         public Vector2 GetStageCoords(int row, int col, Vector2 offset)
