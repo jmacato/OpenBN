@@ -1,17 +1,13 @@
 using System;
 using System.Threading;
-using System.Net.Sockets;
 using System.Linq;
 using System.IO;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Audio;
 using OpenBN.ScriptedSprites;
 using System.Reflection;
@@ -71,139 +67,22 @@ namespace OpenBN
         FontHelper Fonts;
         SSParser BG_SS;
         Effect Desaturate;
+        System.Windows.Forms.Timer mTimer;
 
         float flash_opacity = 1;
-        bool terminateGame = false;
+        bool terminateGame;
         bool mute = false;
         public bool DisplayEnemyNames = true;
         string debugTXT = "";
-
+        bool manualTick = true;
+        int manualTickCount = 0;
+        float desat = 1;
         public int InactiveWaitMs = 10;
         int scrollcnt = 0;
 
         Keys[] MonitoredKeys;
         Keys[] ArrowKeys;
         #endregion
-
-        bool manualTick = true;
-        int manualTickCount = 0;
-        System.Windows.Forms.Timer mTimer;
-        float desat = 1;
-
-
-        protected override void Initialize()
-        {
-            mTimer.Start();
-
-            base.Initialize();
-
-            //Assign bgwrkrs
-            bgUpdater.DoWork += BgUpdater_DoWork;
-            UserNavBgWrk.DoWork += UserNavBgWrk_DoWork;
-            flash.DoWork += Flash_DoWork;
-            SixtyHzBgWrkr.DoWork += SixtyHzBgWrkr_DoWork;
-
-            this.Activated += BattleField_Activated;
-            this.Deactivated += BattleField_Deactivated;
-
-            Exiting += BattleField_Exiting;
-
-            foreach (Keys x in MonitoredKeys)
-            {
-                KeyLatch.Add(x, false);
-            }
-        }
-
-        private void BattleField_Deactivated(object sender, EventArgs e)
-        {
-            PlaySfx(60);
-        }
-
-        private void BattleField_Activated(object sender, EventArgs e)
-        {
-            PlaySfx(60);
-        }
-
-        protected override void LoadContent()
-        {
-
-            SoundEffect.MasterVolume = 0f;
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-            targetBatch = new SpriteBatch(GraphicsDevice);
-            target = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
-            flsh = RectangleFill(new Rectangle(0, 0, screenres.W, screenres.H), ColorHelper.FromHex(0xF8F8F8), false);
-            MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Q, Keys.W, Keys.R, Keys.M };
-            ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
-
-            Stage = new Stage(Content);
-            Stage.SB = spriteBatch;
-            Input = new Inputs(MonitoredKeys);
-            Fonts = new FontHelper(Content);
-            CustWindow = new CustomWindow(Content, Fonts);
-            CustWindow.SB = spriteBatch;
-
-            Desaturate = Content.Load<Effect>("Shaders/Desaturate");
-
-
-            Input.Halt = true;
-            RenderQueue.Add(Stage);
-            MegamanEXE = new UserNavi("MM", Content, spriteBatch);
-
-            MegamanEXE.btlcol = 2;
-            MegamanEXE.btlrow = 2;
-            MegamanEXE.enableRender = false;
-            RenderQueue.Add(MegamanEXE);
-
-            LoadSfx();
-            LoadBgm();
-
-            EnemyNames.Add("Mettaur");
-            EnemyNames.Add("Mettaur");
-            EnemyNames.Add("Mettaur");
-
-            LoadBG();
-
-            flash.RunWorkerAsync();
-        }
-
-        private void LoadBG()
-        {
-            string[] bgcodelist = { "SS", "SK", "AD", "CA", "GH" };
-            Random rnd = new Random();
-            var bgcode = bgcodelist[(int)rnd.Next(bgcodelist.Count())];
-            var xs = Content.RootDirectory + "/BG/" + bgcode + "/BG.sasl";
-            var xx = File.ReadAllText(xs);
-            BG_SS = new SSParser(xx, Content.Load<Texture2D>("BG/" + bgcode + "/" + bgcode), graphics.GraphicsDevice);
-
-            myBackground = new TiledBackground(BG_SS.Animation.CurrentFrame, 240, 160);
-            myBackground._startCoord = bgpos;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void SixtyHzBgWrkr_DoWork(object sender, DoWorkEventArgs e)
-        {
-            do
-            {
-                if (this.IsActive)
-                {
-                    CustWindow.Update();
-                    desat = 1;
-                    Thread.Sleep(12);
-                }
-                else
-                {
-                    Debug.Print(desat.ToString());
-                    desat -= 0.1f;
-                    desat = MathHelper.Clamp(desat, 0, 1);
-                    Desaturate.Parameters["ColourAmount"].SetValue(desat);
-                    Thread.Sleep(12);
-                }
-
-            } while (!terminateGame);
-        }
-
 
         public BattleField()
         {
@@ -227,10 +106,75 @@ namespace OpenBN
             this.Window.AllowUserResizing = false;
             this.Window.ClientSizeChanged += Window_ClientSizeChanged;
         }
-
-
-        private void BattleField_Exiting(object sender, EventArgs e)
+        protected override void Initialize()
         {
+            mTimer.Start();
+            base.Initialize();
+            terminateGame = false;
+
+            //Assign bgwrkrs
+            bgUpdater.DoWork += BgUpdater_DoWork;
+            UserNavBgWrk.DoWork += UserNavBgWrk_DoWork;
+            flash.DoWork += Flash_DoWork;
+            SixtyHzBgWrkr.DoWork += SixtyHzBgWrkr_DoWork;
+
+            foreach (Keys x in MonitoredKeys)
+            {
+                KeyLatch.Add(x, false);
+            }
+        }
+        protected override void LoadContent()
+        {
+          //  SoundEffect.MasterVolume = 0f;
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            targetBatch = new SpriteBatch(GraphicsDevice);
+            target = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
+            flsh = RectangleFill(new Rectangle(0, 0, screenres.W, screenres.H), ColorHelper.FromHex(0xF8F8F8), false);
+            MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Q, Keys.W, Keys.R, Keys.M };
+            ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
+
+            Stage = new Stage(Content);
+            Stage.SB = spriteBatch;
+            Input = new Inputs(MonitoredKeys);
+            Fonts = new FontHelper(Content);
+            CustWindow = new CustomWindow(Content, Fonts);
+            CustWindow.SB = spriteBatch;
+
+            Desaturate = Content.Load<Effect>("Shaders/Desaturate");
+
+            Input.Halt = true;
+            RenderQueue.Add(Stage);
+            MegamanEXE = new UserNavi("MM", Content, spriteBatch);
+
+            MegamanEXE.btlcol = 2;
+            MegamanEXE.btlrow = 2;
+            MegamanEXE.enableRender = false;
+            RenderQueue.Add(MegamanEXE);
+
+            LoadSfx();
+            LoadBgm();
+
+            EnemyNames.Add("Mettaur");
+            EnemyNames.Add("Mettaur");
+            EnemyNames.Add("Mettaur");
+
+            LoadBG();
+            flash.RunWorkerAsync();
+        }
+
+        protected override void OnDeactivated(object sender, EventArgs e)
+        {
+            Debug.Print("d");
+            // if (ContentLoaded) PlaySfx(60);
+        }
+        protected override void OnActivated(object sender, EventArgs e)
+        {
+            Debug.Print("t");
+            //  if (ContentLoaded) PlaySfx(60);
+        }
+
+        protected override void OnExiting(object sender, EventArgs e)
+        {            
             terminateGame = true;
             mTimer.Dispose();
         }
@@ -241,6 +185,54 @@ namespace OpenBN
             graphics.PreferredBackBufferHeight = Viewbox.Height;
             graphics.PreferredBackBufferWidth = Viewbox.Width;
             graphics.ApplyChanges();
+        }
+
+
+        private void LoadBG()
+        {
+            string[] bgcodelist = { "SS", "SK", "AD", "CA", "GH" };
+            Random rnd = new Random();
+            var bgcode = bgcodelist[(int)rnd.Next(bgcodelist.Count())];
+            var xs = Content.RootDirectory + "/BG/" + bgcode + "/BG.sasl";
+            var xx = File.ReadAllText(xs);
+            BG_SS = new SSParser(xx, Content.Load<Texture2D>("BG/" + bgcode + "/" + bgcode), graphics.GraphicsDevice);
+
+            myBackground = new TiledBackground(BG_SS.Animation.CurrentFrame, 240, 160);
+            myBackground._startCoord = bgpos;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        private void SixtyHzBgWrkr_DoWork(object sender, DoWorkEventArgs e)
+        {
+            do
+            {
+                if (this.IsActive)
+                {
+                    CustWindow.Update();
+
+                    if (desat < 1)
+                    {
+                        desat += 0.05f;
+                        desat = MathHelper.Clamp(desat, 0, 1);
+                        Desaturate.Parameters["ColourAmount"].SetValue(desat);
+                        SoundEffect.MasterVolume = desat;
+                    }
+                    Thread.Sleep(16);
+                }
+                else
+                {
+                    if (desat > 0)
+                    {
+                        desat -= 0.05f;
+                        desat = MathHelper.Clamp(desat, 0, 1);
+                        Desaturate.Parameters["ColourAmount"].SetValue(desat);
+                        SoundEffect.MasterVolume = desat;
+                    }
+
+                    Thread.Sleep(16);
+                }
+            } while (!terminateGame);
         }
 
         /// <summary>
@@ -409,7 +401,6 @@ namespace OpenBN
                 }
             } while (!terminateGame);
         }
-
         /// <summary>
         /// Handles the flashing intro and SFX
         /// </summary>
@@ -428,14 +419,14 @@ namespace OpenBN
             } while (flash_opacity >= 0);
 
 
-            PlayBgm(2);
+            PlayBgm(1);
             SixtyHzBgWrkr.RunWorkerAsync();
             CustWindow.Show();
             Stage.showCust = true;
             Input.Halt = false;
+
             return;
         }
-
         /// <summary>
         ///  Handles the diagonally scrolling BG
         /// </summary>
@@ -443,27 +434,19 @@ namespace OpenBN
         {
             do
             {
-                if (this.IsActive)
+                if (terminateGame) return;
+                if (scrollcnt % 2 == 0)
                 {
-                    if (terminateGame) return;
-                    if (scrollcnt % 2 == 0)
-                    {
-                        bgpos.X = (bgpos.X - 1) % 128;
-                        if (bgpos.X % 2 != 0)
-                        { bgpos.Y = (bgpos.Y - 1) % 64; }
-                        scrollcnt = 0;
-                    }
-                    BG_SS.Animation.Next();
-                    myBackground._texture = BG_SS.Animation.CurrentFrame;
-                    Thread.Sleep(16);
-                    scrollcnt++;
+                    bgpos.X = (bgpos.X - 1) % 128;
+                    if (bgpos.X % 2 != 0)
+                    { bgpos.Y = (bgpos.Y - 1) % 64; }
+                    scrollcnt = 0;
                 }
-                else
-                {
-                    Thread.Sleep(InactiveWaitMs);
-                }
+                BG_SS.Animation.Next();
+                myBackground._texture = BG_SS.Animation.CurrentFrame;
+                scrollcnt++;
+                Thread.Sleep(16);
             } while (!terminateGame);
-
         }
 
         protected override void Update(GameTime gameTime)
@@ -573,7 +556,6 @@ namespace OpenBN
             else { Thread.Sleep(InactiveWaitMs); }
             base.Update(gameTime);
         }
-
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.SetRenderTarget(target);
