@@ -89,11 +89,20 @@ namespace OpenBN
 
         public BattleField()
         {
-            // Necessary enchantments to ward off the updater bug
+
+            IsFixedTimeStep = false;
+            // Necessary enchantments to ward off the updater and focusing bugs
             // UUU LAA UUU LAA *summons cybeasts instead*
+            // PS: If monogame does focusing logic better, i'll definitely switch X|
             {
                 mTimer = new System.Windows.Forms.Timer { Interval = (int)(TargetElapsedTime.TotalMilliseconds) };
-                mTimer.Tick += (s, e) => { if (manualTickCount > 2) { manualTick = true; Tick(); manualTick = false; } manualTickCount++; };
+                mTimer.Tick += (s, e) => {
+                    if (IsGameActive)
+                    {
+                        if (manualTickCount > 2) { manualTick = true; Tick(); manualTick = false; }
+                        manualTickCount++;
+                    }
+                };
                 object host = typeof(Game).GetField("host", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this);
                 host.GetType().BaseType.GetField("Suspend", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(host, null);
                 host.GetType().BaseType.GetField("Resume", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(host, null);
@@ -102,14 +111,20 @@ namespace OpenBN
     
             graphics = new GraphicsDeviceManager(this);
             graphics.IsFullScreen = false;
+            
+            //Set real screen resolution
             graphics.PreferredBackBufferWidth = screenres.W * screenresscalar;
             graphics.PreferredBackBufferHeight = screenres.H * screenresscalar;
+
             this.Window.Title = "OpenBN";
             Content.RootDirectory = "Content";
 
             this.Window.AllowUserResizing = false;
             this.Window.ClientSizeChanged += Window_ClientSizeChanged;
+
         }
+
+     
         protected override void Initialize()
         {
             mTimer.Start();
@@ -168,15 +183,12 @@ namespace OpenBN
 
         protected override void OnDeactivated(object sender, EventArgs e)
         {
-            Debug.Print("d");
             IsGameActive = false;
             // if (ContentLoaded) PlaySfx(60);
         }
         protected override void OnActivated(object sender, EventArgs e)
         {
-            Debug.Print("t");
-            IsGameActive = true;
-
+           IsGameActive = true;
             //  if (ContentLoaded) PlaySfx(60);
         }
 
@@ -214,20 +226,11 @@ namespace OpenBN
         {
             do
             {
+    
+
                 if (IsGameActive)
                 {
                     CustWindow.Update();
-
-                    switch (myForm.WindowState)
-                    {
-                        case System.Windows.Forms.FormWindowState.Normal:
-                            IsGameActive = true;
-                            break;
-                        case System.Windows.Forms.FormWindowState.Minimized:
-                            IsGameActive = false;
-                            break;
-                    }
-
                     if (desat < 1)
                     {
                         desat += 0.05f;
@@ -235,6 +238,9 @@ namespace OpenBN
                         Desaturate.Parameters["ColourAmount"].SetValue(desat);
                         SoundEffect.MasterVolume = desat;
                     }
+
+                    if (!mute && bgminst != null)
+                        if (bgminst.State == SoundState.Paused && desat > 0) bgminst.Resume();
                     Thread.Sleep(16);
                 }
                 else
@@ -247,8 +253,23 @@ namespace OpenBN
                         SoundEffect.MasterVolume = desat;
                     }
 
+                    if (!mute && bgminst != null)
+                    if (bgminst.State == SoundState.Playing && desat < 0.1) bgminst.Pause();
+
                     Thread.Sleep(16);
                 }
+
+                // Oh XNA, why thoust focusing logic is broken.
+                switch (myForm.WindowState)
+                {
+                    case System.Windows.Forms.FormWindowState.Normal:
+                        if (this.IsActive) IsGameActive = true;
+                        break;
+                    case System.Windows.Forms.FormWindowState.Minimized:
+                        IsGameActive = false;
+                        break;
+                }
+
             } while (!terminateGame);
         }
 
@@ -452,17 +473,22 @@ namespace OpenBN
             do
             {
                 if (terminateGame) return;
-                if (scrollcnt % 2 == 0)
+                if (IsGameActive)
                 {
-                    bgpos.X = (bgpos.X - 1) % 128;
-                    if (bgpos.X % 2 != 0)
-                    { bgpos.Y = (bgpos.Y - 1) % 64; }
-                    scrollcnt = 0;
-                }
-                BG_SS.Animation.Next();
-                myBackground._texture = BG_SS.Animation.CurrentFrame;
-                scrollcnt++;
-                Thread.Sleep(16);
+                    if (scrollcnt % 2 == 0)
+                    {
+                        bgpos.X = (bgpos.X - 1) % 128;
+                        if (bgpos.X % 2 != 0)
+                        { bgpos.Y = (bgpos.Y - 1) % 64; }
+                        scrollcnt = 0;
+                    }
+                    BG_SS.Animation.Next();
+                    myBackground._texture = BG_SS.Animation.CurrentFrame;
+                    scrollcnt++;
+                    Thread.Sleep(16);
+                } else { Thread.Sleep(InactiveSleepTime); }
+
+
             } while (!terminateGame);
         }
 
@@ -554,42 +580,31 @@ namespace OpenBN
                     case KeyState.Up:
                         if (KeyLatch[Keys.M] == true)
                         {
-                            mute = !mute;
-
-                            if (mute)
-                            {
-                                SoundEffect.MasterVolume = 0f;
-                            }
-                            else
-                            {
-                                SoundEffect.MasterVolume = 1f;
-                            }
-
                             KeyLatch[Keys.M] = false;
                         }
                         break;
                 }
             }
             else { Thread.Sleep(InactiveWaitMs); }
-            base.Update(gameTime);
         }
         protected override void Draw(GameTime gameTime)
         {
+           // if (!IsGameActive) { base.Draw(gameTime); return; }
+
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            GraphicsDevice.Clear(Color.White);
             //Render Objects, Back to front layer
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
 
             myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0));
-            myBackground.Draw(spriteBatch);
-            if (RenderQueue.Count > 0) { foreach (IBattleEntity s in RenderQueue) { s.Draw(); } }
+                myBackground.Draw(spriteBatch);
+                if (RenderQueue.Count > 0) { foreach (IBattleEntity s in RenderQueue) { s.Draw(); } }
 
-            DrawEnemyNames();
-            DrawDebugText();
-            CustWindow.Draw();
-
+                DrawEnemyNames();
+                DrawDebugText();
+                CustWindow.Draw();
+            
             //Draw the flash
             if (flash.IsBusy) { spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity); }
             spriteBatch.End();
@@ -604,7 +619,6 @@ namespace OpenBN
             if (IsGameActive)
             {
                 targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
-
             }
             else
             {
@@ -615,9 +629,6 @@ namespace OpenBN
             GraphicsDevice.Clear(Color.Black);
             targetBatch.Draw(target, Viewbox, Color.White);
             targetBatch.End();
-
-            //Loop again
-            base.Draw(gameTime);
         }
 
 
