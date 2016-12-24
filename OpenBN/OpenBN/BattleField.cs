@@ -216,7 +216,7 @@ namespace OpenBN
 
             BG_SS = new SSParser("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);
 
-            myBackground = new TiledBackground(BG_SS.Animation.CurrentFrame, 240, 160);
+            myBackground = new TiledBackground(BG_SS.AnimationGroup.Values.First().CurrentFrame, 240, 160);
             myBackground._startCoord = bgpos;
         }
         /// <summary>
@@ -480,13 +480,12 @@ namespace OpenBN
                         { bgpos.Y = (bgpos.Y - 1) % 64; }
                         scrollcnt = 0;
                     }
-                    BG_SS.Animation.Next();
-                    myBackground._texture = BG_SS.Animation.CurrentFrame;
+                    BG_SS.AnimationGroup.Values.First().Next();
+                    myBackground._texture = BG_SS.AnimationGroup.Values.First().CurrentFrame;
                     scrollcnt++;
                     Thread.Sleep(16);
-                } else { Thread.Sleep(InactiveSleepTime); }
-
-
+                }
+                else { Thread.Sleep(InactiveSleepTime); }
             } while (!terminateGame);
         }
 
@@ -594,9 +593,12 @@ namespace OpenBN
             //Render Objects, Back to front layer
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
-
-            myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0));
+            if(BG_SS != null)
+            {
+                myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0));
                 myBackground.Draw(spriteBatch);
+            }
+
                 if (RenderQueue.Count > 0) { foreach (IBattleEntity s in RenderQueue) { s.Draw(); } }
 
                 DrawEnemyNames();

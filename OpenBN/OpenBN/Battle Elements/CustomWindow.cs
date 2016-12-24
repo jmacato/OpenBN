@@ -38,8 +38,8 @@ namespace OpenBN
 
             CWSS = new SSParser("Misc/Custwindow-SS.sasl", "Misc/Custwindow", graphics, CM);
 
-            CustomWindowTexture = CWSS.Animation.Frames[0];
-            HPBarTexture = CWSS.Animation.Frames[1];
+            CustomWindowTexture = CWSS.AnimationGroup["CUST"].Frames["0"];
+            HPBarTexture = CWSS.AnimationGroup["CUST"].Frames["1"];
 
             HPFontNorm = Fonts.List["HPFont"];
             HPFontCrit = Fonts.List["HPFontMinus"];

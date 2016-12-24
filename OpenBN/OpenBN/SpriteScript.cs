@@ -11,19 +11,18 @@ namespace OpenBN.ScriptedSprites
 {
     class SSParser
     {
-       public Animation Animation;
+       public Dictionary<string, Animation> AnimationGroup = new Dictionary<string, Animation>();
+        public Dictionary<string, Texture2D> TempFrames = new Dictionary<string, Texture2D>();
+       public Dictionary<int, AnimationCommand> TempCmd = new Dictionary<int, AnimationCommand>();
+
         public SSParser(string scriptdir, string texturedir, GraphicsDevice graphics, ContentManager CM)
         {
             var script = File.ReadAllText(CM.RootDirectory + "/" + scriptdir.Trim('/').Trim('\\'));
             Texture2D texture = CM.Load<Texture2D>(texturedir);
 
-            Animation = new Animation();
-
-            string CurrAnimGroup = "";
-
             SpriteBatch SB = new SpriteBatch(graphics);
             var t = script.Split("\r\n".ToCharArray());
-            int i = 0;
+            int i = 0; string curanimkey = "";
             foreach (string y in t)
             {
                 var x = y.Split(' ');
@@ -31,7 +30,7 @@ namespace OpenBN.ScriptedSprites
                 {
                     case "DEF":
 
-                        var ptr = Convert.ToInt16(x[1]);
+                        var ptr = x[1];
                         var rectparams = x[2].Split(',');
 
                         var r_x = Convert.ToInt16(rectparams[0]);
@@ -49,39 +48,55 @@ namespace OpenBN.ScriptedSprites
                         SB.Draw(texture, dstrect, srcrect, Color.White);
                         SB.End();
                         graphics.SetRenderTarget(null);
+                        TempFrames.Add(ptr, frm_hndlr);
 
-                        Animation.Frames.Add(ptr, frm_hndlr);
+                        break;
+
+                    case "BEGIN":
+                        i=0;
+                        var AA = new Animation();
+                        curanimkey = x[1];
+                        AnimationGroup.Add(curanimkey, AA);
+                        break;
+
+                    case "END":
+                        i=0;
+                        AnimationGroup[curanimkey].Frames = TempFrames;
+                        AnimationGroup[curanimkey].Commands = TempCmd;
+                        AnimationGroup[curanimkey].FirstFrame = AnimationGroup[curanimkey].Frames.Keys.First();
+                        AnimationGroup[curanimkey].Next();
+                        TempFrames = new Dictionary<string, Texture2D>();
+                        TempCmd = new Dictionary<int, AnimationCommand>();                        
+                        curanimkey = "";
                         break;
 
                     case "SHOW":
+                        if (AnimationGroup.Count == 0) break;
                         i++;
                         var SH = new AnimationCommand();
                         SH.Cmd = AnimationCommands.SHOW;
-                        SH.Args = Convert.ToInt16(x[1]);
-                        Animation.Commands.Add(i, SH);
+                        SH.Args = x[1];
+                        TempCmd.Add(i, SH);
                         break;
-
                     case "WAIT":
+                        if (AnimationGroup.Count == 0) break;
                         i++;
                         var WT = new AnimationCommand();
                         WT.Cmd = AnimationCommands.WAIT;
-                        WT.Args = Convert.ToInt16(x[1]);
-                        Animation.Commands.Add(i, WT);
+                        WT.Args = x[1];
+                        TempCmd.Add(i, WT);
                         break;
 
                     case "LOOP":
+                        if (AnimationGroup.Count == 0) break;
                         i++;
                         var LP = new AnimationCommand();
                         LP.Cmd = AnimationCommands.LOOP;
-                        LP.Args = 0;
-                        Animation.Commands.Add(i, LP);
+                        LP.Args = TempFrames.Keys.First();
+                        TempCmd.Add(i, LP);
                         break;
                 }
             }
-            SB.Dispose();
-            Animation.FirstFrame = Animation.Commands.Keys.First();
-            Animation.PC = Animation.FirstFrame;
-            Animation.Next();
 
         }
         
@@ -89,20 +104,20 @@ namespace OpenBN.ScriptedSprites
 
     public class Animation
     {
-        public Dictionary<int, Texture2D> Frames { get; set; }
+        public Dictionary<string, Texture2D> Frames { get; set; }
         public Dictionary<int, AnimationCommand> Commands { get; set; }
         public Texture2D CurrentFrame { get; private set; }
         public int frmptr { get; private set; }
         public int PC { get; set; }
-        public int FirstFrame;
+        public string FirstFrame;
 
         public Animation()
         {
-            FirstFrame = 0;
-            PC = 0;
+            FirstFrame = "";
+            PC = 1;
             frmptr = 0;
             Commands = new Dictionary<int, AnimationCommand>();
-            Frames = new Dictionary<int, Texture2D>();
+            Frames = new Dictionary<string, Texture2D>();
         }
 
         int wait = 0;
@@ -116,29 +131,26 @@ namespace OpenBN.ScriptedSprites
                     CurrentFrame = Frames[Commands[PC].Args];
                     break;
                 case AnimationCommands.LOOP:
-                    PC = FirstFrame;
+                    PC = Commands.Keys.First();
                     return true;
                 case AnimationCommands.STOP:
                     return false;
                 case AnimationCommands.WAIT:
-                    wait = Commands[PC].Args;
+                    wait = Convert.ToInt32(Commands[PC].Args);
                     break;
             }
 
             PC++;
-            PC = (int)MathHelper.Clamp(PC,FirstFrame,Commands.Count);
+            PC = (int)MathHelper.Clamp(PC,0,Commands.Count);
             return false;
         }
-
-
-
     }
 
 
     public class AnimationCommand
     {
         public AnimationCommands Cmd { get; set; }
-        public int Args { get; set; }
+        public string Args { get; set; }
     }
 
     public enum AnimationCommands

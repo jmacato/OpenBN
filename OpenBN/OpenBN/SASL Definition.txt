@@ -1,20 +1,32 @@
-Sprite Animation Scripting Language v0.1
+Sprite Animation Scripting Language v0.16
 
 Master Texture should have the same filename as 
 the script. 
 
 script files ends with .SASL extension.
  
+-- SET_COL <c> (pixels)
 
--- DEF_FRAME (id)<0-9A-Z_> <X,Y,W,H>
+	Set base pixel count per col; Global scope;
+
+-- SET_ROW <r> (pixels)
+	
+	Set base pixel count per row; Global scope;
+
+-- DEF (id)(string) <X,Y,W,H>
+
+	
+	
+-- DEF (id)(string) R<X>,C<X>
+
   > Define frame
 
--- BEGIN (animation name)<0-9A-Z_>
+-- BEGIN (animation name <string, 0-9A-Za-z_>)
 	
 	-- SHOW <frame_id>
-	-- WAIT <1-60frames>
-		
+	-- WAIT <1-60frames>		
 	-- LOOP
 	-- STOP
 
 -- END
+)
