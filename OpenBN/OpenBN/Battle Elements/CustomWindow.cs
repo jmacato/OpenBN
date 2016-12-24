@@ -22,7 +22,6 @@ namespace OpenBN
         public int HPState;
 
         Texture2D customtextures;
-        Dictionary<string, Rectangle> CustSrcRects;
         Dictionary<string, Rectangle> CustTextures = new Dictionary<string, Rectangle>();
         SpriteFont HPFontNorm, HPFontCrit, HPFontRecv;
 
@@ -38,8 +37,9 @@ namespace OpenBN
             CM = x;
 
             CWSS = new SSParser("Misc/Custwindow-SS.sasl", "Misc/Custwindow", graphics, CM);
-            
-            customtextures = CM.Load<Texture2D>("Misc/Custwindow");
+
+            CustomWindowTexture = CWSS.Animation.Frames[0];
+            HPBarTexture = CWSS.Animation.Frames[1];
 
             HPFontNorm = Fonts.List["HPFont"];
             HPFontCrit = Fonts.List["HPFontMinus"];
@@ -133,25 +133,22 @@ namespace OpenBN
         }
 
         SpriteFont hpfnt;
-        Rectangle CustWinRect, hp;
+        Texture2D CustomWindowTexture, HPBarTexture;
 
 
         public void Draw()
         {
-            if (customtextures != null && DrawEnabled)
+            if (CWSS != null && DrawEnabled)
             {
                 if (custPos.X != -120)
                 {
-                    var y = new Rectangle((int)custPos.X, 0, CustWinRect.Width, CustWinRect.Height);
-                    SB.Draw(CWSS.Animation.Frames[0], y, CustWinRect, Color.White);
+                    var y = new Rectangle((int)custPos.X, 0, CustomWindowTexture.Width, CustomWindowTexture.Height);
+                    SB.Draw(CustomWindowTexture, y, Color.White);
                     DrawMiniChipCodes(custPos.X);
-
                 }
-
-                var hprct = new Rectangle((int)custPos.X + 122, 1, hp.Width, hp.Height);
-                SB.Draw(CWSS.Animation.Frames[1], hprct, Color.White);
-
-
+                var hprct = new Rectangle((int)custPos.X + 122, 1, HPBarTexture.Width, HPBarTexture.Height);
+                SB.Draw(HPBarTexture, hprct, Color.White);
+                
                 int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
                 Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
                 SB.DrawString(hpfnt, CurrentHP.ToString(), hptxtrct, Color.White);

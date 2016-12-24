@@ -18,6 +18,9 @@ namespace OpenBN.ScriptedSprites
             Texture2D texture = CM.Load<Texture2D>(texturedir);
 
             Animation = new Animation();
+
+            string CurrAnimGroup = "";
+
             SpriteBatch SB = new SpriteBatch(graphics);
             var t = script.Split("\r\n".ToCharArray());
             int i = 0;
