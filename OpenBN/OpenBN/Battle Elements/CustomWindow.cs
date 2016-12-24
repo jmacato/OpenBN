@@ -2,7 +2,9 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using OpenBN.ScriptedSprites;
 using System.Collections.Generic;
+using System.IO;
 
 namespace OpenBN
 {
@@ -29,31 +31,25 @@ namespace OpenBN
         public bool showCust { get; private set; }
 
         Vector2 custPos = new Vector2(-120, 0);
-
-        public CustomWindow(ContentManager x, FontHelper Font)
+        SSParser CWSS;
+        public CustomWindow(ContentManager x, FontHelper Font, GraphicsDevice graphics)
         {
             Fonts = Font;
             CM = x;
-            CustSrcRects = new Dictionary<string, Rectangle>()
 
-                {
-                    {"CustWind"     , new Rectangle(0, 0, 120, 160)},
-                    {"HPBAR"        , new Rectangle(0, 160, 44, 16)},
-                    {"ChipSt1"      , new Rectangle(120, 6, 22, 17)},
-                    {"ChipSel1"     , new Rectangle(120, 0, 6, 6)},
-                    {"ChipSel2"     , new Rectangle(127, 0, 6, 6)},
-                };
+            CWSS = new SSParser("Misc/Custwindow-SS.sasl", "Misc/Custwindow", graphics, CM);
+            
+            customtextures = CM.Load<Texture2D>("Misc/Custwindow");
 
-            customtextures = CM.Load<Texture2D>("Misc/CustomWindow");
             HPFontNorm = Fonts.List["HPFont"];
             HPFontCrit = Fonts.List["HPFontMinus"];
             HPFontRecv = Fonts.List["HPFontPlus"];
-            CustWinRect = CustSrcRects["CustWind"];
-            hp = CustSrcRects["HPBAR"];
             ChipCodes = Fonts.List["ChipCodesB"];
+
             HPFontNorm.Spacing = 1;
             HPFontCrit.Spacing = 1;
             HPFontRecv.Spacing = 1;
+            ChipCodes.Spacing = 0;
 
             MaxHP = 9999;
             CurrentHP = MaxHP;
@@ -89,12 +85,12 @@ namespace OpenBN
             if (showCust)
             {
                 if (custPos.X != 0)
-                    custPos.X = MathHelper.Clamp(custPos.X + 10, -120, 0);
+                    custPos.X = Math.Clamp(custPos.X + 10, -120, 0);
             }
             else
             {
                 if (custPos.X != -120)
-                    custPos.X = MathHelper.Clamp(custPos.X - 10, -120, 0);
+                    custPos.X = Math.Clamp(custPos.X - 10, -120, 0);
             }
 
             switch (HPState)
@@ -120,12 +116,12 @@ namespace OpenBN
             {
                 if (CurrentHP < LastHP)
                 {
-                    CurrentHP = (int)MathHelper.Clamp(CurrentHP + 9, CurrentHP, LastHP);
+                    CurrentHP = Math.Clamp(CurrentHP + 9, CurrentHP, LastHP);
                     HPState = 2;
                 }
                 else if (CurrentHP > LastHP)
                 {
-                    CurrentHP = (int)MathHelper.Clamp(CurrentHP - 9, LastHP, CurrentHP);
+                    CurrentHP = Math.Clamp(CurrentHP - 9, LastHP, CurrentHP);
                     HPState = 1;
                 }
             }
@@ -133,7 +129,7 @@ namespace OpenBN
 
         public void SetHP(int TargetHP)
         {
-            LastHP = (int)MathHelper.Clamp(LastHP + TargetHP, 0, MaxHP);
+            LastHP = (int)Math.Clamp(LastHP + TargetHP, 0, MaxHP);
         }
 
         SpriteFont hpfnt;
@@ -147,19 +143,18 @@ namespace OpenBN
                 if (custPos.X != -120)
                 {
                     var y = new Rectangle((int)custPos.X, 0, CustWinRect.Width, CustWinRect.Height);
-                    SB.Draw(customtextures, y, CustWinRect, Color.White);
+                    SB.Draw(CWSS.Animation.Frames[0], y, CustWinRect, Color.White);
                     DrawMiniChipCodes(custPos.X);
 
                 }
 
                 var hprct = new Rectangle((int)custPos.X + 122, 1, hp.Width, hp.Height);
-                SB.Draw(customtextures, hprct, hp, Color.White);
+                SB.Draw(CWSS.Animation.Frames[1], hprct, Color.White);
 
 
                 int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
                 Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
                 SB.DrawString(hpfnt, CurrentHP.ToString(), hptxtrct, Color.White);
-
             }
         }
 
@@ -169,7 +164,6 @@ namespace OpenBN
         {
             var startpoint = new Vector2(x + 8, 119);
             var Measure = ChipCodes.MeasureString(ChipCodeStr);
-            ChipCodes.Spacing = 0;
             SB.DrawString(ChipCodes, ChipCodeStr, startpoint, Color.White);
         }
     }

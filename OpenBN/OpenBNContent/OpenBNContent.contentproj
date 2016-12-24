@@ -870,8 +870,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Misc\CustomWindow.png">
-      <Name>CustomWindow</Name>
+    <Compile Include="Misc\Custwindow.png">
+      <Name>Custwindow</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
@@ -977,6 +977,10 @@
   <ItemGroup>
     <None Include="BG\AD\BG.sasl">
       <Name>BG</Name>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Misc\Custwindow-SS.sasl">
+      <Name>Custwindow-SS</Name>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

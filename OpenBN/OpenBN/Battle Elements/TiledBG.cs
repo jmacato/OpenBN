@@ -21,8 +21,8 @@ namespace OpenBN
         public TiledBackground(Texture2D texture, int environmentWidth, int environmentHeight)
         {
             _texture = texture;
-            _horizontalTileCount = (int)(Math.Round((double)environmentWidth / _texture.Width) + 1);
-            _verticalTileCount = (int)(Math.Round((double)environmentHeight / _texture.Height) + 1);
+            _horizontalTileCount = (int)(System.Math.Round((double)environmentWidth / _texture.Width) + 1);
+            _verticalTileCount = (int)(System.Math.Round((double)environmentHeight / _texture.Height) + 1);
 
             _startCoord = new Vector2(0, 0);
         }

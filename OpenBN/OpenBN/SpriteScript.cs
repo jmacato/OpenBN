@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -10,8 +12,11 @@ namespace OpenBN.ScriptedSprites
     class SSParser
     {
        public Animation Animation;
-        public SSParser(string script, Texture2D texture, GraphicsDevice graphics)
+        public SSParser(string scriptdir, string texturedir, GraphicsDevice graphics, ContentManager CM)
         {
+            var script = File.ReadAllText(CM.RootDirectory + "/" + scriptdir.Trim('/').Trim('\\'));
+            Texture2D texture = CM.Load<Texture2D>(texturedir);
+
             Animation = new Animation();
             SpriteBatch SB = new SpriteBatch(graphics);
             var t = script.Split("\r\n".ToCharArray());
@@ -36,6 +41,7 @@ namespace OpenBN.ScriptedSprites
 
                         RenderTarget2D frm_hndlr = new RenderTarget2D(graphics, r_w, r_h);
                         graphics.SetRenderTarget(frm_hndlr);
+                        graphics.Clear(Color.Transparent);
                         SB.Begin();
                         SB.Draw(texture, dstrect, srcrect, Color.White);
                         SB.End();

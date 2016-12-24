@@ -91,6 +91,7 @@ namespace OpenBN
         {
 
             IsFixedTimeStep = false;
+
             // Necessary enchantments to ward off the updater and focusing bugs
             // UUU LAA UUU LAA *summons cybeasts instead*
             // PS: If monogame does focusing logic better, i'll definitely switch X|
@@ -156,7 +157,7 @@ namespace OpenBN
             Stage.SB = spriteBatch;
             Input = new Inputs(MonitoredKeys);
             Fonts = new FontHelper(Content);
-            CustWindow = new CustomWindow(Content, Fonts);
+            CustWindow = new CustomWindow(Content, Fonts, GraphicsDevice);
             CustWindow.SB = spriteBatch;
 
             Desaturate = Content.Load<Effect>("Shaders/Desaturate");
@@ -212,9 +213,8 @@ namespace OpenBN
             string[] bgcodelist = { "SS", "SK", "AD", "CA", "GH" };
             Random rnd = new Random();
             var bgcode = bgcodelist[(int)rnd.Next(bgcodelist.Count())];
-            var xs = Content.RootDirectory + "/BG/" + bgcode + "/BG.sasl";
-            var xx = File.ReadAllText(xs);
-            BG_SS = new SSParser(xx, Content.Load<Texture2D>("BG/" + bgcode + "/" + bgcode), graphics.GraphicsDevice);
+
+            BG_SS = new SSParser("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);
 
             myBackground = new TiledBackground(BG_SS.Animation.CurrentFrame, 240, 160);
             myBackground._startCoord = bgpos;
@@ -226,8 +226,6 @@ namespace OpenBN
         {
             do
             {
-    
-
                 if (IsGameActive)
                 {
                     CustWindow.Update();

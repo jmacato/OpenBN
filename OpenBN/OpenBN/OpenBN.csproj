@@ -80,6 +80,7 @@
     <Compile Include="Battle Elements\CustomWindow.cs" />
     <Compile Include="Helpers\ColorHelper.cs" />
     <Compile Include="Helpers\FontHelper.cs" />
+    <Compile Include="Helpers\Math.cs" />
     <Compile Include="Interfaces\IBattleEntities.cs" />
     <Compile Include="Helpers\InputHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
