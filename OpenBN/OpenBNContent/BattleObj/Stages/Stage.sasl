@@ -7,13 +7,15 @@ SHOW NONE
 STOP
 END
 
-//Bottom Panels
+ - - - - Bottom Panels Padding - - - - 
 
 DEF BOTTOM 3,7
 BEGIN BOTTOM
 SHOW BOTTOM
 STOP
 END
+
+ - - - - Holed - - - - 
 
 DEF HOLE0 1,1
 BEGIN HOLE0
@@ -33,6 +35,8 @@ SHOW HOLE2
 STOP
 END
 
+ - - - -  Broken  - - - - 
+
 DEF BROK0 1,2
 BEGIN BROK0
 SHOW BROK0
@@ -51,7 +55,7 @@ SHOW BROK2
 STOP
 END
 
-Normal Panel
+ - - - - Normal - - - - -
 
 DEF NORM0 1,3
 BEGIN NORM0
@@ -71,7 +75,7 @@ SHOW NORM2
 STOP
 END
 
-Cracked Panel
+ - - - - Cracked - - - - 
 
 DEF CRAK0 1,4
 BEGIN CRAK0
@@ -91,6 +95,8 @@ SHOW CRAK2
 STOP
 END
 
+ - - - - Ice  - - - - 
+
 DEF ICED0 1,5
 BEGIN ICED0
 SHOW ICED0
@@ -109,7 +115,7 @@ SHOW ICED2
 STOP
 END
 
-Grass Panel
+ - - - - Grass  - - - - 
 
 DEF GRAS0 1,6
 BEGIN GRAS0
@@ -129,7 +135,7 @@ SHOW GRAS2
 STOP
 END
 
-Poison Panel
+ - - - - Poison  - - - - 
 
 DEF POIS0_1 4,1
 DEF POIS0_2 4,2

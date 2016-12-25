@@ -10,7 +10,9 @@ namespace OpenBN
 
     class UserNavi : IBattleEntity
     {
-        public string ID { get; set; }
+        public GraphicsDevice Graphics { get; set; }
+        public ContentManager Content { get; set; }
+
         //Position on battlefield
         public int btlrow { get; set; }
         public int btlcol { get; set; }
@@ -31,7 +33,7 @@ namespace OpenBN
         public bool enableRender { get; set; }
 
         public SpriteBatch SB { get; set; }
-        ContentManager Content;
+        public bool Initialized { get; set; }
 
         public void SetAnimation(string key)
         {
@@ -47,24 +49,8 @@ namespace OpenBN
 
         }
 
-        public void Next()
+        public void Initialize()
         {
-            if (finish) return;
-
-            if (AnimationDict[CurAnimation].Count() < CurFrame + 1)
-            {
-                CurFrame = 0;
-                finish = true;
-                return;
-            }
-            CurFrame++;
-            curframetext = Content.Load<Texture2D>(AnimationDict[CurAnimation][CurFrame - 1]);
-        }
-
-        public UserNavi(string navicode, ContentManager Contentx, SpriteBatch spriteBtch)
-        {
-            Content = Contentx; //Set content manager
-            SB = spriteBtch;
             var dirx = Content.RootDirectory + "/Navi/" + navicode; //Set the working dir to navi code dir
             dirx = dirx.Replace("/", "\\").Replace("/", @"\");
             var x = Directory.GetFiles(dirx, "*", SearchOption.AllDirectories).ToList(); //Enumerate all files under the dir
@@ -88,18 +74,35 @@ namespace OpenBN
                 }
             }
             SetAnimation("DEFAULT");
-            enableRender = false;
+            Initialized = true;
+        }
+
+        public void Next()
+        {
+            if (finish) return;
+            if (AnimationDict[CurAnimation].Count() < CurFrame + 1)
+            {
+                CurFrame = 0;
+                finish = true;
+                return;
+            }
+            CurFrame++;
+            curframetext = Content.Load<Texture2D>(AnimationDict[CurAnimation][CurFrame - 1]);
+        }
+
+        string navicode;
+
+        public UserNavi(string nv)
+        {
+            navicode = nv;
         }
 
         public void Draw()
         {
-            if (enableRender)
-            {
-                SB.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
-
-                SB.Draw(curframetext, new Rectangle((int)this.battlepos.X, (int)this.battlepos.Y, curframetext.Width, curframetext.Height), Color.White);
-                SB.End();
-            }
+            if (enableRender & !Initialized) return;
+            SB.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
+            SB.Draw(curframetext, new Rectangle((int)this.battlepos.X, (int)this.battlepos.Y, curframetext.Width, curframetext.Height), Color.White);
+            SB.End();
         }
     }
 

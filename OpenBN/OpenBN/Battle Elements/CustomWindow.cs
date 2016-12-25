@@ -13,7 +13,9 @@ namespace OpenBN
 
         public string ID { get; set; }
         public SpriteBatch SB { get; set; }
-        public ContentManager CM { get; set; }
+        public ContentManager Content { get; set; }
+        public GraphicsDevice Graphics { get; set; }
+
         public int CurrentHP { get; private set; }
         public int LastHP { get; private set; }
         public int MaxHP { get; set; }
@@ -29,14 +31,15 @@ namespace OpenBN
 
         public bool showCust { get; private set; }
 
+        public bool Initialized { get; set; }
+
         Vector2 custPos = new Vector2(-120, 0);
         Sprite CWSS;
-        public CustomWindow(ContentManager x, FontHelper Font, GraphicsDevice graphics)
-        {
-            Fonts = Font;
-            CM = x;
 
-            CWSS = new Sprite("Misc/Custwindow-SS.sasl", "Misc/Custwindow", graphics, CM);
+
+        public void Initialize()
+        {
+            CWSS = new Sprite("Misc/Custwindow-SS.sasl", "Misc/Custwindow", Graphics, Content);
 
             CustomWindowTexture = CWSS.AnimationGroup["CUST"].Frames["0"];
             HPBarTexture = CWSS.AnimationGroup["CUST"].Frames["1"];
@@ -50,15 +53,21 @@ namespace OpenBN
             HPFontCrit.Spacing = 1;
             HPFontRecv.Spacing = 1;
             ChipCodes.Spacing = 0;
+            hpfnt = HPFontNorm;
 
+            Initialized = true;
+
+        }
+
+
+        public CustomWindow(FontHelper Font)
+        {
+            Fonts = Font;
             MaxHP = 9999;
             CurrentHP = MaxHP;
             LastHP = CurrentHP;
-
             showCust = false;
             DrawEnabled = true;
-            hpfnt = HPFontNorm;
-
         }
         bool DrawEnabled = false;
         Random Rnd = new Random();
@@ -138,6 +147,8 @@ namespace OpenBN
 
         public void Draw()
         {
+            if (!Initialized) return;
+
             SB.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
             if (CWSS != null && DrawEnabled)
@@ -150,7 +161,7 @@ namespace OpenBN
                 }
                 var hprct = new Rectangle((int)custPos.X + 122, 1, HPBarTexture.Width, HPBarTexture.Height);
                 SB.Draw(HPBarTexture, hprct, Color.White);
-                
+
                 int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
                 Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
                 SB.DrawString(hpfnt, CurrentHP.ToString(), hptxtrct, Color.White);

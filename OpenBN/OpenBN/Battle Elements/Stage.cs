@@ -10,10 +10,12 @@ namespace OpenBN
 
     public class Stage : IBattleEntity
     {
-        public string ID { get; set; }
         public Point StgPos { get; set; }
+
         public SpriteBatch SB { get; set; }
-        public ContentManager CM { get; set; }
+        public GraphicsDevice Graphics { get; set; }
+        public ContentManager Content { get; set; }
+        public bool Initialized { get; set; }
 
         //List of Top-Left Corners of the panels
         public List<int> PnlRowPnt = new List<int> { 0, 24, 48 };
@@ -40,7 +42,7 @@ namespace OpenBN
 
         public void Draw()
         {
-
+            if (!Initialized) return;
             SB.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
             foreach (Panel Pnl in PanelArray)
@@ -157,17 +159,18 @@ namespace OpenBN
             return i + u + new Vector2(StgPos.X, StgPos.Y);
         }
         
-        
-        public Stage(ContentManager CMx, GraphicsDevice graphics)
+        public void Initialize()
         {
-            CM = CMx;
 
             StgPos = new Point(0, 71);
+            StageRed = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Red", Graphics, Content);
+            StageBlue = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Blue", Graphics, Content);
+            Initialized = true;
+        }
 
-            StageRed = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Red", graphics, CM);
-            StageBlue = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Blue", graphics, CM);
-
-           Random xrnd = new Random();
+        public Stage()
+        {
+            Random xrnd = new Random();
 
             for (int i = 0; i < 3; i++) // For each row
             {
@@ -250,7 +253,7 @@ namespace OpenBN
         ICE,
         GRASS,
         HOLE,
-        SANCTUARY,
+        HOLY,
         ELEV_L, ELEV_R, ELEV_U, ELEV_D,
         NONE
     }

@@ -148,35 +148,45 @@ namespace OpenBN
           //  SoundEffect.MasterVolume = 0f;
             spriteBatch = new SpriteBatch(GraphicsDevice);
             targetBatch = new SpriteBatch(GraphicsDevice);
+
             target = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
             flsh = RectangleFill(new Rectangle(0, 0, screenres.W, screenres.H), ColorHelper.FromHex(0xF8F8F8), false);
             MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Q, Keys.W, Keys.R, Keys.M };
             ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
 
-            Stage = new Stage(Content, GraphicsDevice);
-            Stage.SB = spriteBatch;
-            Input = new Inputs(MonitoredKeys);
+
             Fonts = new FontHelper(Content);
-            CustWindow = new CustomWindow(Content, Fonts, GraphicsDevice);
-            CustWindow.SB = spriteBatch;
+
+            Stage = new Stage();
+            Input = new Inputs(MonitoredKeys);
+            CustWindow = new CustomWindow(Fonts);
 
             Desaturate = Content.Load<Effect>("Shaders/Desaturate");
             Desaturate.Parameters["ColourAmount"].SetValue(1);
 
             Input.Halt = true;
-            RenderQueue.Add(Stage);
-            MegamanEXE = new UserNavi("MM", Content, spriteBatch);
+            MegamanEXE = new UserNavi("MM");
 
             MegamanEXE.btlcol = 2;
             MegamanEXE.btlrow = 2;
             MegamanEXE.enableRender = false;
+
+            RenderQueue.Add(Stage);
             RenderQueue.Add(MegamanEXE);
+            RenderQueue.Add(CustWindow);
+
+            for (int t = 0; t < RenderQueue.Count(); t++)
+            {
+                RenderQueue[t].Content = Content;
+                RenderQueue[t].Graphics = GraphicsDevice;
+                RenderQueue[t].SB = spriteBatch;
+                RenderQueue[t].Initialize();
+            }
 
             LoadSfx();
             LoadBgm();
 
-            RenderQueue.Add(CustWindow);
-
+   
 
             EnemyNames.Add("Mettaur");
             EnemyNames.Add("Mettaur");
