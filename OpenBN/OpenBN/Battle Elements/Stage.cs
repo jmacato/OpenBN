@@ -99,9 +99,7 @@ namespace OpenBN
             var u = offset;
             return i + u + new Vector2(StgPos.X, StgPos.Y);
         }
-
-
-
+        
         public Stage(ContentManager CMx)
         {
             CM = CMx;

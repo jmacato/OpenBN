@@ -331,6 +331,7 @@ namespace OpenBN
                                     {
                                         Debug.Print("ChgSht");
                                         MegamanEXE.SetAnimation("BUSTER");
+                                        debugTXT += "\r\n" + Input.KbStream[Keys.X].DurDelta.ToString();
                                         PlaySfx(76);
                                         BusterState = 0;
                                         break;
