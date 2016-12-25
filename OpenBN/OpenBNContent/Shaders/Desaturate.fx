@@ -24,3 +24,4 @@ technique Grayscale
 		PixelShader = compile ps_2_0 GreyscalePixelShaderFunction();
 	}
 }
+

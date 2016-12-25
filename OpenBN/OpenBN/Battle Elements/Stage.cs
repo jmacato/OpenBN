@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using OpenBN.ScriptedSprites;
 
 namespace OpenBN
 {
@@ -45,8 +46,15 @@ namespace OpenBN
             {
                 if (Pnl.StgPnlClr == StagePnlColor.Red)
                 {
+                    string AnimationGroupKey = "";
+                    switch (Pnl.StgPnlTyp)
+                    {
+                        case StagePnlType.NORMAL:
+                            AnimationGroupKey = "NULL";
+                            break;
+                    }
                     var rect = new Rectangle(Pnl.StgPnlPos.X, Pnl.StgPnlPos.Y, Pnl.PnlTexture.Width, Pnl.PnlTexture.Height);
-                    SB.Draw(Pnl.PnlTexture, rect, null, Color.White);
+                    SB.Draw(StageRed.AnimationGroup[AnimationGroupKey].CurrentFrame, rect, null, Color.White);
                 }
             }
             foreach (Panel Pnl in PanelArray)
@@ -58,6 +66,8 @@ namespace OpenBN
                 }
             }
         }
+
+        Sprite StageRed, StageBlue;
 
         public void Update()
         {
@@ -89,6 +99,8 @@ namespace OpenBN
                 }
             }
 
+            
+
 
         }
 
@@ -100,12 +112,16 @@ namespace OpenBN
             return i + u + new Vector2(StgPos.X, StgPos.Y);
         }
         
-        public Stage(ContentManager CMx)
+        
+        public Stage(ContentManager CMx, GraphicsDevice graphics)
         {
             CM = CMx;
 
             StgPos = new Point(0, 71);
 
+            StageRed = new Sprite("BattleObj/Stages/Red.sasl", "BattleObj/Stages/Red", graphics, CM);
+            StageRed = new Sprite("BattleObj/Stages/Blue.sasl", "BattleObj/Stages/Blue", graphics, CM);
+            
             for (int i = 0; i < 3; i++) // For each row
             {
                 for (int j = 0; j < 6; j++) // For each col

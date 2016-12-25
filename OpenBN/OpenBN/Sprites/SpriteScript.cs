@@ -9,17 +9,18 @@ using System.Text;
 
 namespace OpenBN.ScriptedSprites
 {
-    class SSParser
+    class Sprite
     {
-       public Dictionary<string, Animation> AnimationGroup = new Dictionary<string, Animation>();
-        public Dictionary<string, Texture2D> TempFrames = new Dictionary<string, Texture2D>();
-       public Dictionary<int, AnimationCommand> TempCmd = new Dictionary<int, AnimationCommand>();
+        public Dictionary<string, Animation> AnimationGroup = new Dictionary<string, Animation>();
+        public Dictionary<string, string> Metadata = new Dictionary<string, string>();
 
-        public SSParser(string scriptdir, string texturedir, GraphicsDevice graphics, ContentManager CM)
+        private Dictionary<string, Texture2D> TempFrames = new Dictionary<string, Texture2D>();
+        private Dictionary<int, AnimationCommand> TempCmd = new Dictionary<int, AnimationCommand>();
+        public Sprite(string scriptdir, string texturedir, GraphicsDevice graphics, ContentManager CM)
         {
             var script = File.ReadAllText(CM.RootDirectory + "/" + scriptdir.Trim('/').Trim('\\'));
             Texture2D texture = CM.Load<Texture2D>(texturedir);
-
+            int ColSize = 0, RowSize = 0;
             SpriteBatch SB = new SpriteBatch(graphics);
             var t = script.Split("\r\n".ToCharArray());
             int i = 0; string curanimkey = "";
@@ -33,10 +34,42 @@ namespace OpenBN.ScriptedSprites
                         var ptr = x[1];
                         var rectparams = x[2].Split(',');
 
-                        var r_x = Convert.ToInt16(rectparams[0]);
-                        var r_y = Convert.ToInt16(rectparams[1]);
-                        var r_w = Convert.ToInt16(rectparams[2]);
-                        var r_h = Convert.ToInt16(rectparams[3]);
+                        int r_x = 0, r_y = 0, r_w = 0, r_h = 0;
+
+                        if ((rectparams.Count() == 2))
+                        {
+                            var row = ColSize;
+                            var col = RowSize;
+
+                            foreach (string para in rectparams)
+                                {
+                                var param = para.Trim();
+                                switch (param.ToCharArray()[0])
+                                {
+                                    case 'R':
+                                        row = Convert.ToInt32(param);
+                                        break;
+                                    case 'C':
+                                        col = Convert.ToInt32(param);
+                                        break;
+                                }
+                            }
+
+                            r_x = (ColSize * (col-1)) + 1;
+                            r_y = (RowSize * (row-1)) + 1;
+                            r_w = ColSize;
+                            r_h = RowSize;
+
+
+                        } else
+                        {
+                            r_x = Convert.ToInt16(rectparams[0]);
+                            r_y = Convert.ToInt16(rectparams[1]);
+                            r_w = Convert.ToInt16(rectparams[2]);
+                            r_h = Convert.ToInt16(rectparams[3]);
+                        }
+                         
+
 
                         var srcrect = new Rectangle(r_x,r_y,r_w,r_h);
                         var dstrect = new Rectangle(0, 0, r_w, r_h);
@@ -70,6 +103,18 @@ namespace OpenBN.ScriptedSprites
                         curanimkey = "";
                         break;
 
+                    case "META":
+                        Metadata.Add(x[1], x[2]);
+                        break;
+
+                    case "SET_COL":
+                        ColSize = Convert.ToInt32(x[1]);
+                        break;
+
+                    case "SET_ROW":
+                        RowSize = Convert.ToInt32(x[1]);
+                        break;
+
                     case "SHOW":
                         if (AnimationGroup.Count == 0) break;
                         i++;
@@ -99,8 +144,16 @@ namespace OpenBN.ScriptedSprites
             }
 
         }
-        
+        public void AdvanceAllGroups()
+        {
+            foreach(string Anim in AnimationGroup.Keys)
+            {
+                AnimationGroup[Anim].Next();
+            }
+        }
     }
+
+
 
     public class Animation
     {
@@ -144,6 +197,9 @@ namespace OpenBN.ScriptedSprites
             PC = (int)MathHelper.Clamp(PC,0,Commands.Count);
             return false;
         }
+
+
+
     }
 
 

@@ -975,6 +975,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="BattleObj\Stages\Blue.sasl">
+      <Name>Blue</Name>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="BattleObj\Stages\Red.sasl">
+      <Name>Red</Name>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="BG\AD\BG.sasl">
       <Name>BG</Name>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -1041,6 +1049,18 @@
       <Name>Desaturate</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BattleObj\Stages\Blue.png">
+      <Name>Blue</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="BattleObj\Stages\Red.png">
+      <Name>Red</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

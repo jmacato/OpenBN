@@ -87,7 +87,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="BattleField.cs" />
     <Compile Include="Battle Elements\Stage.cs" />
-    <Compile Include="SpriteScript.cs" />
+    <Compile Include="Sprites\SpriteScript.cs" />
     <Compile Include="Structs.cs" />
     <Compile Include="Battle Elements\TiledBG.cs" />
     <Compile Include="Battle Elements\UserNavi.cs" />

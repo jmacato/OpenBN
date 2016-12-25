@@ -65,7 +65,7 @@ namespace OpenBN
 
         RenderTarget2D EnemyNameCache;
         FontHelper Fonts;
-        SSParser BG_SS;
+        Sprite BG_SS;
         Effect Desaturate;
         System.Windows.Forms.Timer mTimer;
 
@@ -153,7 +153,7 @@ namespace OpenBN
             MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Q, Keys.W, Keys.R, Keys.M };
             ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
 
-            Stage = new Stage(Content);
+            Stage = new Stage(Content, GraphicsDevice);
             Stage.SB = spriteBatch;
             Input = new Inputs(MonitoredKeys);
             Fonts = new FontHelper(Content);
@@ -161,6 +161,7 @@ namespace OpenBN
             CustWindow.SB = spriteBatch;
 
             Desaturate = Content.Load<Effect>("Shaders/Desaturate");
+            Desaturate.Parameters["ColourAmount"].SetValue(1);
 
             Input.Halt = true;
             RenderQueue.Add(Stage);
@@ -214,7 +215,7 @@ namespace OpenBN
             Random rnd = new Random();
             var bgcode = bgcodelist[(int)rnd.Next(bgcodelist.Count())];
 
-            BG_SS = new SSParser("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);
+            BG_SS = new Sprite("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);
 
             myBackground = new TiledBackground(BG_SS.AnimationGroup.Values.First().CurrentFrame, 240, 160);
             myBackground._startCoord = bgpos;
@@ -231,7 +232,7 @@ namespace OpenBN
                     CustWindow.Update();
                     if (desat < 1)
                     {
-                        desat += 0.05f;
+                        desat += 0.1f;
                         desat = MathHelper.Clamp(desat, 0, 1);
                         Desaturate.Parameters["ColourAmount"].SetValue(desat);
                         SoundEffect.MasterVolume = desat;
@@ -245,7 +246,7 @@ namespace OpenBN
                 {
                     if (desat > 0)
                     {
-                        desat -= 0.05f;
+                        desat -= 0.1f;
                         desat = MathHelper.Clamp(desat, 0, 1);
                         Desaturate.Parameters["ColourAmount"].SetValue(desat);
                         SoundEffect.MasterVolume = desat;
@@ -607,7 +608,7 @@ namespace OpenBN
                 CustWindow.Draw();
             
             //Draw the flash
-            if (flash.IsBusy) { spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity); }
+            if (flash.IsBusy) { spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * (flash_opacity * 0)); }
             spriteBatch.End();
 
             //Set rendering back to the back buffer
@@ -616,16 +617,7 @@ namespace OpenBN
             //Update screen metrics
             UpdateViewbox();
 
-            // Convert to grayscale when inactive.
-            if (IsGameActive)
-            {
-                targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
-            }
-            else
-            {
-                // .SetValue(0.9f);
-                targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, Desaturate);
-            }
+            targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, Desaturate);
 
             GraphicsDevice.Clear(Color.Black);
             targetBatch.Draw(target, Viewbox, Color.White);

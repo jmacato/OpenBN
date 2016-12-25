@@ -5,7 +5,7 @@ using System.Text;
 
 namespace OpenBN
 {
-    public static class Math
+    public static class MyMath
     {
         public enum ClampStatus
         {

@@ -5,17 +5,23 @@ the script.
 
 script files ends with .SASL extension.
  
+ Shorthand for grid coords, indices starts with 1.
+
 -- SET_COL <c> (pixels)
 
 	Set base pixel count per col; Global scope;
 
 -- SET_ROW <r> (pixels)
 	
-	Set base pixel count per row; Global scope;
+	Set base pixel count per row; Global scope; 
 
--- DEF (id)(string) <X,Y,W,H>
 
-	
+
+-- META <id> <params, comma separated>
+
+	Non-script specific Additional Data 
+
+-- DEF (id)(string) <X,Y,W,H>	
 	
 -- DEF (id)(string) R<X>,C<X>
 

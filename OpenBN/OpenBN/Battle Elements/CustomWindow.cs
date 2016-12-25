@@ -30,13 +30,13 @@ namespace OpenBN
         public bool showCust { get; private set; }
 
         Vector2 custPos = new Vector2(-120, 0);
-        SSParser CWSS;
+        Sprite CWSS;
         public CustomWindow(ContentManager x, FontHelper Font, GraphicsDevice graphics)
         {
             Fonts = Font;
             CM = x;
 
-            CWSS = new SSParser("Misc/Custwindow-SS.sasl", "Misc/Custwindow", graphics, CM);
+            CWSS = new Sprite("Misc/Custwindow-SS.sasl", "Misc/Custwindow", graphics, CM);
 
             CustomWindowTexture = CWSS.AnimationGroup["CUST"].Frames["0"];
             HPBarTexture = CWSS.AnimationGroup["CUST"].Frames["1"];
@@ -85,12 +85,12 @@ namespace OpenBN
             if (showCust)
             {
                 if (custPos.X != 0)
-                    custPos.X = Math.Clamp(custPos.X + 10, -120, 0);
+                    custPos.X = MyMath.Clamp(custPos.X + 10, -120, 0);
             }
             else
             {
                 if (custPos.X != -120)
-                    custPos.X = Math.Clamp(custPos.X - 10, -120, 0);
+                    custPos.X = MyMath.Clamp(custPos.X - 10, -120, 0);
             }
 
             switch (HPState)
@@ -116,12 +116,12 @@ namespace OpenBN
             {
                 if (CurrentHP < LastHP)
                 {
-                    CurrentHP = Math.Clamp(CurrentHP + 9, CurrentHP, LastHP);
+                    CurrentHP = MyMath.Clamp(CurrentHP + 9, CurrentHP, LastHP);
                     HPState = 2;
                 }
                 else if (CurrentHP > LastHP)
                 {
-                    CurrentHP = Math.Clamp(CurrentHP - 9, LastHP, CurrentHP);
+                    CurrentHP = MyMath.Clamp(CurrentHP - 9, LastHP, CurrentHP);
                     HPState = 1;
                 }
             }
@@ -129,7 +129,7 @@ namespace OpenBN
 
         public void SetHP(int TargetHP)
         {
-            LastHP = (int)Math.Clamp(LastHP + TargetHP, 0, MaxHP);
+            LastHP = (int)MyMath.Clamp(LastHP + TargetHP, 0, MaxHP);
         }
 
         SpriteFont hpfnt;
