@@ -838,38 +838,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BattleObj\STGB0.png">
-      <Name>STGB0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="BattleObj\STGB1.png">
-      <Name>STGB1</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="BattleObj\STGB2.png">
-      <Name>STGB2</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="BattleObj\STGR0.png">
-      <Name>STGR0</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="BattleObj\STGR1.png">
-      <Name>STGR1</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="BattleObj\STGR2.png">
-      <Name>STGR2</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Misc\Custwindow.png">
       <Name>Custwindow</Name>
       <Importer>TextureImporter</Importer>

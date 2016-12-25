@@ -138,6 +138,8 @@ namespace OpenBN
 
         public void Draw()
         {
+            SB.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
+
             if (CWSS != null && DrawEnabled)
             {
                 if (custPos.X != -120)
@@ -153,6 +155,7 @@ namespace OpenBN
                 Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
                 SB.DrawString(hpfnt, CurrentHP.ToString(), hptxtrct, Color.White);
             }
+            SB.End();
         }
 
         SpriteFont ChipCodes;

@@ -24,7 +24,7 @@ namespace OpenBN
         List<StagePnlColor> DefaultPnlColr = new List<StagePnlColor>
             {
                 StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
-                StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
+                StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Red,StagePnlColor.Blue,StagePnlColor.Blue,
                 StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
             };
 
@@ -41,13 +41,14 @@ namespace OpenBN
         public void Draw()
         {
 
-           //Draw the red squares first coz blue panels takes the higher z-order
-            //on the game
+            SB.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
+
             foreach (Panel Pnl in PanelArray)
             {
                 string AnimationGroupKey = "";
 
                 Sprite CurAG = StageRed;
+                int layer = 0;
 
                 switch (Pnl.StgPnlClr)
                 {
@@ -56,6 +57,8 @@ namespace OpenBN
                         break;
                     case StagePnlColor.Red:
                         CurAG = StageRed;
+                        layer = 1;
+
                         break;
                 }
 
@@ -86,20 +89,24 @@ namespace OpenBN
                         AnimationGroupKey = "NONE";
                         break;
                 }
-              
-                var text = CurAG.AnimationGroup[AnimationGroupKey].CurrentFrame;
-                var rect = new Rectangle(Pnl.StgPnlPos.X, Pnl.StgPnlPos.Y, text.Width, text.Height);
-                SB.Draw(text, rect, null, Color.White);
 
-                if (Pnl.StgRowCol.X == 2 && Pnl.StgPnlTyp != StagePnlType.NONE)
+                Texture2D text, bottomtext;
+                Rectangle rect, bottomrect;
+
+                text = CurAG.AnimationGroup[AnimationGroupKey].CurrentFrame;
+                rect = new Rectangle(Pnl.StgPnlPos.X, Pnl.StgPnlPos.Y, text.Width, text.Height);
+
+
+                if (Pnl.StgRowCol.X == 2 & Pnl.StgPnlTyp != StagePnlType.NONE)
                 {
-                    var bottomtext = CurAG.AnimationGroup["BOTTOM"].CurrentFrame;
-                    var bottomrect = new Rectangle(Pnl.StgPnlPos.X, Pnl.StgPnlPos.Y + text.Height, bottomtext.Width, bottomtext.Height);
-                    SB.Draw(bottomtext, bottomrect, null, Color.White);
+                    bottomtext = CurAG.AnimationGroup["BOTTOM"].CurrentFrame;
+                    bottomrect = new Rectangle(Pnl.StgPnlPos.X, Pnl.StgPnlPos.Y + text.Height, bottomtext.Width, bottomtext.Height);
+                    SB.Draw(bottomtext, bottomrect, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 0);
                 }
 
+                SB.Draw(text, rect, null, Color.White,0, Vector2.Zero, SpriteEffects.None, layer);
             }
-
+            SB.End();
         }
 
         Sprite StageRed, StageBlue;
@@ -159,7 +166,8 @@ namespace OpenBN
 
             StageRed = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Red", graphics, CM);
             StageBlue = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Blue", graphics, CM);
-            Random xrnd = new Random();
+
+           Random xrnd = new Random();
 
             for (int i = 0; i < 3; i++) // For each row
             {
@@ -172,9 +180,12 @@ namespace OpenBN
                     //Designate specific pos with offset of the StgPos
                     var y = new Point(PnlColPnt[j] + StgPos.X, PnlRowPnt[i] + StgPos.Y);
                     //Set panel type, could be modified on code
+                
+                    // Test                  
+                     StagePnlType xxxx = (StagePnlType)xrnd.Next(6);
 
-                    StagePnlType xxxx = (StagePnlType)xrnd.Next(6);
-                    var z = DefaultPnlType[u]; 
+                  //  var z = DefaultPnlType[u];
+                    var z = xxxx;
 
                     var e = new Point(i, j);
                     var q = new Panel()
@@ -185,20 +196,6 @@ namespace OpenBN
                         StgRowCol = e
                     };
                     PanelArray.Add(q);
-                }
-            }
-
-            //Assign panel textures
-            foreach (Panel Pnl in PanelArray)
-            {
-                if (Pnl.StgPnlClr == StagePnlColor.Red)
-                {
-                    Pnl.PnlTexture = CM.Load<Texture2D>("BattleObj/STGR" + Pnl.StgRowCol.X);
-                }
-
-                if (Pnl.StgPnlClr == StagePnlColor.Blue)
-                {
-                    Pnl.PnlTexture = CM.Load<Texture2D>("BattleObj/STGB" + Pnl.StgRowCol.X);
                 }
             }
         }
@@ -237,8 +234,6 @@ namespace OpenBN
         public StagePnlType StgPnlTyp { get; set; }
         public Point StgPnlPos { get; set; }
         public Point StgRowCol { get; set; }
-
-        public Texture2D PnlTexture { get; set; }
     }
 
     public enum StagePnlColor

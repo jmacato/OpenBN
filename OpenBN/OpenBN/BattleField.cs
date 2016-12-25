@@ -175,6 +175,9 @@ namespace OpenBN
             LoadSfx();
             LoadBgm();
 
+            RenderQueue.Add(CustWindow);
+
+
             EnemyNames.Add("Mettaur");
             EnemyNames.Add("Mettaur");
             EnemyNames.Add("Mettaur");
@@ -601,12 +604,16 @@ namespace OpenBN
                 myBackground.Draw(spriteBatch);
             }
 
-                if (RenderQueue.Count > 0) { foreach (IBattleEntity s in RenderQueue) { s.Draw(); } }
+            spriteBatch.End();
 
-                DrawEnemyNames();
-                DrawDebugText();
-                CustWindow.Draw();
-            
+            if (RenderQueue.Count > 0) { foreach (IBattleEntity s in RenderQueue) { s.Draw(); } }
+
+
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
+
+            DrawEnemyNames();
+            DrawDebugText();
+
             //Draw the flash
             if (flash.IsBusy) { spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity); }
             spriteBatch.End();

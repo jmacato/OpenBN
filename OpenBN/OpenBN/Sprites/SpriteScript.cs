@@ -71,7 +71,15 @@ namespace OpenBN.ScriptedSprites
                         SB.Draw(texture, dstrect, srcrect, Color.White);
                         SB.End();
                         graphics.SetRenderTarget(null);
-                        TempFrames.Add(ptr, frm_hndlr);
+
+                        Texture2D Trgt = new Texture2D(graphics, frm_hndlr.Width, frm_hndlr.Height);
+
+                        Color[] colors = new Color[frm_hndlr.Width * frm_hndlr.Height];
+
+                        frm_hndlr.GetData<Color>(colors);
+                        Trgt.SetData<Color>(colors);
+                        frm_hndlr.Dispose();
+                        TempFrames.Add(ptr, Trgt);
 
                         break;
 

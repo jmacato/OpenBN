@@ -95,8 +95,10 @@ namespace OpenBN
         {
             if (enableRender)
             {
+                SB.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
                 SB.Draw(curframetext, new Rectangle((int)this.battlepos.X, (int)this.battlepos.Y, curframetext.Width, curframetext.Height), Color.White);
+                SB.End();
             }
         }
     }
