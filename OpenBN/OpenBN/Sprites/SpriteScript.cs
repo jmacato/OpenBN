@@ -41,22 +41,12 @@ namespace OpenBN.ScriptedSprites
                             var row = ColSize;
                             var col = RowSize;
 
-                            foreach (string para in rectparams)
-                                {
-                                var param = para.Trim();
-                                switch (param.ToCharArray()[0])
-                                {
-                                    case 'R':
-                                        row = Convert.ToInt32(param);
-                                        break;
-                                    case 'C':
-                                        col = Convert.ToInt32(param);
-                                        break;
-                                }
-                            }
+                            row = Convert.ToInt32(rectparams[0]);
+                            col = Convert.ToInt32(rectparams[1]);
 
-                            r_x = (ColSize * (col-1)) + 1;
-                            r_y = (RowSize * (row-1)) + 1;
+
+                            r_x = (ColSize * (col-1));
+                            r_y = (RowSize * (row-1));
                             r_w = ColSize;
                             r_h = RowSize;
 

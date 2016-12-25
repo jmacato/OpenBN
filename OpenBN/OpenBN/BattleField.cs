@@ -71,7 +71,7 @@ namespace OpenBN
 
         float flash_opacity = 1;
         bool terminateGame;
-        bool mute = false;
+        bool mute = true;
         public bool DisplayEnemyNames = true;
         string debugTXT = "";
         bool manualTick = true;
@@ -608,7 +608,7 @@ namespace OpenBN
                 CustWindow.Draw();
             
             //Draw the flash
-            if (flash.IsBusy) { spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * (flash_opacity * 0)); }
+            if (flash.IsBusy) { spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity); }
             spriteBatch.End();
 
             //Set rendering back to the back buffer

@@ -975,12 +975,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="BattleObj\Stages\Blue.sasl">
-      <Name>Blue</Name>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="BattleObj\Stages\Red.sasl">
-      <Name>Red</Name>
+    <None Include="BattleObj\Stages\Stage.sasl">
+      <Name>Stage</Name>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="BG\AD\BG.sasl">
