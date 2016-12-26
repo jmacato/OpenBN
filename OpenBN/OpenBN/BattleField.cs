@@ -238,7 +238,6 @@ namespace OpenBN
             {
                 if (IsGameActive)
                 {
-                    CustWindow.Update();
                     if (desat < 1)
                     {
                         desat += 0.1f;
@@ -588,6 +587,7 @@ namespace OpenBN
                     case KeyState.Up:
                         if (KeyLatch[Keys.M] == true)
                         {
+                            CustWindow.RotateEmblem();
                             KeyLatch[Keys.M] = false;
                         }
                         break;

@@ -8,9 +8,10 @@ using System.IO;
 
 namespace OpenBN
 {
+
+    
     class CustomWindow : IBattleEntity
     {
-
         public string ID { get; set; }
         public SpriteBatch SB { get; set; }
         public ContentManager Content { get; set; }
@@ -23,7 +24,6 @@ namespace OpenBN
 
         public int HPState;
 
-        Texture2D customtextures;
         Dictionary<string, Rectangle> CustTextures = new Dictionary<string, Rectangle>();
         SpriteFont HPFontNorm, HPFontCrit, HPFontRecv;
 
@@ -36,6 +36,18 @@ namespace OpenBN
         Vector2 custPos = new Vector2(-120, 0);
         Sprite CWSS;
 
+        Texture2D Emblem;
+        double EmblemRot, EmblemScalar = 1;
+        Vector2 EmblemOrigin, EmblemPos;
+        bool IsEmblemRotating = false;
+
+        SpriteFont hpfnt;
+        Texture2D CustomWindowTexture, HPBarTexture;
+
+        SpriteFont ChipCodes;
+
+        bool DrawEnabled = false;
+        Random Rnd = new Random();
 
         public void Initialize()
         {
@@ -55,6 +67,14 @@ namespace OpenBN
             ChipCodes.Spacing = 0;
             hpfnt = HPFontNorm;
 
+            Emblem = Content.Load<Texture2D>("Navi/MM/Emblem");
+
+            EmblemOrigin = new Vector2((float)Math.Ceiling((float)Emblem.Width / 2),
+                                       (float)Math.Ceiling((float)Emblem.Height / 2));
+
+            EmblemPos = new Vector2(96, 4) + EmblemOrigin;
+
+            EmblemRot = 0;
             Initialized = true;
 
         }
@@ -69,8 +89,7 @@ namespace OpenBN
             showCust = false;
             DrawEnabled = true;
         }
-        bool DrawEnabled = false;
-        Random Rnd = new Random();
+
         public void Show()
         {
             showCust = true;
@@ -134,16 +153,27 @@ namespace OpenBN
                     HPState = 1;
                 }
             }
+
+            if (IsEmblemRotating)
+            {
+                var x = EmblemRot + 0.4;
+                EmblemRot = MyMath.Clamp(x, 0, MathHelper.TwoPi);
+                if (EmblemRot > MathHelper.Pi)
+                {
+                    EmblemScalar = MyMath.Map((float)x, MathHelper.TwoPi, 0, 1, 1.3f);
+                    if (EmblemScalar == MathHelper.TwoPi) IsEmblemRotating = false;
+                }
+                else
+                {
+                    EmblemScalar = MyMath.Map((float)x, 0, MathHelper.TwoPi, 1.1f, 1.3f);
+                }
+            }
         }
 
         public void SetHP(int TargetHP)
         {
             LastHP = (int)MyMath.Clamp(LastHP + TargetHP, 0, MaxHP);
         }
-
-        SpriteFont hpfnt;
-        Texture2D CustomWindowTexture, HPBarTexture;
-
 
         public void Draw()
         {
@@ -163,19 +193,42 @@ namespace OpenBN
                 SB.Draw(HPBarTexture, hprct, Color.White);
 
                 int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
+
                 Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
-                SB.DrawString(hpfnt, CurrentHP.ToString(), hptxtrct, Color.White);
+
+                SB.DrawString(hpfnt,
+                    CurrentHP.ToString(),
+                    hptxtrct,
+                    Color.White);
+
+                SB.Draw(Emblem, new Rectangle(
+                    (int)(custPos.X + EmblemPos.X), (int)EmblemPos.Y,
+                    (int)Math.Ceiling(Emblem.Width*EmblemScalar) ,
+                    (int)Math.Ceiling(Emblem.Height * EmblemScalar)
+                    ),
+                    null,
+                    Color.White,
+                    (float)EmblemRot,
+                    EmblemOrigin,
+                    SpriteEffects.None,
+                    0 );
+
             }
             SB.End();
         }
 
-        SpriteFont ChipCodes;
-
+    
         public void DrawMiniChipCodes(float x)
         {
             var startpoint = new Vector2(x + 8, 119);
             var Measure = ChipCodes.MeasureString(ChipCodeStr);
             SB.DrawString(ChipCodes, ChipCodeStr, startpoint, Color.White);
+        }
+       
+        public void RotateEmblem()
+        {
+            if (IsEmblemRotating) EmblemRot = 0;
+            IsEmblemRotating = true;
         }
     }
 }
