@@ -11,8 +11,19 @@ namespace OpenBN
 
         bool Initialized { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         void Draw();
+
+        /// <summary>
+        /// 
+        /// </summary>
         void Update();
+
+        /// <summary>
+        /// 
+        /// </summary>
         void Initialize();
     }
 

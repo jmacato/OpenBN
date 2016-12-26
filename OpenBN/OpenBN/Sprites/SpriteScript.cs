@@ -7,6 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+/// <summary>
+/// Sprite Animation Scripting Language Parser
+/// (c) Jumar Macato 2016  
+/// </summary>
 namespace OpenBN.ScriptedSprites
 {
     class Sprite
@@ -16,6 +20,7 @@ namespace OpenBN.ScriptedSprites
 
         private Dictionary<string, Texture2D> TempFrames = new Dictionary<string, Texture2D>();
         private Dictionary<int, AnimationCommand> TempCmd = new Dictionary<int, AnimationCommand>();
+
         public Sprite(string scriptdir, string texturedir, GraphicsDevice graphics, ContentManager CM)
         {
             var script = File.ReadAllText(CM.RootDirectory + "/" + scriptdir.Trim('/').Trim('\\'));
@@ -26,7 +31,8 @@ namespace OpenBN.ScriptedSprites
             int i = 0; string curanimkey = "";
             foreach (string y in t)
             {
-                var x = y.Split(' ');
+
+                var x = y.Trim().Trim('\t').Split(' ');
                 switch (x[0])
                 {
                     case "DEF":
@@ -44,13 +50,10 @@ namespace OpenBN.ScriptedSprites
                             row = Convert.ToInt32(rectparams[0]);
                             col = Convert.ToInt32(rectparams[1]);
 
-
                             r_x = (ColSize * (col-1));
                             r_y = (RowSize * (row-1));
                             r_w = ColSize;
                             r_h = RowSize;
-
-
                         } else
                         {
                             r_x = Convert.ToInt16(rectparams[0]);
@@ -59,8 +62,6 @@ namespace OpenBN.ScriptedSprites
                             r_h = Convert.ToInt16(rectparams[3]);
                         }
                          
-
-
                         var srcrect = new Rectangle(r_x,r_y,r_w,r_h);
                         var dstrect = new Rectangle(0, 0, r_w, r_h);
 
@@ -73,14 +74,13 @@ namespace OpenBN.ScriptedSprites
                         graphics.SetRenderTarget(null);
 
                         Texture2D Trgt = new Texture2D(graphics, frm_hndlr.Width, frm_hndlr.Height);
-
                         Color[] colors = new Color[frm_hndlr.Width * frm_hndlr.Height];
 
                         frm_hndlr.GetData<Color>(colors);
                         Trgt.SetData<Color>(colors);
                         frm_hndlr.Dispose();
-                        TempFrames.Add(ptr, Trgt);
 
+                        TempFrames.Add(ptr, Trgt);
                         break;
 
                     case "BEGIN":
@@ -149,6 +149,14 @@ namespace OpenBN.ScriptedSprites
                 AnimationGroup[Anim].Next();
             }
         }
+
+        //public Animation GetGroup(string AnimationGroupKey)
+        //{
+        //    AnimationGroup[AnimationGroupKey].Active = true;
+        //    Animation y = AnimationGroup[AnimationGroupKey];
+        //    return y;
+        //}
+
     }
 
 
@@ -161,6 +169,7 @@ namespace OpenBN.ScriptedSprites
         public int frmptr { get; private set; }
         public int PC { get; set; }
         public string FirstFrame;
+        public bool Active { get; private set; }
 
         public Animation()
         {
@@ -169,12 +178,14 @@ namespace OpenBN.ScriptedSprites
             frmptr = 0;
             Commands = new Dictionary<int, AnimationCommand>();
             Frames = new Dictionary<string, Texture2D>();
+            Active = true;
         }
 
         int wait = 0;
 
         public bool Next()
         {
+            if (!Active) return false;
             if (wait != 0) { wait--; return true; }
             switch (Commands[PC].Cmd)
             {
@@ -185,6 +196,7 @@ namespace OpenBN.ScriptedSprites
                     PC = Commands.Keys.First();
                     return true;
                 case AnimationCommands.STOP:
+                    Active = false;
                     return false;
                 case AnimationCommands.WAIT:
                     wait = Convert.ToInt32(Commands[PC].Args);

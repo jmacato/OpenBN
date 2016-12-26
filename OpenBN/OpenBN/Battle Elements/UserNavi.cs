@@ -95,6 +95,9 @@ namespace OpenBN
         public UserNavi(string nv)
         {
             navicode = nv;
+            btlcol = 2;
+            btlrow = 2;
+            enableRender = false;
         }
 
         public void Draw()

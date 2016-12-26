@@ -26,15 +26,15 @@ namespace OpenBN
         List<StagePnlColor> DefaultPnlColr = new List<StagePnlColor>
             {
                 StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
-                StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Red,StagePnlColor.Blue,StagePnlColor.Blue,
+                StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
                 StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
             };
 
         List<StagePnlType> DefaultPnlType = new List<StagePnlType>
             {
-                StagePnlType.NORMAL,StagePnlType.NORMAL,StagePnlType.NORMAL,StagePnlType.POISON,StagePnlType.POISON,StagePnlType.POISON,
-                StagePnlType.NORMAL,StagePnlType.NORMAL,StagePnlType.NORMAL,StagePnlType.POISON,StagePnlType.POISON,StagePnlType.POISON,
-                StagePnlType.NORMAL,StagePnlType.NORMAL,StagePnlType.NORMAL,StagePnlType.POISON,StagePnlType.POISON,StagePnlType.POISON
+                StagePnlType.NORMAL,StagePnlType.ICE,StagePnlType.GRASS,StagePnlType.POISON,StagePnlType.HOLY,StagePnlType.HOLE,
+                StagePnlType.NORMAL,StagePnlType.ICE,StagePnlType.GRASS,StagePnlType.POISON,StagePnlType.HOLY,StagePnlType.HOLE,
+                StagePnlType.NORMAL,StagePnlType.ICE,StagePnlType.GRASS,StagePnlType.POISON,StagePnlType.HOLY,StagePnlType.HOLE,
             };
 
         public bool showCust { get; set; }
@@ -72,6 +72,9 @@ namespace OpenBN
                     case StagePnlType.HOLE:
                         AnimationGroupKey = "HOLE" + Pnl.StgRowCol.X;
                         break;
+                    case StagePnlType.HOLY:
+                        AnimationGroupKey = "HOLY" + Pnl.StgRowCol.X;
+                        break;
                     case StagePnlType.BROKEN:
                         AnimationGroupKey = "BROK" + Pnl.StgRowCol.X;
                         break;
@@ -87,6 +90,18 @@ namespace OpenBN
                     case StagePnlType.POISON:
                         AnimationGroupKey = "POIS" + Pnl.StgRowCol.X;
                         break;
+                    case StagePnlType.CONV_U:
+                        AnimationGroupKey = "CONV_U" + Pnl.StgRowCol.X;
+                        break;
+                    case StagePnlType.CONV_D:
+                        AnimationGroupKey = "CONV_D" + Pnl.StgRowCol.X;
+                        break;
+                    case StagePnlType.CONV_L:
+                        AnimationGroupKey = "CONV_L" + Pnl.StgRowCol.X;
+                        break;
+                    case StagePnlType.CONV_R:
+                        AnimationGroupKey = "CONV_R" + Pnl.StgRowCol.X;
+                        break;
                     case StagePnlType.NONE:
                         AnimationGroupKey = "NONE";
                         break;
@@ -94,7 +109,7 @@ namespace OpenBN
 
                 Texture2D text, bottomtext;
                 Rectangle rect, bottomrect;
-
+                // CurAG.AnimationGroup[AnimationGroupKey].Active = true;
                 text = CurAG.AnimationGroup[AnimationGroupKey].CurrentFrame;
                 rect = new Rectangle(Pnl.StgPnlPos.X, Pnl.StgPnlPos.Y, text.Width, text.Height);
 
@@ -106,7 +121,7 @@ namespace OpenBN
                     SB.Draw(bottomtext, bottomrect, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 0);
                 }
 
-                SB.Draw(text, rect, null, Color.White,0, Vector2.Zero, SpriteEffects.None, layer);
+                SB.Draw(text, rect, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, layer);
             }
             SB.End();
         }
@@ -143,7 +158,7 @@ namespace OpenBN
                 }
             }
 
-            if(StageRed != null & StageBlue != null)
+            if (StageRed != null & StageBlue != null)
             {
                 StageRed.AdvanceAllGroups();
                 StageBlue.AdvanceAllGroups();
@@ -158,7 +173,7 @@ namespace OpenBN
             var u = offset;
             return i + u + new Vector2(StgPos.X, StgPos.Y);
         }
-        
+
         public void Initialize()
         {
 
@@ -183,12 +198,12 @@ namespace OpenBN
                     //Designate specific pos with offset of the StgPos
                     var y = new Point(PnlColPnt[j] + StgPos.X, PnlRowPnt[i] + StgPos.Y);
                     //Set panel type, could be modified on code
-                
-                    // Test                  
-                     StagePnlType xxxx = (StagePnlType)xrnd.Next(6);
 
-                  //  var z = DefaultPnlType[u];
-                    var z = xxxx;
+                    // Test                  
+                    //StagePnlType xxxx = (StagePnlType)xrnd.Next(11);
+
+                    var z = DefaultPnlType[u];
+                    //var z = xxxx;
 
                     var e = new Point(i, j);
                     var q = new Panel()
@@ -254,7 +269,9 @@ namespace OpenBN
         GRASS,
         HOLE,
         HOLY,
-        ELEV_L, ELEV_R, ELEV_U, ELEV_D,
+        CONV_D, CONV_U,
+        CONV_L, CONV_R,
+        VOLCANO,
         NONE
     }
 }

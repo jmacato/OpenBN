@@ -1,4 +1,5 @@
 Sprite Animation Scripting Language v0.16
+(c) Jumar Macato 2016  
 
 Master Texture should have the same filename as 
 the script. 
@@ -14,8 +15,6 @@ script files ends with .SASL extension.
 -- SET_ROW <r> (pixels)
 	
 	Set base pixel count per row; Global scope; 
-
-
 
 -- META <id> <params, comma separated>
 

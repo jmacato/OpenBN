@@ -56,7 +56,7 @@ namespace OpenBN
         Inputs Input;
         Stage Stage;
         TiledBackground myBackground;
-        UserNavi MegamanEXE;
+        UserNavi UserNavi;
         CustomWindow CustWindow;
         Texture2D flsh;
 
@@ -71,7 +71,7 @@ namespace OpenBN
 
         float flash_opacity = 1;
         bool terminateGame;
-        bool mute = true;
+        bool mute = false;
         public bool DisplayEnemyNames = true;
         string debugTXT = "";
         bool manualTick = true;
@@ -150,29 +150,23 @@ namespace OpenBN
             targetBatch = new SpriteBatch(GraphicsDevice);
 
             target = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
+
             flsh = RectangleFill(new Rectangle(0, 0, screenres.W, screenres.H), ColorHelper.FromHex(0xF8F8F8), false);
+
             MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Q, Keys.W, Keys.R, Keys.M };
             ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
-
-
+            
             Fonts = new FontHelper(Content);
 
             Stage = new Stage();
-            Input = new Inputs(MonitoredKeys);
             CustWindow = new CustomWindow(Fonts);
-
-            Desaturate = Content.Load<Effect>("Shaders/Desaturate");
-            Desaturate.Parameters["ColourAmount"].SetValue(1);
-
+            UserNavi = new UserNavi("MM");
+            
+            Input = new Inputs(MonitoredKeys);
             Input.Halt = true;
-            MegamanEXE = new UserNavi("MM");
-
-            MegamanEXE.btlcol = 2;
-            MegamanEXE.btlrow = 2;
-            MegamanEXE.enableRender = false;
 
             RenderQueue.Add(Stage);
-            RenderQueue.Add(MegamanEXE);
+            RenderQueue.Add(UserNavi);
             RenderQueue.Add(CustWindow);
 
             for (int t = 0; t < RenderQueue.Count(); t++)
@@ -183,14 +177,16 @@ namespace OpenBN
                 RenderQueue[t].Initialize();
             }
 
+            Desaturate = Content.Load<Effect>("Shaders/Desaturate");
+            Desaturate.Parameters["ColourAmount"].SetValue(1);
             LoadSfx();
             LoadBgm();
-
-   
-
+              
+            /*
             EnemyNames.Add("Mettaur");
             EnemyNames.Add("Mettaur");
             EnemyNames.Add("Mettaur");
+            */
 
             LoadBG();
             flash.RunWorkerAsync();
@@ -291,22 +287,22 @@ namespace OpenBN
         private void UserNavBgWrk_DoWork(object sender, DoWorkEventArgs e)
         {
 
-            MegamanEXE.btlcol = 1;
-            MegamanEXE.btlrow = 1;
-            MegamanEXE.enableRender = true;
-            MegamanEXE.SetAnimation("DEFAULT");
-            MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
+            UserNavi.btlcol = 1;
+            UserNavi.btlrow = 1;
+            UserNavi.enableRender = true;
+            UserNavi.SetAnimation("DEFAULT");
+            UserNavi.battlepos = Stage.GetStageCoords(UserNavi.btlrow, UserNavi.btlcol, UserNavi.battleposoffset);
 
             int BusterState = 0;
 
-            int tmpcol = MegamanEXE.btlcol;
-            int tmprow = MegamanEXE.btlrow;
+            int tmpcol = UserNavi.btlcol;
+            int tmprow = UserNavi.btlrow;
 
             do
             {
                 if (IsGameActive && !CustWindow.showCust)
                 {
-                    if (Input != null && MegamanEXE.finish)
+                    if (Input != null && UserNavi.finish)
                     {
                         #region Buster & Charge Shot
                         var ks_x = Input.KbStream[Keys.X];
@@ -336,7 +332,7 @@ namespace OpenBN
                                     if (ks_x.DurDelta < 1500)
                                     {
                                         Debug.Print("BstrSht");
-                                        MegamanEXE.SetAnimation("BUSTER");
+                                        UserNavi.SetAnimation("BUSTER");
                                         PlaySfx(7);
                                         BusterState = 0;
                                         break;
@@ -344,7 +340,7 @@ namespace OpenBN
                                     else if (Input.KbStream[Keys.X].DurDelta > 1500)
                                     {
                                         Debug.Print("ChgSht");
-                                        MegamanEXE.SetAnimation("BUSTER");
+                                        UserNavi.SetAnimation("BUSTER");
                                         debugTXT += "\r\n" + Input.KbStream[Keys.X].DurDelta.ToString();
                                         PlaySfx(76);
                                         BusterState = 0;
@@ -365,7 +361,7 @@ namespace OpenBN
                         #region Stage Movement
                         foreach (Keys ky_ar in ArrowKeys)
                         {
-                            // if (!MegamanEXE.finish) break;
+                            // if (!UserNavi.finish) break;
                             var arrw_ks = Input.KbStream[ky_ar].KeyState;
                             var arrw_dt = Input.KbStream[ky_ar].DurDelta;
                             int tmp1 = 0;
@@ -373,7 +369,7 @@ namespace OpenBN
                             switch (arrw_ks)
                             {
                                 case KeyState.Up:
-                                    if (KeyLatch[ky_ar] == true && MegamanEXE.finish)
+                                    if (KeyLatch[ky_ar] == true && UserNavi.finish)
                                     {
                                         tmp1 = tmpcol;
                                         tmp2 = tmprow;
@@ -410,7 +406,7 @@ namespace OpenBN
                                                     tmprow++;
                                                     break;
                                             }
-                                            MegamanEXE.SetAnimation("TELEPORT0");
+                                            UserNavi.SetAnimation("TELEPORT0");
                                             KeyLatch[ky_ar] = false;
                                             break;
                                         }
@@ -429,22 +425,22 @@ namespace OpenBN
                         #endregion
                     }
 
-                    if (MegamanEXE.CurAnimation == "TELEPORT0" && MegamanEXE.finish)
+                    if (UserNavi.CurAnimation == "TELEPORT0" && UserNavi.finish)
                     {
                         debugTXT = "  c" + tmpcol.ToString() + " r" + tmprow.ToString();
-                        MegamanEXE.btlcol = tmpcol;
-                        MegamanEXE.btlrow = tmprow;
-                        MegamanEXE.battlepos = Stage.GetStageCoords(tmprow, tmpcol, MegamanEXE.battleposoffset);
-                        MegamanEXE.SetAnimation("TELEPORT");
+                        UserNavi.btlcol = tmpcol;
+                        UserNavi.btlrow = tmprow;
+                        UserNavi.battlepos = Stage.GetStageCoords(tmprow, tmpcol, UserNavi.battleposoffset);
+                        UserNavi.SetAnimation("TELEPORT");
                     }
-                    else if (MegamanEXE.CurAnimation != "DEFAULT" && MegamanEXE.finish)
+                    else if (UserNavi.CurAnimation != "DEFAULT" && UserNavi.finish)
                     {
-                        MegamanEXE.SetAnimation("DEFAULT");
+                        UserNavi.SetAnimation("DEFAULT");
                     }
 
                     Thread.Sleep(10);
 
-                    if (MegamanEXE != null) MegamanEXE.Next();
+                    if (UserNavi != null) UserNavi.Next();
                 }
                 else
                 {
@@ -514,7 +510,7 @@ namespace OpenBN
                 }
                 //Send fresh data to input handler
                 Input.Update(Keyboard.GetState(), gameTime);
-                MegamanEXE.battlepos = Stage.GetStageCoords(MegamanEXE.btlrow, MegamanEXE.btlcol, MegamanEXE.battleposoffset);
+                UserNavi.battlepos = Stage.GetStageCoords(UserNavi.btlrow, UserNavi.btlcol, UserNavi.battleposoffset);
                 foreach (IBattleEntity Renderable in RenderQueue)
                 {
                     Renderable.Update();
@@ -676,6 +672,8 @@ namespace OpenBN
                 SprtBtch.Begin();
                 SprtBtch.Draw(pixel, Rect, Color.White);
                 SprtBtch.End();
+                
+
                 GraphicsDevice.SetRenderTarget(null);
                 SprtBtch = null;
                 pixel = FilledRect;
