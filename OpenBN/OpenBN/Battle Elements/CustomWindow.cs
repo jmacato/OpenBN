@@ -49,12 +49,16 @@ namespace OpenBN
         bool DrawEnabled = false;
         Random Rnd = new Random();
 
+        //public List<CustWinSlots> CustWinSlotArray = new List<CustWinSlots> {
+
+        //};
+              
         public void Initialize()
         {
             CWSS = new Sprite("Misc/Custwindow-SS.sasl", "Misc/Custwindow", Graphics, Content);
 
-            CustomWindowTexture = CWSS.AnimationGroup["CUST"].Frames["0"];
-            HPBarTexture = CWSS.AnimationGroup["CUST"].Frames["1"];
+            CustomWindowTexture = CWSS.AnimationGroup["CUST"].Frames["CUSTWIN"];
+            HPBarTexture = CWSS.AnimationGroup["CUST"].Frames["HPBAR"];
 
             HPFontNorm = Fonts.List["HPFont"];
             HPFontCrit = Fonts.List["HPFontMinus"];
@@ -68,10 +72,8 @@ namespace OpenBN
             hpfnt = HPFontNorm;
 
             Emblem = Content.Load<Texture2D>("Navi/MM/Emblem");
-
             EmblemOrigin = new Vector2((float)Math.Ceiling((float)Emblem.Width / 2),
                                        (float)Math.Ceiling((float)Emblem.Height / 2));
-
             EmblemPos = new Vector2(96, 4) + EmblemOrigin;
 
             EmblemRot = 0;
@@ -230,5 +232,6 @@ namespace OpenBN
             if (IsEmblemRotating) EmblemRot = 0;
             IsEmblemRotating = true;
         }
+
     }
 }
