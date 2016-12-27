@@ -49,10 +49,6 @@ namespace OpenBN
         bool DrawEnabled = false;
         Random Rnd = new Random();
 
-        //public List<CustWinSlots> CustWinSlotArray = new List<CustWinSlots> {
-
-        //};
-              
         public void Initialize()
         {
             CWSS = new Sprite("Misc/Custwindow-SS.sasl", "Misc/Custwindow", Graphics, Content);
@@ -72,15 +68,14 @@ namespace OpenBN
             hpfnt = HPFontNorm;
 
             Emblem = Content.Load<Texture2D>("Navi/MM/Emblem");
-            EmblemOrigin = new Vector2((float)Math.Ceiling((float)Emblem.Width / 2),
-                                       (float)Math.Ceiling((float)Emblem.Height / 2));
-            EmblemPos = new Vector2(96, 4) + EmblemOrigin;
+            EmblemOrigin = new Vector2((float)Math.Ceiling((float)Emblem.Width),
+                                       (float)Math.Ceiling((float)Emblem.Height))/2;
+            EmblemPos = new Vector2(103, 11);
 
             EmblemRot = 0;
             Initialized = true;
 
         }
-
 
         public CustomWindow(FontHelper Font)
         {
@@ -96,6 +91,7 @@ namespace OpenBN
         {
             showCust = true;
             ChipCodeStr = "";
+
             for (int i = 0; i < 5; i++)
             {
                 var x = Rnd.Next(64, 90);
@@ -112,63 +108,73 @@ namespace OpenBN
 
         public void Update()
         {
-            if (showCust)
+            //Custom Window transition update logic
             {
-                if (custPos.X != 0)
-                    custPos.X = MyMath.Clamp(custPos.X + 10, -120, 0);
-            }
-            else
-            {
-                if (custPos.X != -120)
-                    custPos.X = MyMath.Clamp(custPos.X - 10, -120, 0);
-            }
-
-            switch (HPState)
-            {
-                case 1:
-                    hpfnt = HPFontCrit;
-                    break;
-                case 2:
-                    hpfnt = HPFontRecv;
-                    break;
-                default:
-                    hpfnt = HPFontNorm;
-                    break;
-            }
-
-            HPState = 0;
-
-            if (CurrentHP >= MaxHP * 0.20)
-            { HPState = 0; }
-            else { HPState = 1; }
-
-            if (CurrentHP != LastHP)
-            {
-                if (CurrentHP < LastHP)
+                if (showCust)
                 {
-                    CurrentHP = MyMath.Clamp(CurrentHP + 9, CurrentHP, LastHP);
-                    HPState = 2;
-                }
-                else if (CurrentHP > LastHP)
-                {
-                    CurrentHP = MyMath.Clamp(CurrentHP - 9, LastHP, CurrentHP);
-                    HPState = 1;
-                }
-            }
-
-            if (IsEmblemRotating)
-            {
-                var x = EmblemRot + 0.4;
-                EmblemRot = MyMath.Clamp(x, 0, MathHelper.TwoPi);
-                if (EmblemRot > MathHelper.Pi)
-                {
-                    EmblemScalar = MyMath.Map((float)x, MathHelper.TwoPi, 0, 1, 1.3f);
-                    if (EmblemScalar == MathHelper.TwoPi) IsEmblemRotating = false;
+                    if (custPos.X != 0)
+                        custPos.X = MyMath.Clamp(custPos.X + 10, -120, 0);
                 }
                 else
                 {
-                    EmblemScalar = MyMath.Map((float)x, 0, MathHelper.TwoPi, 1.1f, 1.3f);
+                    if (custPos.X != -120)
+                        custPos.X = MyMath.Clamp(custPos.X - 10, -120, 0);
                 }
+            }
+            //HP Bar update logic
+            {
+                switch (HPState)
+                {
+                    case 1:
+                        hpfnt = HPFontCrit;
+                        break;
+                    case 2:
+                        hpfnt = HPFontRecv;
+                        break;
+                    default:
+                        hpfnt = HPFontNorm;
+                        break;
+                }
+                if (CurrentHP >= MaxHP * 0.20)
+                {
+                    HPState = 0;
+                }
+                else
+                {
+                    HPState = 1;
+                }
+                if (CurrentHP != LastHP)
+                {
+                    if (CurrentHP < LastHP)
+                    {
+                        CurrentHP = MyMath.Clamp(CurrentHP + 9, CurrentHP, LastHP);
+                        HPState = 2;
+                    }
+                    else if (CurrentHP > LastHP)
+                    {
+                        CurrentHP = MyMath.Clamp(CurrentHP - 9, LastHP, CurrentHP);
+                        HPState = 1;
+                    }
+                }
+
+            }
+            //Emblem Rotation update logic
+            {
+                if (IsEmblemRotating)
+                {
+                    var x = EmblemRot + 0.4;
+                    EmblemRot = MyMath.Clamp(x, 0, MathHelper.TwoPi);
+                    if (EmblemRot > MathHelper.Pi)
+                    {
+                        EmblemScalar = MyMath.Map((float)x, MathHelper.TwoPi, 0, 1, 1.5f);
+                        if (EmblemScalar == MathHelper.TwoPi) IsEmblemRotating = false;
+                    }
+                    else
+                    {
+                        EmblemScalar = MyMath.Map((float)x, 0, MathHelper.TwoPi, 1.1f, 1.5f);
+                    }
+                }
+
             }
         }
 
@@ -206,7 +212,7 @@ namespace OpenBN
                 SB.Draw(Emblem, new Rectangle(
                     (int)(custPos.X + EmblemPos.X), (int)EmblemPos.Y,
                     (int)Math.Ceiling(Emblem.Width*EmblemScalar) ,
-                    (int)Math.Ceiling(Emblem.Height * EmblemScalar)
+                    (int)Math.Ceiling(Emblem.Height*EmblemScalar)
                     ),
                     null,
                     Color.White,
@@ -232,6 +238,16 @@ namespace OpenBN
             if (IsEmblemRotating) EmblemRot = 0;
             IsEmblemRotating = true;
         }
-
     }
+
+    public class ChipSlot
+    {
+        public enum Type
+        {
+            Null,
+            Slot,
+            OKButton,
+        }
+    }
+
 }
