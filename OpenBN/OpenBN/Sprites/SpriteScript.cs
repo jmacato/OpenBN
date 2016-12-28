@@ -21,17 +21,23 @@ namespace OpenBN.ScriptedSprites
         private Dictionary<string, Texture2D> TempFrames = new Dictionary<string, Texture2D>();
         private Dictionary<int, AnimationCommand> TempCmd = new Dictionary<int, AnimationCommand>();
 
+
         public Sprite(string scriptdir, string texturedir, GraphicsDevice graphics, ContentManager CM)
         {
             var script = File.ReadAllText(CM.RootDirectory + "/" + scriptdir.Trim('/').Trim('\\'));
-            Texture2D texture = CM.Load<Texture2D>(texturedir);
             int ColSize = 0, RowSize = 0;
-            SpriteBatch SB = new SpriteBatch(graphics);
             var t = script.Split("\r\n".ToCharArray());
             int i = 0; string curanimkey = "";
+
+            
+        
+
+
+            SpriteBatch SB = new SpriteBatch(graphics);
+            Texture2D texture = CM.Load<Texture2D>(texturedir);
+
             foreach (string y in t)
             {
-
                 var x = y.Trim().Trim('\t').Split(' ');
                 switch (x[0])
                 {
@@ -140,7 +146,6 @@ namespace OpenBN.ScriptedSprites
                         break;
                 }
             }
-
         }
         public void AdvanceAllGroups()
         {
@@ -148,6 +153,17 @@ namespace OpenBN.ScriptedSprites
             {
                 AnimationGroup[Anim].Next();
             }
+        }
+
+        internal void Dispose()
+        {
+            foreach (string Anim in AnimationGroup.Keys)
+            {
+                AnimationGroup[Anim].Dispose();
+                
+            }
+            TempCmd.Clear();
+            TempFrames.Clear();
         }
 
         //public Animation GetGroup(string AnimationGroupKey)
@@ -208,8 +224,13 @@ namespace OpenBN.ScriptedSprites
             return false;
         }
 
-
-
+        internal void Dispose()
+        {
+            foreach (string Anim in Frames.Keys)
+            {
+                Frames[Anim].Dispose();
+            }
+        }
     }
 
 

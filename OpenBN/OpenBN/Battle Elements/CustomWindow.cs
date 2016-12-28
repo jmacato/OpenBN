@@ -211,30 +211,30 @@ namespace OpenBN
                     var y = new Rectangle((int)custPos.X, 0, CustomWindowTexture.Width, CustomWindowTexture.Height);
                     SB.Draw(CustomWindowTexture, y, Color.White);
                     DrawMiniChipCodes(custPos.X);
+
+                    SB.Draw(Emblem, new Rectangle(
+                                        (int)(custPos.X + EmblemPos.X), (int)EmblemPos.Y,
+                                        (int)Math.Ceiling(Emblem.Width * EmblemScalar),
+                                        (int)Math.Ceiling(Emblem.Height * EmblemScalar)
+                                        ),
+                                        null,
+                                        Color.White,
+                                        (float)EmblemRot,
+                                        EmblemOrigin,
+                                        SpriteEffects.None,
+                                        0);
                 }
+
                 var hprct = new Rectangle((int)custPos.X + 122, 1, HPBarTexture.Width, HPBarTexture.Height);
                 SB.Draw(HPBarTexture, hprct, Color.White);
-
                 int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
-
                 Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
-
                 SB.DrawString(hpfnt,
                     CurrentHP.ToString(),
                     hptxtrct,
                     Color.White);
 
-                SB.Draw(Emblem, new Rectangle(
-                    (int)(custPos.X + EmblemPos.X), (int)EmblemPos.Y,
-                    (int)Math.Ceiling(Emblem.Width*EmblemScalar) ,
-                    (int)Math.Ceiling(Emblem.Height*EmblemScalar)
-                    ),
-                    null,
-                    Color.White,
-                    (float)EmblemRot,
-                    EmblemOrigin,
-                    SpriteEffects.None,
-                    0 );
+
 
             }
             SB.End();

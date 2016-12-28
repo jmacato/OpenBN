@@ -959,6 +959,10 @@
       <Name>BG</Name>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="BG\GV\BG.sasl">
+      <Name>BG</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Misc\Custwindow-SS.sasl">
       <Name>Custwindow-SS</Name>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -1039,6 +1043,13 @@
   <ItemGroup>
     <Compile Include="BG\GA_HP\GA_HP.png">
       <Name>GA_HP</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BG\GV\GV.png">
+      <Name>GV</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

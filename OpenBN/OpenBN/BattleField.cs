@@ -21,7 +21,7 @@ namespace OpenBN
 
         public Size screenres = new Size(240, 160);
         public Vector2 screenresvect = new Vector2(240, 160);
-        public int screenresscalar = 2;
+        public int screenresscalar = 3;
 
         //Utility Vectors
         public Vector2 cancelX = new Vector2(0, 1);
@@ -86,6 +86,7 @@ namespace OpenBN
         System.Windows.Forms.Form myForm;
 
         public bool IsGameActive { get; private set; }
+        public bool BGChanged { get; private set; }
 
         public BattleField()
         {
@@ -220,14 +221,15 @@ namespace OpenBN
 
         private void LoadBG()
         {
-            string[] bgcodelist = { "SS", "SK", "AD", "CA", "GA", "GA_HP" };
+            string[] bgcodelist = { "AD", "CA", "GA", "SS", "SK", "GA_HP", "GV" };
             Random rnd = new Random();
             var bgcode = bgcodelist[(int)rnd.Next(bgcodelist.Count())];
+            if (BG_SS != null) BG_SS.Dispose();
 
-            BG_SS = new Sprite("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);
-
+            BG_SS = new Sprite("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);           
             myBackground = new TiledBackground(BG_SS.AnimationGroup.Values.First().CurrentFrame, 240, 160);
             myBackground._startCoord = bgpos;
+            BGChanged = true;
         }
         /// <summary>
         /// 
@@ -248,6 +250,8 @@ namespace OpenBN
 
                     if (!mute && bgminst != null)
                         if (bgminst.State == SoundState.Paused && desat > 0) bgminst.Resume();
+                    CustWindow.Update();
+
                     Thread.Sleep(16);
                 }
                 else
@@ -447,6 +451,7 @@ namespace OpenBN
                 }
             } while (!terminateGame);
         }
+
         /// <summary>
         /// Handles the flashing intro and SFX
         /// </summary>
@@ -473,39 +478,60 @@ namespace OpenBN
 
             return;
         }
+
         /// <summary>
         ///  Handles the diagonally scrolling BG
         /// </summary>
         private void BgUpdater_DoWork(object sender, DoWorkEventArgs e)
         {
-            double dX = Convert.ToDouble(BG_SS.Metadata["DX"]);
-            double dY = Convert.ToDouble(BG_SS.Metadata["DY"]);
-            
+            double dX = 1, dY = 1;
+            double framedel = 1;
+
             do
             {
                 if (terminateGame) return;
                 if (IsGameActive)
                 {
 
-                    BG_SS.AnimationGroup.Values.First().Next();
-                    myBackground._texture = BG_SS.AnimationGroup.Values.First().CurrentFrame;
-
-                    var bgFrameBounds = BG_SS.AnimationGroup.Values.First().CurrentFrame.Bounds;
-
-                    if (scrollcnt % 2 == 0)
+                    if (BGChanged)
                     {
-                        bgpos.X = (int)(Math.Ceiling(bgpos.X + dX) % bgFrameBounds.Width);
-                        if (bgpos.X % 2 != 0)
-                            bgpos.Y = (int)(Math.Ceiling(bgpos.Y + dY) % bgFrameBounds.Height);
-                        scrollcnt = 0;
+                        dX = Convert.ToDouble(BG_SS.Metadata["DX"]);
+                        dY = Convert.ToDouble(BG_SS.Metadata["DY"]);
+                        if (BG_SS.Metadata.ContainsKey("FRAMEDELAY"))
+                        {
+                            framedel = Convert.ToInt32(BG_SS.Metadata["FRAMEDELAY"]);
+                            framedel = MyMath.Clamp(framedel, 2, 128);
+                            debugTXT = "\r\n FM:" + framedel;
+                        }
+                        else
+                        {
+                            framedel = 2;
+                        }
+                        BGChanged = false;
                     }
 
-                    scrollcnt++;
-                    Thread.Sleep(16);
+                    BG_SS.AnimationGroup.Values.First().Next();
+                    myBackground._texture = BG_SS.AnimationGroup.Values.First().CurrentFrame;
+                    var bgFrameBounds = BG_SS.AnimationGroup.Values.First().CurrentFrame.Bounds;
+
+                    if(!(dX==0 & dY == 0))
+                    {
+                        if (scrollcnt % framedel == 0)
+                        {
+                            bgpos.X = (int)(Math.Ceiling(bgpos.X + dX) % bgFrameBounds.Width);
+                            if (bgpos.X % 2 != 0)
+                                bgpos.Y = (int)(Math.Ceiling(bgpos.Y + dY) % bgFrameBounds.Height);
+                            scrollcnt = 0;
+                        }
+                        scrollcnt++;
+                    }
+
+                    Thread.Sleep((int)(16));
                 }
                 else { Thread.Sleep(InactiveSleepTime); }
             } while (!terminateGame);
         }
+
 
         protected override void Update(GameTime gameTime)
         {
@@ -522,6 +548,7 @@ namespace OpenBN
 
                 foreach (IBattleEntity Renderable in RenderQueue)
                 {
+                    if (Renderable == CustWindow) continue;
                     Renderable.Update();
                 }
 
