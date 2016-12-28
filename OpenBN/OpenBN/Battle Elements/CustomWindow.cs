@@ -58,8 +58,6 @@ namespace OpenBN
             new int[] {1,1,1,0,0,2}
         };
 
-
-
         public void Initialize()
         {
             CWSS = new Sprite("Misc/Custwindow-SS.sasl", "Misc/Custwindow", Graphics, Content);
@@ -81,7 +79,7 @@ namespace OpenBN
             Emblem = Content.Load<Texture2D>("Navi/MM/Emblem");
             EmblemOrigin = new Vector2((float)Math.Ceiling((float)Emblem.Width),
                                        (float)Math.Ceiling((float)Emblem.Height)) / 2;
-            EmblemPos = new Vector2(103.5f, 11);
+            EmblemPos = new Vector2(104, 11);
             EmblemRot = 0;
             Initialized = true;
 
@@ -185,10 +183,9 @@ namespace OpenBN
                 }
 
             }
-
             //Keyboard Handling logic
             {
-
+                
             }
 
         }
@@ -225,7 +222,7 @@ namespace OpenBN
                                         0);
                 }
 
-                var hprct = new Rectangle((int)custPos.X + 122, 1, HPBarTexture.Width, HPBarTexture.Height);
+                var hprct = new Rectangle((int)custPos.X + 122, 0, HPBarTexture.Width, HPBarTexture.Height);
                 SB.Draw(HPBarTexture, hprct, Color.White);
                 int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
                 Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
@@ -234,6 +231,8 @@ namespace OpenBN
                     hptxtrct,
                     Color.White);
 
+
+                
 
 
             }

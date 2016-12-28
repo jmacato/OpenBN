@@ -20,22 +20,15 @@ namespace OpenBN.ScriptedSprites
 
         private Dictionary<string, Texture2D> TempFrames = new Dictionary<string, Texture2D>();
         private Dictionary<int, AnimationCommand> TempCmd = new Dictionary<int, AnimationCommand>();
-
-
+        
         public Sprite(string scriptdir, string texturedir, GraphicsDevice graphics, ContentManager CM)
         {
             var script = File.ReadAllText(CM.RootDirectory + "/" + scriptdir.Trim('/').Trim('\\'));
             int ColSize = 0, RowSize = 0;
             var t = script.Split("\r\n".ToCharArray());
-            int i = 0; string curanimkey = "";
-
-            
-        
-
-
+            int i = 0; string curanimkey = "";                  
             SpriteBatch SB = new SpriteBatch(graphics);
             Texture2D texture = CM.Load<Texture2D>(texturedir);
-
             foreach (string y in t)
             {
                 var x = y.Trim().Trim('\t').Split(' ');
@@ -146,6 +139,7 @@ namespace OpenBN.ScriptedSprites
                         break;
                 }
             }
+            SB.Dispose();
         }
         public void AdvanceAllGroups()
         {
@@ -159,20 +153,11 @@ namespace OpenBN.ScriptedSprites
         {
             foreach (string Anim in AnimationGroup.Keys)
             {
-                AnimationGroup[Anim].Dispose();
-                
+                AnimationGroup[Anim].Dispose();                
             }
             TempCmd.Clear();
             TempFrames.Clear();
         }
-
-        //public Animation GetGroup(string AnimationGroupKey)
-        //{
-        //    AnimationGroup[AnimationGroupKey].Active = true;
-        //    Animation y = AnimationGroup[AnimationGroupKey];
-        //    return y;
-        //}
-
     }
 
 
@@ -182,7 +167,6 @@ namespace OpenBN.ScriptedSprites
         public Dictionary<string, Texture2D> Frames { get; set; }
         public Dictionary<int, AnimationCommand> Commands { get; set; }
         public Texture2D CurrentFrame { get; private set; }
-        public int frmptr { get; private set; }
         public int PC { get; set; }
         public string FirstFrame;
         public bool Active { get; private set; }
@@ -191,7 +175,6 @@ namespace OpenBN.ScriptedSprites
         {
             FirstFrame = "";
             PC = 1;
-            frmptr = 0;
             Commands = new Dictionary<int, AnimationCommand>();
             Frames = new Dictionary<string, Texture2D>();
             Active = true;

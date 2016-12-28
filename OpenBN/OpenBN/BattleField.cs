@@ -41,9 +41,6 @@ namespace OpenBN
         BackgroundWorker UserNavBgWrk = new BackgroundWorker();
         BackgroundWorker SixtyHzBgWrkr = new BackgroundWorker();
 
-        //List of sfx's & bgm's
-        Dictionary<int, string> sfxdict = new Dictionary<int, string>();
-        Dictionary<int, string> bgmdict = new Dictionary<int, string>();
 
         Dictionary<Keys, bool> KeyLatch = new Dictionary<Keys, bool>();
 
@@ -67,6 +64,7 @@ namespace OpenBN
         FontHelper Fonts;
         Sprite BG_SS;
         Effect Desaturate;
+
         System.Windows.Forms.Timer mTimer;
 
         float flash_opacity = 1;
@@ -83,6 +81,7 @@ namespace OpenBN
         Keys[] MonitoredKeys;
         Keys[] ArrowKeys;
         #endregion
+
         System.Windows.Forms.Form myForm;
 
         public bool IsGameActive { get; private set; }
@@ -180,8 +179,8 @@ namespace OpenBN
 
             Desaturate = Content.Load<Effect>("Shaders/Desaturate");
             Desaturate.Parameters["ColourAmount"].SetValue(1);
-            LoadSfx();
-            LoadBgm();
+       //     LoadSfx();
+        //    LoadBgm();
               
             /*
             EnemyNames.Add("Mettaur");
@@ -223,7 +222,9 @@ namespace OpenBN
         {
             string[] bgcodelist = { "AD", "CA", "GA", "SS", "SK", "GA_HP", "GV" };
             Random rnd = new Random();
+
             var bgcode = bgcodelist[(int)rnd.Next(bgcodelist.Count())];
+
             if (BG_SS != null) BG_SS.Dispose();
 
             BG_SS = new Sprite("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);           
@@ -231,6 +232,8 @@ namespace OpenBN
             myBackground._startCoord = bgpos;
             BGChanged = true;
         }
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -316,14 +319,14 @@ namespace OpenBN
                                 {
                                     if (BusterState == 1) break;
                                     Debug.Print("chrg_Anim_start");
-                                    PlaySfx(14);
+                                //    PlaySfx(14);
                                     BusterState = 1;
                                 }
                                 else if (ks_x.DurDelta > 1500)
                                 {
                                     if (BusterState == 2) break;
                                     Debug.Print("chrg_Anim_start2");
-                                    PlaySfx(15);
+                                //    PlaySfx(15);
                                     BusterState = 2;
                                 }
                                 KeyLatch[Keys.X] = true;
@@ -336,7 +339,7 @@ namespace OpenBN
                                     {
                                         Debug.Print("BstrSht");
                                         UserNavi.SetAnimation("BUSTER");
-                                        PlaySfx(7);
+                                 //       PlaySfx(7);
                                         BusterState = 0;
                                         break;
                                     }
@@ -345,7 +348,7 @@ namespace OpenBN
                                         Debug.Print("ChgSht");
                                         UserNavi.SetAnimation("BUSTER");
                                         debugTXT += "\r\n" + Input.KbStream[Keys.X].DurDelta.ToString();
-                                        PlaySfx(76);
+                                  //      PlaySfx(76);
                                         BusterState = 0;
                                         break;
                                     }
@@ -458,7 +461,7 @@ namespace OpenBN
         private void Flash_DoWork(object sender, DoWorkEventArgs e)
         {
             flash_opacity = 1;
-            PlaySfx(21);
+            //PlaySfx(21);
             UserNavBgWrk.RunWorkerAsync();
 
             bgUpdater.RunWorkerAsync();
@@ -469,10 +472,11 @@ namespace OpenBN
                 Thread.Sleep(30);
             } while (flash_opacity >= 0);
 
+            flash.Dispose();
 
-            PlayBgm(1);
+          // PlayBgm(1);
             SixtyHzBgWrkr.RunWorkerAsync();
-            CustWindow.Show();
+           CustWindow.Show();
             Stage.showCust = true;
             Input.Halt = false;
 
@@ -631,6 +635,9 @@ namespace OpenBN
                         }
                         break;
                 }
+
+                UpdateViewbox();
+
             }
             else { Thread.Sleep(InactiveWaitMs); }
         }
@@ -640,14 +647,9 @@ namespace OpenBN
 
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            //Render Objects, Back to front layer
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
-            if(BG_SS != null)
-            {
-                myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0));
-                myBackground.Draw(spriteBatch);
-            }
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
+            if(BG_SS != null) {myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0));myBackground.Draw(spriteBatch);}
 
             spriteBatch.End();
 
@@ -657,23 +659,18 @@ namespace OpenBN
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
             DrawEnemyNames();
-            DrawDebugText();
+          //  DrawDebugText();
 
             //Draw the flash
-            if (flash.IsBusy) { spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity); }
-            spriteBatch.End();
+            if (flash_opacity > 0) { spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity); }
 
-            //Set rendering back to the back buffer
+            spriteBatch.End();
             GraphicsDevice.SetRenderTarget(null);
 
-            //Update screen metrics
-            UpdateViewbox();
-
-            targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, Desaturate);
-
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, Desaturate);
             GraphicsDevice.Clear(Color.Black);
-            targetBatch.Draw(target, Viewbox, Color.White);
-            targetBatch.End();
+            spriteBatch.Draw(target, Viewbox, Color.White);
+            spriteBatch.End();
         }
 
 
@@ -790,69 +787,6 @@ namespace OpenBN
             var TextPos = InitTextPos;
             //Draw it
             spriteBatch.DrawString(Font1, debugTXT, TextPos, Color.White);
-        }
-
-        /// <summary>
-        /// Load references for the Sound Effects files
-        /// </summary>
-        private void LoadSfx()
-        {
-            DirectoryInfo dir = new DirectoryInfo(Content.RootDirectory + "/SFX");
-            FileInfo[] files = dir.GetFiles("*.*");
-            foreach (FileInfo file in files)
-            {
-                int key = Convert.ToInt16(file.Name.Split('-')[1].Split('.')[0]);
-                sfxdict[key] = ("SFX/SFX-" + key.ToString().PadLeft(2, '0'));
-            }
-        }
-
-        /// <summary>
-        /// Load references for the BG music files
-        /// </summary>
-        private void LoadBgm()
-        {
-            DirectoryInfo dir = new DirectoryInfo(Content.RootDirectory + "/BGM");
-            FileInfo[] files = dir.GetFiles("*.*");
-            foreach (FileInfo file in files)
-            {
-                int key = Convert.ToInt16(file.Name.Split('-')[1].Split('.')[0]);
-                bgmdict[key] = ("BGM/BGM-" + key.ToString().PadLeft(2, '0'));
-
-            }
-        }
-
-        /// <summary>
-        /// Play BG music on loop
-        /// </summary>
-        /// <param name="key">BGM ID</param>
-        private void PlayBgm(int key)
-        {
-            if (mute) return;
-            if (key == 0 && bgminst.State == SoundState.Playing && !mute)
-            {
-                bgminst.Stop();
-            }
-            var x = Content.Load<SoundEffect>(bgmdict[key]);
-            bgminst = x.CreateInstance();
-            bgminst.IsLooped = true;
-            bgminst.Play();
-            bgminst.Volume = 0.80f;
-            //   bgminst.Pitch = 0.1f;
-        }
-
-        /// <summary>
-        /// Play SFX 
-        /// </summary>
-        /// <param name="key">SFX ID</param>
-        private void PlaySfx(int key)
-        {
-            if (mute) return;
-            if (key == 0 && bgminst.State == SoundState.Playing && key > sfxdict.Count() && !mute)
-            {
-                return;
-            }
-            var x = Content.Load<SoundEffect>(sfxdict[key]);
-            x.Play();
         }
 
         /// <summary>
