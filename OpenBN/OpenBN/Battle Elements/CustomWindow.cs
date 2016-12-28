@@ -5,17 +5,20 @@ using System;
 using OpenBN.ScriptedSprites;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Xna.Framework.Input;
 
 namespace OpenBN
 {
 
-    
+
     class CustomWindow : IBattleEntity
     {
         public string ID { get; set; }
         public SpriteBatch SB { get; set; }
         public ContentManager Content { get; set; }
         public GraphicsDevice Graphics { get; set; }
+        public Inputs Input { get; set; }
+
 
         public int CurrentHP { get; private set; }
         public int LastHP { get; private set; }
@@ -49,6 +52,14 @@ namespace OpenBN
         bool DrawEnabled = false;
         Random Rnd = new Random();
 
+        int[][] ChipSlotTypes =
+        {
+            new int[] {1,1,1,1,1,2},
+            new int[] {1,1,1,0,0,2}
+        };
+
+
+
         public void Initialize()
         {
             CWSS = new Sprite("Misc/Custwindow-SS.sasl", "Misc/Custwindow", Graphics, Content);
@@ -69,9 +80,8 @@ namespace OpenBN
 
             Emblem = Content.Load<Texture2D>("Navi/MM/Emblem");
             EmblemOrigin = new Vector2((float)Math.Ceiling((float)Emblem.Width),
-                                       (float)Math.Ceiling((float)Emblem.Height))/2;
-            EmblemPos = new Vector2(103, 11);
-
+                                       (float)Math.Ceiling((float)Emblem.Height)) / 2;
+            EmblemPos = new Vector2(103.5f, 11);
             EmblemRot = 0;
             Initialized = true;
 
@@ -98,7 +108,6 @@ namespace OpenBN
                 x = Rnd.Next(64, 90);
                 ChipCodeStr += (char)x;
             }
-
         }
 
         public void Hide()
@@ -162,7 +171,7 @@ namespace OpenBN
             {
                 if (IsEmblemRotating)
                 {
-                    var x = EmblemRot + 0.4;
+                    var x = EmblemRot + 0.45;
                     EmblemRot = MyMath.Clamp(x, 0, MathHelper.TwoPi);
                     if (EmblemRot > MathHelper.Pi)
                     {
@@ -176,6 +185,12 @@ namespace OpenBN
                 }
 
             }
+
+            //Keyboard Handling logic
+            {
+
+            }
+
         }
 
         public void SetHP(int TargetHP)

@@ -951,6 +951,14 @@
       <Name>BG</Name>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="BG\GA\BG.sasl">
+      <Name>BG</Name>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="BG\GA_HP\BG.sasl">
+      <Name>BG</Name>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Misc\Custwindow-SS.sasl">
       <Name>Custwindow-SS</Name>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -965,19 +973,6 @@
   <ItemGroup>
     <Compile Include="BG\CA\CA.png">
       <Name>CA</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="BG\GH\BG.sasl">
-      <Name>BG</Name>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="BG\GH\GH.png">
-      <Name>GH</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
@@ -1030,6 +1025,20 @@
   <ItemGroup>
     <Compile Include="Navi\MM\Emblem.png">
       <Name>Emblem</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BG\GA\GA.png">
+      <Name>GA</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BG\GA_HP\GA_HP.png">
+      <Name>GA_HP</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

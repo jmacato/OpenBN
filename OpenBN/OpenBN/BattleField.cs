@@ -220,7 +220,7 @@ namespace OpenBN
 
         private void LoadBG()
         {
-            string[] bgcodelist = { "SS", "SK", "AD", "CA", "GH" };
+            string[] bgcodelist = { "SS", "SK", "AD", "CA", "GA", "GA_HP" };
             Random rnd = new Random();
             var bgcode = bgcodelist[(int)rnd.Next(bgcodelist.Count())];
 
@@ -478,6 +478,8 @@ namespace OpenBN
         /// </summary>
         private void BgUpdater_DoWork(object sender, DoWorkEventArgs e)
         {
+            var dX = Convert.ToInt32(BG_SS.Metadata["DX"]);
+            var dY = Convert.ToInt32(BG_SS.Metadata["DY"]);
             do
             {
                 if (terminateGame) return;
@@ -485,9 +487,9 @@ namespace OpenBN
                 {
                     if (scrollcnt % 2 == 0)
                     {
-                        bgpos.X = (bgpos.X - 1) % 128;
+                        bgpos.X = (bgpos.X + dX) % 128;
                         if (bgpos.X % 2 != 0)
-                        { bgpos.Y = (bgpos.Y - 1) % 64; }
+                        bgpos.Y = (bgpos.Y + dY) % 64;
                         scrollcnt = 0;
                     }
                     BG_SS.AnimationGroup.Values.First().Next();
@@ -509,11 +511,14 @@ namespace OpenBN
                 }
                 //Send fresh data to input handler
                 Input.Update(Keyboard.GetState(), gameTime);
+
                 UserNavi.battlepos = Stage.GetStageCoords(UserNavi.btlrow, UserNavi.btlcol, UserNavi.battleposoffset);
+
                 foreach (IBattleEntity Renderable in RenderQueue)
                 {
                     Renderable.Update();
                 }
+
                 var ks_z = Input.KbStream[Keys.Z];
                 var ks_q = Input.KbStream[Keys.Q];
                 var ks_r = Input.KbStream[Keys.R];
@@ -588,6 +593,7 @@ namespace OpenBN
                         if (KeyLatch[Keys.M] == true)
                         {
                             CustWindow.RotateEmblem();
+                            LoadBG(); 
                             KeyLatch[Keys.M] = false;
                         }
                         break;

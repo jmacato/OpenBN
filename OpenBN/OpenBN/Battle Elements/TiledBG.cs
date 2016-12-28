@@ -37,7 +37,7 @@ namespace OpenBN
         {
             for (int i = -1; i < _horizontalTileCount; i++)
             {
-                for (int j = -2; j < _verticalTileCount; j++)
+                for (int j = -1; j < _verticalTileCount; j++)
                 {
                     spriteBatch.Draw(_texture,
                     new Rectangle(
