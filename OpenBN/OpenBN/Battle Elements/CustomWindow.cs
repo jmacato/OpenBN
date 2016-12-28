@@ -11,7 +11,7 @@ namespace OpenBN
 {
 
 
-    class CustomWindow : IBattleEntity
+  public class CustomWindow : IBattleEntity
     {
         public string ID { get; set; }
         public SpriteBatch SB { get; set; }
@@ -252,7 +252,19 @@ namespace OpenBN
             if (IsEmblemRotating) EmblemRot = 0;
             IsEmblemRotating = true;
         }
+
+        public void DisplayBattleChip(IBattleChip BattleChip)
+        {
+            SelectedChip = BattleChip;
+        }
+
+        IBattleChip SelectedChip { get; set; }
+        string ChipName, Ch
+
+
     }
+
+
 
     public class ChipSlot
     {

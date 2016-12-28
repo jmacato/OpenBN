@@ -433,7 +433,6 @@ namespace OpenBN
 
                     if (UserNavi.CurAnimation == "TELEPORT0" && UserNavi.finish)
                     {
-                        debugTXT = "  c" + tmpcol.ToString() + " r" + tmprow.ToString();
                         UserNavi.btlcol = tmpcol;
                         UserNavi.btlrow = tmprow;
                         UserNavi.battlepos = Stage.GetStageCoords(tmprow, tmpcol, UserNavi.battleposoffset);

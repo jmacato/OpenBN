@@ -1,16 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenBN", "OpenBN\OpenBN\OpenBN.csproj", "{7556E1CD-F14C-44D3-8409-18416225DA42}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenBNContent", "OpenBN\OpenBNContent\OpenBNContent.contentproj", "{85769048-71AE-4F5B-91ED-AAD6C5EE85A2}"
 EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
