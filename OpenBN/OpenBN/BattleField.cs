@@ -478,22 +478,28 @@ namespace OpenBN
         /// </summary>
         private void BgUpdater_DoWork(object sender, DoWorkEventArgs e)
         {
-            var dX = Convert.ToInt32(BG_SS.Metadata["DX"]);
-            var dY = Convert.ToInt32(BG_SS.Metadata["DY"]);
+            double dX = Convert.ToDouble(BG_SS.Metadata["DX"]);
+            double dY = Convert.ToDouble(BG_SS.Metadata["DY"]);
+            
             do
             {
                 if (terminateGame) return;
                 if (IsGameActive)
                 {
-                    if (scrollcnt % 2 == 0)
-                    {
-                        bgpos.X = (bgpos.X + dX) % 128;
-                        if (bgpos.X % 2 != 0)
-                        bgpos.Y = (bgpos.Y + dY) % 64;
-                        scrollcnt = 0;
-                    }
+
                     BG_SS.AnimationGroup.Values.First().Next();
                     myBackground._texture = BG_SS.AnimationGroup.Values.First().CurrentFrame;
+
+                    var bgFrameBounds = BG_SS.AnimationGroup.Values.First().CurrentFrame.Bounds;
+
+                    if (scrollcnt % 2 == 0)
+                    {
+                        bgpos.X = (int)(Math.Ceiling(bgpos.X + dX) % bgFrameBounds.Width);
+                        if (bgpos.X % 2 != 0)
+                            bgpos.Y = (int)(Math.Ceiling(bgpos.Y + dY) % bgFrameBounds.Height);
+                        scrollcnt = 0;
+                    }
+
                     scrollcnt++;
                     Thread.Sleep(16);
                 }
