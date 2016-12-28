@@ -259,7 +259,7 @@ namespace OpenBN
         }
 
         IBattleChip SelectedChip { get; set; }
-        string ChipName, Ch
+
 
 
     }
