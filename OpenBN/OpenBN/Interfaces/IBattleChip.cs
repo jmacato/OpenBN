@@ -20,8 +20,6 @@ namespace OpenBN
         SpriteBatch SB { get; set; }
         GraphicsDevice Graphics { get; set; }
         ContentManager Content { get; set; }
-
-
     }
 
     public enum ChipElements
@@ -41,7 +39,6 @@ namespace OpenBN
         public GraphicsDevice Graphics { get; set; }
         public ContentManager Content { get; set; }
 
-
         public void Execute(CustomWindow CW, BattleField BT, Stage ST)
         {
 
@@ -49,7 +46,11 @@ namespace OpenBN
 
         public TestBattleChip()
         {
-            
+            Image = Content.Load<Texture2D>("BC/schip178");
+            DisplayName = "BugFix";
+            Description = "Fix all nav cust bugs.";
+            Element = ChipElements.NULL;
+            Code = '@';
         }
     }
 

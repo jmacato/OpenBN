@@ -28,7 +28,7 @@ namespace OpenBN
         public int HPState;
 
         Dictionary<string, Rectangle> CustTextures = new Dictionary<string, Rectangle>();
-        SpriteFont HPFontNorm, HPFontCrit, HPFontRecv;
+        SpriteFont HPFontNorm, HPFontCrit, HPFontRecv, hpfnt, ChipCodes;
 
         FontHelper Fonts;
 
@@ -44,10 +44,7 @@ namespace OpenBN
         Vector2 EmblemOrigin, EmblemPos;
         bool IsEmblemRotating = false;
 
-        SpriteFont hpfnt;
         Texture2D CustomWindowTexture, HPBarTexture;
-
-        SpriteFont ChipCodes;
 
         bool DrawEnabled = false;
         Random Rnd = new Random();
@@ -69,6 +66,7 @@ namespace OpenBN
             HPFontCrit = Fonts.List["HPFontMinus"];
             HPFontRecv = Fonts.List["HPFontPlus"];
             ChipCodes = Fonts.List["ChipCodesB"];
+            ChipCodes = Fonts.List["ChipCodesB"];
 
             HPFontNorm.Spacing = 1;
             HPFontCrit.Spacing = 1;
@@ -82,6 +80,14 @@ namespace OpenBN
             EmblemPos = new Vector2(104, 11);
             EmblemRot = 0;
             Initialized = true;
+
+            IBattleChip TBtlChp = new TestBattleChip();
+
+            TBtlChp.SB = SB;
+            TBtlChp.Content = Content;
+            TBtlChp.Graphics = Graphics;
+
+            DisplayBattleChip(TBtlChp);
 
         }
 
@@ -205,46 +211,69 @@ namespace OpenBN
             {
                 if (custPos.X != -120)
                 {
-                    var y = new Rectangle((int)custPos.X, 0, CustomWindowTexture.Width, CustomWindowTexture.Height);
-                    SB.Draw(CustomWindowTexture, y, Color.White);
-                    DrawMiniChipCodes(custPos.X);
+                    DrawCustWindow();
 
-                    SB.Draw(Emblem, new Rectangle(
-                                        (int)(custPos.X + EmblemPos.X), (int)EmblemPos.Y,
-                                        (int)Math.Ceiling(Emblem.Width * EmblemScalar),
-                                        (int)Math.Ceiling(Emblem.Height * EmblemScalar)
-                                        ),
-                                        null,
-                                        Color.White,
-                                        (float)EmblemRot,
-                                        EmblemOrigin,
-                                        SpriteEffects.None,
-                                        0);
+                    DrawMiniChipCodes(custPos.X);
+                    DrawEmblem();
+                    DrawBattleChip();
+
                 }
 
-                var hprct = new Rectangle((int)custPos.X + 122, 0, HPBarTexture.Width, HPBarTexture.Height);
-                SB.Draw(HPBarTexture, hprct, Color.White);
-                int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
-                Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
-                SB.DrawString(hpfnt,
-                    CurrentHP.ToString(),
-                    hptxtrct,
-                    Color.White);
-
-
-                
-
+                DrawHPBar();
 
             }
             SB.End();
         }
 
+        public void DrawCustWindow()
+        {
+            var y = new Rectangle((int)custPos.X, 0, CustomWindowTexture.Width, CustomWindowTexture.Height);
+            SB.Draw(CustomWindowTexture, y, Color.White);
+        }
+
+        public void DrawHPBar()
+        {
+            var hprct = new Rectangle((int)custPos.X + 122, 0, HPBarTexture.Width, HPBarTexture.Height);
+            SB.Draw(HPBarTexture, hprct, Color.White);
+            int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
+            Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
+            SB.DrawString(hpfnt,
+                CurrentHP.ToString(),
+                hptxtrct,
+                Color.White);
+
+        }
+
+        public void DrawEmblem()
+        {
+
+            SB.Draw(Emblem, new Rectangle(
+                                (int)(custPos.X + EmblemPos.X), (int)EmblemPos.Y,
+                                (int)Math.Ceiling(Emblem.Width * EmblemScalar),
+                                (int)Math.Ceiling(Emblem.Height * EmblemScalar)
+                                ),
+                                null,
+                                Color.White,
+                                (float)EmblemRot,
+                                EmblemOrigin,
+                                SpriteEffects.None,
+                                0);
+        }
     
         public void DrawMiniChipCodes(float x)
         {
             var startpoint = new Vector2(x + 8, 119);
             var Measure = ChipCodes.MeasureString(ChipCodeStr);
             SB.DrawString(ChipCodes, ChipCodeStr, startpoint, Color.White);
+        }
+
+
+        public void DrawBattleChip()
+        {
+            if (SelectedChip != null){
+                var img_rect = new Rectangle((int)custPos.X + 16, 24,56,48);
+                SB.Draw(SelectedChip.Image, img_rect, Color.White);
+            }
         }
        
         public void RotateEmblem()
@@ -259,7 +288,7 @@ namespace OpenBN
         }
 
         IBattleChip SelectedChip { get; set; }
-
+        
 
 
     }
