@@ -2,11 +2,16 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using OpenBN.ScriptedSprites;
+
+
+
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework.Input;
 
+using OpenBN.ScriptedSprites;
+using static OpenBN.Helpers.Misc;
+using static OpenBN.MyMath;
 namespace OpenBN
 {
 
@@ -28,7 +33,7 @@ namespace OpenBN
         public int HPState;
 
         Dictionary<string, Rectangle> CustTextures = new Dictionary<string, Rectangle>();
-        SpriteFont HPFontNorm, HPFontCrit, HPFontRecv, hpfnt, ChipCodes;
+        SpriteFont HPFontNorm, HPFontCrit, HPFontRecv, hpfnt, ChipCodesA, ChipCodesB, ChipDesc;
 
         FontHelper Fonts;
 
@@ -62,34 +67,38 @@ namespace OpenBN
             CustomWindowTexture = CWSS.AnimationGroup["CUST"].Frames["CUSTWIN"];
             HPBarTexture = CWSS.AnimationGroup["CUST"].Frames["HPBAR"];
 
+            SetFocus("OKBUTTON");
+
             HPFontNorm = Fonts.List["HPFont"];
             HPFontCrit = Fonts.List["HPFontMinus"];
             HPFontRecv = Fonts.List["HPFontPlus"];
-            ChipCodes = Fonts.List["ChipCodesB"];
-            ChipCodes = Fonts.List["ChipCodesB"];
+            ChipCodesA = Fonts.List["ChipCodesA"];
+            ChipCodesB = Fonts.List["ChipCodesB"];
+            ChipDesc = Fonts.List["ChipDesc"];
+
 
             HPFontNorm.Spacing = 1;
             HPFontCrit.Spacing = 1;
             HPFontRecv.Spacing = 1;
-            ChipCodes.Spacing = 0;
+            ChipCodesA.Spacing = 0;
+            ChipCodesB.Spacing = 0;
+
             hpfnt = HPFontNorm;
 
             Emblem = Content.Load<Texture2D>("Navi/MM/Emblem");
             EmblemOrigin = new Vector2((float)Math.Ceiling((float)Emblem.Width),
                                        (float)Math.Ceiling((float)Emblem.Height)) / 2;
-            EmblemPos = new Vector2(104, 11);
+            EmblemPos = new Vector2(103, 11);
             EmblemRot = 0;
             Initialized = true;
 
-            IBattleChip TBtlChp = new TestBattleChip();
+            TestBattleChip TBtlChp = new TestBattleChip(Content);
 
-            TBtlChp.SB = SB;
-            TBtlChp.Content = Content;
-            TBtlChp.Graphics = Graphics;
 
             DisplayBattleChip(TBtlChp);
 
         }
+
 
         public CustomWindow(FontHelper Font)
         {
@@ -99,6 +108,11 @@ namespace OpenBN
             LastHP = CurrentHP;
             showCust = false;
             DrawEnabled = true;
+        }
+
+        public CustomWindow(FontHelper Font, ref Inputs input) : this(Font)
+        {
+            this.Input = input;
         }
 
         public void Show()
@@ -126,12 +140,12 @@ namespace OpenBN
                 if (showCust)
                 {
                     if (custPos.X != 0)
-                        custPos.X = MyMath.Clamp(custPos.X + 10, -120, 0);
+                        custPos.X = MyMath.Clamp(custPos.X + 15, -120, 0);
                 }
                 else
                 {
                     if (custPos.X != -120)
-                        custPos.X = MyMath.Clamp(custPos.X - 10, -120, 0);
+                        custPos.X = MyMath.Clamp(custPos.X - 15, -120, 0);
                 }
             }
             //HP Bar update logic
@@ -190,9 +204,11 @@ namespace OpenBN
 
             }
             //Keyboard Handling logic
+            if (Input != null)
             {
-                
+               
             }
+            CWSS.AdvanceAllGroups();
 
         }
 
@@ -204,25 +220,48 @@ namespace OpenBN
         public void Draw()
         {
             if (!Initialized) return;
-
             SB.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
-
             if (CWSS != null && DrawEnabled)
             {
                 if (custPos.X != -120)
                 {
                     DrawCustWindow();
-
                     DrawMiniChipCodes(custPos.X);
                     DrawEmblem();
                     DrawBattleChip();
-
+                    DrawFocusRects();
                 }
-
                 DrawHPBar();
-
             }
             SB.End();
+        }
+
+
+        public void DrawFocusRects()
+        {
+
+            var x = custPos.X + CurrentFocusRect.X;
+            var y = CurrentFocusRect.Y;
+            var w = CurrentFocusRect.Width;
+            var h = CurrentFocusRect.Height;
+
+            Texture2D TextTL = CWSS.AnimationGroup["CURSOR0_TL"].CurrentFrame;
+            Texture2D TextTR = CWSS.AnimationGroup["CURSOR0_TR"].CurrentFrame;
+            Texture2D TextBL = CWSS.AnimationGroup["CURSOR0_BL"].CurrentFrame;
+            Texture2D TextBR = CWSS.AnimationGroup["CURSOR0_BR"].CurrentFrame;
+
+            var of = 3;
+
+            Vector2 TL = new Vector2(x, y) - new Vector2(of, of);
+            Vector2 TR = new Vector2(x + w - 7, y) - new Vector2(-of, of);
+            Vector2 BL = new Vector2(x, (y + h) - 7) - new Vector2(of, -of);
+            Vector2 BR = new Vector2(x + w - 7, y + h - 7) - new Vector2(-of, -of);
+
+            SB.Draw(TextTL, TL, Color.White);
+            SB.Draw(TextTR, TR, Color.White);
+            SB.Draw(TextBL, BL, Color.White);
+            SB.Draw(TextBR, BR, Color.White);
+
         }
 
         public void DrawCustWindow()
@@ -263,16 +302,42 @@ namespace OpenBN
         public void DrawMiniChipCodes(float x)
         {
             var startpoint = new Vector2(x + 8, 119);
-            var Measure = ChipCodes.MeasureString(ChipCodeStr);
-            SB.DrawString(ChipCodes, ChipCodeStr, startpoint, Color.White);
+            var Measure = ChipCodesB.MeasureString(ChipCodeStr);
+            SB.DrawString(ChipCodesB, ChipCodeStr, startpoint, Color.White);
         }
-
 
         public void DrawBattleChip()
         {
-            if (SelectedChip != null){
-                var img_rect = new Rectangle((int)custPos.X + 16, 24,56,48);
-                SB.Draw(SelectedChip.Image, img_rect, Color.White);
+            if (SelectedChip != null)
+            {
+                var img_vect = new Vector2((int)custPos.X + 16, 24);
+                var name_vect = new Vector2((int)custPos.X + 17, 9);
+                var code_vect = new Vector2((int)custPos.X + 16, 72);
+                var elem_vect = new Vector2((int)custPos.X + 25, 73);
+                var ChipElem = CWSS.AnimationGroup["CUST"].Frames["TYPE_" + SelectedChip.Element.ToString()];
+                string Dmg_Disp = "";
+                switch (SelectedChip.Damage)
+                {
+                    case -1:
+                        Dmg_Disp = "///";
+                        break;
+                    case -2:
+                        Dmg_Disp = "";
+                        break;
+                    default:
+                        Dmg_Disp = SelectedChip.Damage.ToString();
+                        break;
+                }
+
+                var Dmg_MS = 71 - ChipDesc.MeasureString(Dmg_Disp).X;
+                var dmg_vect = new Vector2((int)custPos.X + Dmg_MS, 75);
+                
+                SB.Draw(SelectedChip.Image, img_vect, Color.White);
+                SB.Draw(ChipElem, elem_vect, Color.White);
+
+                SB.DrawString(Fonts.List["Normal"], SelectedChip.DisplayName, name_vect, Color.White);
+                SB.DrawString(ChipCodesA, SelectedChip.Code.ToString(), code_vect, Color.White);
+                SB.DrawString(Fonts.List["ChipDmg"], Dmg_Disp, dmg_vect, Color.White);
             }
         }
        
@@ -287,8 +352,14 @@ namespace OpenBN
             SelectedChip = BattleChip;
         }
 
+        public void SetFocus(string rectname)
+        {
+            CurrentFocusRect = RectFromString(CWSS.Metadata[rectname]);
+        }
+
         IBattleChip SelectedChip { get; set; }
-        
+        Rectangle CurrentFocusRect { get; set; }
+
 
 
     }

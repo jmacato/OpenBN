@@ -11,7 +11,7 @@ namespace OpenBN
     {
         Texture2D Image { get; set; }
         string DisplayName { get; set; }
-        string Description { get; set; }
+        int Damage { get; set; }
         ChipElements Element { get; set; }
         char Code { get; set; }
 
@@ -24,15 +24,15 @@ namespace OpenBN
 
     public enum ChipElements
     {
-        FIRE, AQUA, THUNDER, LEAF, SWORD, WIND,
-        TARGET, BLOCK, ENHANCE, STONE, NULL
+        FIRE, AQUA, THUNDER, WOOD, SWORD, WIND,
+        TARGET, BLOCK, MODIFIER, WRECK, NULL
     }
 
     public class TestBattleChip : IBattleChip
     {
         public Texture2D Image { get; set; }
         public string DisplayName { get; set; }
-        public string Description { get; set; }
+        public int Damage { get; set; }
         public ChipElements Element { get; set; }
         public char Code { get; set; }
         public SpriteBatch SB { get; set; }
@@ -44,12 +44,13 @@ namespace OpenBN
 
         }
 
-        public TestBattleChip()
+        public TestBattleChip(ContentManager Content)
         {
-            Image = Content.Load<Texture2D>("BC/schip178");
-            DisplayName = "BugFix";
-            Description = "Fix all nav cust bugs.";
-            Element = ChipElements.NULL;
+            this.Content = Content;
+            Image = Content.Load<Texture2D>("BC/schip029");
+            DisplayName = "Thunder";
+            Damage = 40;
+            Element = ChipElements.THUNDER;
             Code = '@';
         }
     }

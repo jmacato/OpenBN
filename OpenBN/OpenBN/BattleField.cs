@@ -10,6 +10,9 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using OpenBN.ScriptedSprites;
+using static OpenBN.ColorHelper;
+using static OpenBN.MyMath;
+
 using System.Reflection;
 
 namespace OpenBN
@@ -97,7 +100,8 @@ namespace OpenBN
             // PS: If monogame does focusing logic better, i'll definitely switch X|
             {
                 mTimer = new System.Windows.Forms.Timer { Interval = (int)(TargetElapsedTime.TotalMilliseconds) };
-                mTimer.Tick += (s, e) => {
+                mTimer.Tick += (s, e) =>
+                {
                     if (IsGameActive)
                     {
                         if (manualTickCount > 2) { manualTick = true; Tick(); manualTick = false; }
@@ -109,10 +113,10 @@ namespace OpenBN
                 host.GetType().BaseType.GetField("Resume", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(host, null);
                 myForm = (System.Windows.Forms.Form)System.Windows.Forms.Form.FromHandle(this.Window.Handle);
             }
-    
+
             graphics = new GraphicsDeviceManager(this);
             graphics.IsFullScreen = false;
-            
+
             //Set real screen resolution
             graphics.PreferredBackBufferWidth = screenres.W * screenresscalar;
             graphics.PreferredBackBufferHeight = screenres.H * screenresscalar;
@@ -125,11 +129,13 @@ namespace OpenBN
 
         }
 
-     
+
         protected override void Initialize()
         {
             mTimer.Start();
+            graphics.SynchronizeWithVerticalRetrace = true;
             base.Initialize();
+
             terminateGame = false;
 
             //Assign bgwrkrs
@@ -145,7 +151,7 @@ namespace OpenBN
         }
         protected override void LoadContent()
         {
-          //  SoundEffect.MasterVolume = 0f;
+            //  SoundEffect.MasterVolume = 0f;
             spriteBatch = new SpriteBatch(GraphicsDevice);
             targetBatch = new SpriteBatch(GraphicsDevice);
 
@@ -155,15 +161,15 @@ namespace OpenBN
 
             MonitoredKeys = new Keys[] { Keys.A, Keys.S, Keys.X, Keys.Z, Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Q, Keys.W, Keys.R, Keys.M };
             ArrowKeys = new Keys[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
-            
-            Fonts = new FontHelper(Content);
 
-            Stage = new Stage();
-            CustWindow = new CustomWindow(Fonts);
-            UserNavi = new UserNavi("MM");
-            
+            Fonts = new FontHelper(Content);
             Input = new Inputs(MonitoredKeys);
             Input.Halt = true;
+
+            Stage = new Stage();
+            CustWindow = new CustomWindow(Fonts, ref Input);
+            UserNavi = new UserNavi("MM");
+
 
             RenderQueue.Add(Stage);
             RenderQueue.Add(UserNavi);
@@ -179,9 +185,9 @@ namespace OpenBN
 
             Desaturate = Content.Load<Effect>("Shaders/Desaturate");
             Desaturate.Parameters["ColourAmount"].SetValue(1);
-       //     LoadSfx();
-        //    LoadBgm();
-              
+            //     LoadSfx();
+            //    LoadBgm();
+
             /*
             EnemyNames.Add("Mettaur");
             EnemyNames.Add("Mettaur");
@@ -199,12 +205,12 @@ namespace OpenBN
         }
         protected override void OnActivated(object sender, EventArgs e)
         {
-           IsGameActive = true;
+            IsGameActive = true;
             //  if (ContentLoaded) PlaySfx(60);
         }
 
         protected override void OnExiting(object sender, EventArgs e)
-        {            
+        {
             terminateGame = true;
             mTimer.Dispose();
         }
@@ -227,7 +233,7 @@ namespace OpenBN
 
             if (BG_SS != null) BG_SS.Dispose();
 
-            BG_SS = new Sprite("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);           
+            BG_SS = new Sprite("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);
             myBackground = new TiledBackground(BG_SS.AnimationGroup.Values.First().CurrentFrame, 240, 160);
             myBackground._startCoord = bgpos;
             BGChanged = true;
@@ -246,15 +252,17 @@ namespace OpenBN
                     if (desat < 1)
                     {
                         desat += 0.1f;
-                        desat = MathHelper.Clamp(desat, 0, 1);
+                        desat = Clamp(desat, 0, 1);
                         Desaturate.Parameters["ColourAmount"].SetValue(desat);
                         SoundEffect.MasterVolume = desat;
                     }
 
                     if (!mute && bgminst != null)
-                        if (bgminst.State == SoundState.Paused && desat > 0) bgminst.Resume();
+                        if (bgminst.State == SoundState.Paused && desat > 0)
+                        {
+                            bgminst.Resume();
+                        }
                     CustWindow.Update();
-
                     Thread.Sleep(16);
                 }
                 else
@@ -262,13 +270,13 @@ namespace OpenBN
                     if (desat > 0)
                     {
                         desat -= 0.1f;
-                        desat = MathHelper.Clamp(desat, 0, 1);
+                        desat = Clamp(desat, 0, 1);
                         Desaturate.Parameters["ColourAmount"].SetValue(desat);
                         SoundEffect.MasterVolume = desat;
                     }
 
                     if (!mute && bgminst != null)
-                    if (bgminst.State == SoundState.Playing && desat < 0.1) bgminst.Pause();
+                        if (bgminst.State == SoundState.Playing && desat < 0.1) bgminst.Pause();
 
                     Thread.Sleep(16);
                 }
@@ -319,14 +327,14 @@ namespace OpenBN
                                 {
                                     if (BusterState == 1) break;
                                     Debug.Print("chrg_Anim_start");
-                                //    PlaySfx(14);
+                                    //    PlaySfx(14);
                                     BusterState = 1;
                                 }
                                 else if (ks_x.DurDelta > 1500)
                                 {
                                     if (BusterState == 2) break;
                                     Debug.Print("chrg_Anim_start2");
-                                //    PlaySfx(15);
+                                    //    PlaySfx(15);
                                     BusterState = 2;
                                 }
                                 KeyLatch[Keys.X] = true;
@@ -339,7 +347,7 @@ namespace OpenBN
                                     {
                                         Debug.Print("BstrSht");
                                         UserNavi.SetAnimation("BUSTER");
-                                 //       PlaySfx(7);
+                                        //       PlaySfx(7);
                                         BusterState = 0;
                                         break;
                                     }
@@ -348,7 +356,7 @@ namespace OpenBN
                                         Debug.Print("ChgSht");
                                         UserNavi.SetAnimation("BUSTER");
                                         debugTXT += "\r\n" + Input.KbStream[Keys.X].DurDelta.ToString();
-                                  //      PlaySfx(76);
+                                        //      PlaySfx(76);
                                         BusterState = 0;
                                         break;
                                     }
@@ -473,9 +481,9 @@ namespace OpenBN
 
             flash.Dispose();
 
-          // PlayBgm(1);
+            // PlayBgm(1);
             SixtyHzBgWrkr.RunWorkerAsync();
-           CustWindow.Show();
+            CustWindow.Show();
             Stage.showCust = true;
             Input.Halt = false;
 
@@ -517,7 +525,7 @@ namespace OpenBN
                     myBackground._texture = BG_SS.AnimationGroup.Values.First().CurrentFrame;
                     var bgFrameBounds = BG_SS.AnimationGroup.Values.First().CurrentFrame.Bounds;
 
-                    if(!(dX==0 & dY == 0))
+                    if (!(dX == 0 & dY == 0))
                     {
                         if (scrollcnt % framedel == 0)
                         {
@@ -596,7 +604,7 @@ namespace OpenBN
                     case KeyState.Up:
                         if (KeyLatch[Keys.Q] == true)
                         {
-                            CustWindow.SetHP(-500);
+                            CustWindow.SetFocus("CHIPSLOT_1_1");
                             KeyLatch[Keys.Q] = false;
                         }
                         break;
@@ -612,7 +620,7 @@ namespace OpenBN
                     case KeyState.Up:
                         if (KeyLatch[Keys.R] == true)
                         {
-                            CustWindow.SetHP(500);
+                            CustWindow.SetFocus("CHIPSLOT_1_2");
                             KeyLatch[Keys.R] = false;
                         }
                         break;
@@ -629,7 +637,7 @@ namespace OpenBN
                         if (KeyLatch[Keys.M] == true)
                         {
                             CustWindow.RotateEmblem();
-                            LoadBG(); 
+                            LoadBG();
                             KeyLatch[Keys.M] = false;
                         }
                         break;
@@ -642,13 +650,13 @@ namespace OpenBN
         }
         protected override void Draw(GameTime gameTime)
         {
-           // if (!IsGameActive) { base.Draw(gameTime); return; }
+            // if (!IsGameActive) { base.Draw(gameTime); return; }
 
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
-            if(BG_SS != null) {myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0));myBackground.Draw(spriteBatch);}
+            if (BG_SS != null) { myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0)); myBackground.Draw(spriteBatch); }
 
             spriteBatch.End();
 
@@ -658,7 +666,7 @@ namespace OpenBN
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
             DrawEnemyNames();
-          //  DrawDebugText();
+            //  DrawDebugText();
 
             //Draw the flash
             if (flash_opacity > 0) { spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity); }
@@ -707,7 +715,7 @@ namespace OpenBN
                 SprtBtch.Begin();
                 SprtBtch.Draw(pixel, Rect, Color.White);
                 SprtBtch.End();
-                
+
 
                 GraphicsDevice.SetRenderTarget(null);
                 SprtBtch = null;
