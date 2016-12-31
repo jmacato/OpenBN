@@ -250,12 +250,12 @@ namespace OpenBN
             Texture2D TextBL = CWSS.AnimationGroup["CURSOR0_BL"].CurrentFrame;
             Texture2D TextBR = CWSS.AnimationGroup["CURSOR0_BR"].CurrentFrame;
 
-            var of = 3;
+            var of = 4;
 
             Vector2 TL = new Vector2(x, y) - new Vector2(of, of);
-            Vector2 TR = new Vector2(x + w - 7, y) - new Vector2(-of, of);
-            Vector2 BL = new Vector2(x, (y + h) - 7) - new Vector2(of, -of);
-            Vector2 BR = new Vector2(x + w - 7, y + h - 7) - new Vector2(-of, -of);
+            Vector2 TR = new Vector2(x + w - 8, y) - new Vector2(-of, of);
+            Vector2 BL = new Vector2((x + w) - 8, y + h - 8) - new Vector2(-of, -of);
+            Vector2 BR = new Vector2(x, (y + h) - 8) - new Vector2(of, -of);
 
             SB.Draw(TextTL, TL, Color.White);
             SB.Draw(TextTR, TR, Color.White);
