@@ -214,19 +214,23 @@ namespace OpenBN
                 {
                     case KeyState.Down:
                         {
-                            if (varks_l % 500 == 0)
+                            if (varks_l % 6 == 0)
                             {
-                                slotindex = (slotindex - 1) % 6;
+                                slotindex = (slotindex - 1)%6;
                                 slotindex = Clamp(slotindex, 1, 5);
                                 SetFocus("CHIPSLOT_1_" + slotindex.ToString());
                             }
                         }
+                        varks_l++;
+                        break;
+                    case KeyState.Up:
+                        varks_l = varks_l % 128;
                         break;
                 }
                 switch (ks_r.KeyState)
                 {
                     case KeyState.Down:
-                        if (varks_l % 500 == 0)
+                        if (varks_r % 6 == 0)
                         {
                             slotindex = (slotindex + 1)%6;
                             slotindex = Clamp(slotindex, 1, 5);
@@ -235,7 +239,7 @@ namespace OpenBN
                         varks_r++;
                         break;
                     case KeyState.Up:
-                        varks_r=0;
+                        varks_r= varks_r % 128;
                         break;
                 }
             }
@@ -389,6 +393,7 @@ namespace OpenBN
         public void SetFocus(string rectname)
         {
             CurrentFocusRect = RectFromString(CWSS.Metadata[rectname]);
+            CWSS.ResetAllGroups();
         }
 
         IBattleChip SelectedChip { get; set; }

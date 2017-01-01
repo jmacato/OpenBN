@@ -149,6 +149,15 @@ namespace OpenBN.ScriptedSprites
             }
         }
 
+        public void ResetAllGroups()
+        {
+            foreach (string Anim in AnimationGroup.Keys)
+            {
+                AnimationGroup[Anim].PC = 1;
+            }
+        }
+
+
         internal void Dispose()
         {
             foreach (string Anim in AnimationGroup.Keys)
