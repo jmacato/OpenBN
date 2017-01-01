@@ -12,6 +12,8 @@ using Microsoft.Xna.Framework.Input;
 using OpenBN.ScriptedSprites;
 using static OpenBN.Helpers.Misc;
 using static OpenBN.MyMath;
+using System.Diagnostics;
+
 namespace OpenBN
 {
 
@@ -206,11 +208,43 @@ namespace OpenBN
             //Keyboard Handling logic
             if (Input != null)
             {
-               
+                var ks_l = Input.KbStream[Keys.Left];
+                var ks_r = Input.KbStream[Keys.Right];
+                switch (ks_l.KeyState)
+                {
+                    case KeyState.Down:
+                        {
+                            if (varks_l % 500 == 0)
+                            {
+                                slotindex = (slotindex - 1) % 6;
+                                slotindex = Clamp(slotindex, 1, 5);
+                                SetFocus("CHIPSLOT_1_" + slotindex.ToString());
+                            }
+                        }
+                        break;
+                }
+                switch (ks_r.KeyState)
+                {
+                    case KeyState.Down:
+                        if (varks_l % 500 == 0)
+                        {
+                            slotindex = (slotindex + 1)%6;
+                            slotindex = Clamp(slotindex, 1, 5);
+                            SetFocus("CHIPSLOT_1_" + slotindex.ToString());
+                        }
+                        varks_r++;
+                        break;
+                    case KeyState.Up:
+                        varks_r=0;
+                        break;
+                }
             }
             CWSS.AdvanceAllGroups();
 
         }
+        int slotindex = 0;
+        int varks_l = 0, varks_r = 0;
+
 
         public void SetHP(int TargetHP)
         {

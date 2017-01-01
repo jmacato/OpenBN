@@ -24,7 +24,7 @@ namespace OpenBN
 
         public Size screenres = new Size(240, 160);
         public Vector2 screenresvect = new Vector2(240, 160);
-        public int screenresscalar = 3;
+        public int screenresscalar = 2;
 
         //Utility Vectors
         public Vector2 cancelX = new Vector2(0, 1);
@@ -43,7 +43,6 @@ namespace OpenBN
         BackgroundWorker flash = new BackgroundWorker();
         BackgroundWorker UserNavBgWrk = new BackgroundWorker();
         BackgroundWorker SixtyHzBgWrkr = new BackgroundWorker();
-
 
         Dictionary<Keys, bool> KeyLatch = new Dictionary<Keys, bool>();
 
@@ -564,8 +563,7 @@ namespace OpenBN
                 }
 
                 var ks_z = Input.KbStream[Keys.Z];
-                var ks_q = Input.KbStream[Keys.Q];
-                var ks_r = Input.KbStream[Keys.R];
+
                 var ks_m = Input.KbStream[Keys.M];
 
                 switch (ks_z.KeyState)
@@ -593,38 +591,9 @@ namespace OpenBN
                         }
                         break;
                 }
-                switch (ks_q.KeyState)
-                {
-                    case KeyState.Down:
-                        if (KeyLatch[Keys.Q] == false)
-                        {
-                            KeyLatch[Keys.Q] = true;
-                        }
-                        break;
-                    case KeyState.Up:
-                        if (KeyLatch[Keys.Q] == true)
-                        {
-                            CustWindow.SetFocus("CHIPSLOT_1_1");
-                            KeyLatch[Keys.Q] = false;
-                        }
-                        break;
-                }
-                switch (ks_r.KeyState)
-                {
-                    case KeyState.Down:
-                        if (KeyLatch[Keys.R] == false)
-                        {
-                            KeyLatch[Keys.R] = true;
-                        }
-                        break;
-                    case KeyState.Up:
-                        if (KeyLatch[Keys.R] == true)
-                        {
-                            CustWindow.SetFocus("CHIPSLOT_1_2");
-                            KeyLatch[Keys.R] = false;
-                        }
-                        break;
-                }
+
+
+
                 switch (ks_m.KeyState)
                 {
                     case KeyState.Down:
@@ -648,6 +617,8 @@ namespace OpenBN
             }
             else { Thread.Sleep(InactiveWaitMs); }
         }
+
+
         protected override void Draw(GameTime gameTime)
         {
             // if (!IsGameActive) { base.Draw(gameTime); return; }
