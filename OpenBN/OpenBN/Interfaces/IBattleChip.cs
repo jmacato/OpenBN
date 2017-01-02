@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -58,6 +59,10 @@ namespace OpenBN
             Damage = dmg;
             Element = elem;
             Code = code;
+
+    //        var opop = id;
+       //     if (opop > 17) opop++;
+
             Icon = iconprov.Icons[id];
 
             //Image = Content.Load<Texture2D>("BC/schip029");
@@ -125,8 +130,8 @@ namespace OpenBN
                 }
             }
 
-            var i = IconTexture.Height / 14;
-            var j = IconTexture.Width / 14;
+            var i = (IconTexture.Height / 14);
+            var j = (IconTexture.Width / 14);
             
             RowCount = i;
             ColCount = j;
@@ -139,38 +144,41 @@ namespace OpenBN
             {
                 TotalTiles = i * j;
             }
-
-            //    Icons = new Texture2D[i * j];
-
-            int uu = 0;
+          //  string oooo = "";
+          //  int uu = 0;
+            Icons.Add(new Texture2D(Graphics, 14, 14));
             for (int j1 = 0; j1 < rowCount; j1++)
+            {
                 for (int i1 = 0; i1 < colCount; i1++)
                 {
-                    var r_x = i1 * 14;
-                    var r_y = j1 * 14;
+                    //if (uu < TotalTiles)
+                    //{
+                    //uu++;
+                    //}
+                    //else break;
+
+                    var r_x = (i1 ) * 14;
+                    var r_y = (j1 ) * 14;
                     var srcrect = new Rectangle(r_x, r_y, 14, 14);
                     var dstrect = new Rectangle(0, 0, 14, 14);
 
 
                     Texture2D Trgt = new Texture2D(Graphics, 14, 14);
-                    Color[] colors = new Color[14*14];
+                    Color[] colors = new Color[14 * 14];
 
-                    IconTexture.GetData<Color>(0,srcrect,colors,0,14*14);
+                    IconTexture.GetData<Color>(0, srcrect, colors, 0, 14 * 14);
                     Trgt.SetData<Color>(colors);
-                   // Icons[((i1+1) * (j1+1))-1] = Trgt;
-
+                    Trgt.SaveAsPng(System.IO.File.Create(Content.RootDirectory + "/" + uu.ToString() + ".png"), 14, 14);
                     Icons.Add(Trgt);
-                    if (uu < TotalTiles)
-                    {
-                        uu++;
-                    }
-                    else break;
 
+               ///     oooo += uu.ToString() + ",";
                 }
+             //   oooo += "\r\n";
 
-         //   SB.Dispose();
+            }
+            Debug.Print(oooo);
+            //   SB.Dispose();
 
         }
-
     }
 }

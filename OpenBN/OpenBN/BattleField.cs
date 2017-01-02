@@ -132,7 +132,7 @@ namespace OpenBN
         protected override void Initialize()
         {
             mTimer.Start();
-            graphics.SynchronizeWithVerticalRetrace = true;
+         //   graphics.SynchronizeWithVerticalRetrace = false;
             base.Initialize();
 
             terminateGame = false;
