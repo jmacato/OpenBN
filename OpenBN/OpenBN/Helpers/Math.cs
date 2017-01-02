@@ -45,6 +45,21 @@ namespace OpenBN
             return result;
         }
 
+
+        public static T InverseClamp<T>(T value, T min, T max) where T : System.IComparable<T>
+        {
+            T result = value;
+            if (value.CompareTo(max) > 0)
+            {
+                result = min;
+            }
+            if (value.CompareTo(min) < 0)
+            {
+                result = max;
+            }
+            return result;
+        }
+
         public static float Map(float value, float from1, float to1, float from2, float to2)
         {
             return (value - from1) / (to1 - from1) * (to2 - from2) + from2;

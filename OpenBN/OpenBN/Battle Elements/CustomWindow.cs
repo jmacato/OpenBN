@@ -18,7 +18,7 @@ namespace OpenBN
 {
 
 
-  public class CustomWindow : IBattleEntity
+    public class CustomWindow : IBattleEntity
     {
         public string ID { get; set; }
         public SpriteBatch SB { get; set; }
@@ -56,6 +56,9 @@ namespace OpenBN
         bool DrawEnabled = false;
         Random Rnd = new Random();
 
+        int slotindex = 0;
+        int varks_l = 0, varks_r = 0;
+
         int[][] ChipSlotTypes =
         {
             new int[] {1,1,1,1,1,2},
@@ -78,7 +81,6 @@ namespace OpenBN
             ChipCodesB = Fonts.List["ChipCodesB"];
             ChipDesc = Fonts.List["ChipDesc"];
 
-
             HPFontNorm.Spacing = 1;
             HPFontCrit.Spacing = 1;
             HPFontRecv.Spacing = 1;
@@ -95,12 +97,9 @@ namespace OpenBN
             Initialized = true;
 
             TestBattleChip TBtlChp = new TestBattleChip(Content);
-
-
             DisplayBattleChip(TBtlChp);
 
         }
-
 
         public CustomWindow(FontHelper Font)
         {
@@ -135,77 +134,25 @@ namespace OpenBN
             showCust = false;
         }
 
-        public void Update()
+        public void Update() //Called only every frame (i guess)
         {
             //Custom Window transition update logic
-            {
-                if (showCust)
-                {
-                    if (custPos.X != 0)
-                        custPos.X = MyMath.Clamp(custPos.X + 15, -120, 0);
-                }
-                else
-                {
-                    if (custPos.X != -120)
-                        custPos.X = MyMath.Clamp(custPos.X - 15, -120, 0);
-                }
-            }
+            UpdateTransition();
             //HP Bar update logic
-            {
-                switch (HPState)
-                {
-                    case 1:
-                        hpfnt = HPFontCrit;
-                        break;
-                    case 2:
-                        hpfnt = HPFontRecv;
-                        break;
-                    default:
-                        hpfnt = HPFontNorm;
-                        break;
-                }
-                if (CurrentHP >= MaxHP * 0.20)
-                {
-                    HPState = 0;
-                }
-                else
-                {
-                    HPState = 1;
-                }
-                if (CurrentHP != LastHP)
-                {
-                    if (CurrentHP < LastHP)
-                    {
-                        CurrentHP = MyMath.Clamp(CurrentHP + 9, CurrentHP, LastHP);
-                        HPState = 2;
-                    }
-                    else if (CurrentHP > LastHP)
-                    {
-                        CurrentHP = MyMath.Clamp(CurrentHP - 9, LastHP, CurrentHP);
-                        HPState = 1;
-                    }
-                }
-
-            }
+            UpdateHPBar();
             //Emblem Rotation update logic
-            {
-                if (IsEmblemRotating)
-                {
-                    var x = EmblemRot + 0.45;
-                    EmblemRot = MyMath.Clamp(x, 0, MathHelper.TwoPi);
-                    if (EmblemRot > MathHelper.Pi)
-                    {
-                        EmblemScalar = MyMath.Map((float)x, MathHelper.TwoPi, 0, 1, 1.5f);
-                        if (EmblemScalar == MathHelper.TwoPi) IsEmblemRotating = false;
-                    }
-                    else
-                    {
-                        EmblemScalar = MyMath.Map((float)x, 0, MathHelper.TwoPi, 1.1f, 1.5f);
-                    }
-                }
-
-            }
+            if (showCust)
+                UpdateEmblem();
             //Keyboard Handling logic
+            if (showCust)
+                HandleInputs();
+            //Advance frames
+            CWSS.AdvanceAllGroups();
+
+        }
+
+        private void HandleInputs()
+        {
             if (Input != null)
             {
                 var ks_l = Input.KbStream[Keys.Left];
@@ -213,15 +160,15 @@ namespace OpenBN
                 switch (ks_l.KeyState)
                 {
                     case KeyState.Down:
+                        varks_l++;
                         {
-                            if (varks_l % 6 == 0)
+                            if (varks_l % 8 == 0)
                             {
-                                slotindex = (slotindex - 1)%6;
-                                slotindex = Clamp(slotindex, 1, 5);
+                                slotindex = (slotindex - 1) % 6;
+                                slotindex = InverseClamp(slotindex, 1, 5);
                                 SetFocus("CHIPSLOT_1_" + slotindex.ToString());
                             }
                         }
-                        varks_l++;
                         break;
                     case KeyState.Up:
                         varks_l = varks_l % 128;
@@ -230,25 +177,87 @@ namespace OpenBN
                 switch (ks_r.KeyState)
                 {
                     case KeyState.Down:
-                        if (varks_r % 6 == 0)
+                        varks_r++;
+                        if (varks_r % 8 == 0)
                         {
-                            slotindex = (slotindex + 1)%6;
+                            slotindex = (slotindex + 1) % 6;
                             slotindex = Clamp(slotindex, 1, 5);
                             SetFocus("CHIPSLOT_1_" + slotindex.ToString());
                         }
-                        varks_r++;
                         break;
                     case KeyState.Up:
-                        varks_r= varks_r % 128;
+                        varks_r = varks_r % 128;
                         break;
                 }
             }
-            CWSS.AdvanceAllGroups();
-
         }
-        int slotindex = 0;
-        int varks_l = 0, varks_r = 0;
 
+        private void UpdateEmblem()
+        {
+            if (IsEmblemRotating)
+            {
+                var x = EmblemRot + 0.45;
+                EmblemRot = MyMath.Clamp(x, 0, MathHelper.TwoPi);
+                if (EmblemRot > MathHelper.Pi)
+                {
+                    EmblemScalar = MyMath.Map((float)x, MathHelper.TwoPi, 0, 1, 1.5f);
+                    if (EmblemScalar == MathHelper.TwoPi) IsEmblemRotating = false;
+                }
+                else
+                {
+                    EmblemScalar = MyMath.Map((float)x, 0, MathHelper.TwoPi, 1.1f, 1.5f);
+                }
+            }
+        }
+
+        private void UpdateHPBar()
+        {
+            switch (HPState)
+            {
+                case 1:
+                    hpfnt = HPFontCrit;
+                    break;
+                case 2:
+                    hpfnt = HPFontRecv;
+                    break;
+                default:
+                    hpfnt = HPFontNorm;
+                    break;
+            }
+
+            if (CurrentHP >= MaxHP * 0.20)
+                HPState = 0;
+            else
+                HPState = 1;
+
+            if (CurrentHP != LastHP)
+            {
+                if (CurrentHP < LastHP)
+                {
+                    CurrentHP = MyMath.Clamp(CurrentHP + 9, CurrentHP, LastHP);
+                    HPState = 2;
+                }
+                else if (CurrentHP > LastHP)
+                {
+                    CurrentHP = MyMath.Clamp(CurrentHP - 9, LastHP, CurrentHP);
+                    HPState = 1;
+                }
+            }
+        }
+
+        private void UpdateTransition()
+        {
+            if (showCust)
+            {
+                if (custPos.X != 0)
+                    custPos.X = MyMath.Clamp(custPos.X + 15, -120, 0);
+            }
+            else
+            {
+                if (custPos.X != -120)
+                    custPos.X = MyMath.Clamp(custPos.X - 15, -120, 0);
+            }
+        }
 
         public void SetHP(int TargetHP)
         {
@@ -273,7 +282,6 @@ namespace OpenBN
             }
             SB.End();
         }
-
 
         public void DrawFocusRects()
         {
@@ -336,7 +344,7 @@ namespace OpenBN
                                 SpriteEffects.None,
                                 0);
         }
-    
+
         public void DrawMiniChipCodes(float x)
         {
             var startpoint = new Vector2(x + 8, 119);
@@ -369,7 +377,7 @@ namespace OpenBN
 
                 var Dmg_MS = 71 - ChipDesc.MeasureString(Dmg_Disp).X;
                 var dmg_vect = new Vector2((int)custPos.X + Dmg_MS, 75);
-                
+
                 SB.Draw(SelectedChip.Image, img_vect, Color.White);
                 SB.Draw(ChipElem, elem_vect, Color.White);
 
@@ -378,7 +386,7 @@ namespace OpenBN
                 SB.DrawString(Fonts.List["ChipDmg"], Dmg_Disp, dmg_vect, Color.White);
             }
         }
-       
+
         public void RotateEmblem()
         {
             if (IsEmblemRotating) EmblemRot = 0;
@@ -393,7 +401,7 @@ namespace OpenBN
         public void SetFocus(string rectname)
         {
             CurrentFocusRect = RectFromString(CWSS.Metadata[rectname]);
-            CWSS.ResetAllGroups();
+            // CWSS.ResetAllGroups();
         }
 
         IBattleChip SelectedChip { get; set; }

@@ -492,6 +492,7 @@ namespace OpenBN
         /// <summary>
         ///  Handles the diagonally scrolling BG
         /// </summary>
+        
         private void BgUpdater_DoWork(object sender, DoWorkEventArgs e)
         {
             double dX = 1, dY = 1;
@@ -553,71 +554,79 @@ namespace OpenBN
                 }
                 //Send fresh data to input handler
                 Input.Update(Keyboard.GetState(), gameTime);
-
                 UserNavi.battlepos = Stage.GetStageCoords(UserNavi.btlrow, UserNavi.btlcol, UserNavi.battleposoffset);
 
-                foreach (IBattleEntity Renderable in RenderQueue)
-                {
-                    if (Renderable == CustWindow) continue;
-                    Renderable.Update();
-                }
-
-                var ks_z = Input.KbStream[Keys.Z];
-
-                var ks_m = Input.KbStream[Keys.M];
-
-                switch (ks_z.KeyState)
-                {
-                    case KeyState.Down:
-                        if (KeyLatch[Keys.Z] == false)
-                        {
-                            KeyLatch[Keys.Z] = true;
-                        }
-                        break;
-                    case KeyState.Up:
-                        if (KeyLatch[Keys.Z] == true)
-                        {
-                            KeyLatch[Keys.Z] = false;
-                            if (CustWindow.showCust)
-                            {
-                                CustWindow.Hide();
-                                Stage.showCust = false;
-                            }
-                            else
-                            {
-                                CustWindow.Show();
-                                Stage.showCust = true;
-                            }
-                        }
-                        break;
-                }
-
-
-
-                switch (ks_m.KeyState)
-                {
-                    case KeyState.Down:
-                        if (KeyLatch[Keys.M] == false)
-                        {
-                            KeyLatch[Keys.M] = true;
-                        }
-                        break;
-                    case KeyState.Up:
-                        if (KeyLatch[Keys.M] == true)
-                        {
-                            CustWindow.RotateEmblem();
-                            LoadBG();
-                            KeyLatch[Keys.M] = false;
-                        }
-                        break;
-                }
-
+                UpdateRenderables();
+                HandleInputs();
                 UpdateViewbox();
-
             }
             else { Thread.Sleep(InactiveWaitMs); }
+
+
+                float hz = (1f / (gameTime.ElapsedGameTime.Milliseconds))*1000;
+                hz = Clamp(hz, 0, 1200);
+                var y = Math.Floor(hz);
+                debugTXT = y.ToString();
+
+
         }
 
+        private void HandleInputs()
+        {
+            var ks_z = Input.KbStream[Keys.Z];
+            var ks_m = Input.KbStream[Keys.M];
+            switch (ks_z.KeyState)
+            {
+                case KeyState.Down:
+                    if (KeyLatch[Keys.Z] == false)
+                    {
+                        KeyLatch[Keys.Z] = true;
+                    }
+                    break;
+                case KeyState.Up:
+                    if (KeyLatch[Keys.Z] == true)
+                    {
+                        KeyLatch[Keys.Z] = false;
+                        if (CustWindow.showCust)
+                        {
+                            CustWindow.Hide();
+                            Stage.showCust = false;
+                        }
+                        else
+                        {
+                            CustWindow.Show();
+                            Stage.showCust = true;
+                        }
+                    }
+                    break;
+            }
+            switch (ks_m.KeyState)
+            {
+                case KeyState.Down:
+                    if (KeyLatch[Keys.M] == false)
+                    {
+                        KeyLatch[Keys.M] = true;
+                    }
+                    break;
+                case KeyState.Up:
+                    if (KeyLatch[Keys.M] == true)
+                    {
+                        CustWindow.RotateEmblem();
+                        LoadBG();
+                        KeyLatch[Keys.M] = false;
+                    }
+                    break;
+            }
+        }
+
+        private void UpdateRenderables()
+        {
+            foreach (IBattleEntity Renderable in RenderQueue)
+            {
+                if (Renderable == CustWindow) continue;
+                Renderable.Update();
+            }
+        }
 
         protected override void Draw(GameTime gameTime)
         {
@@ -637,7 +646,7 @@ namespace OpenBN
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
             DrawEnemyNames();
-            //  DrawDebugText();
+            DrawDebugText();
 
             //Draw the flash
             if (flash_opacity > 0) { spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity); }
@@ -650,9 +659,7 @@ namespace OpenBN
             spriteBatch.Draw(target, Viewbox, Color.White);
             spriteBatch.End();
         }
-
-
-
+        
         #region Helper Functions
 
         /// <summary>
