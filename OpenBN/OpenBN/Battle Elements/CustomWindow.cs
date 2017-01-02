@@ -36,7 +36,7 @@ namespace OpenBN
         public int HPState;
 
         Dictionary<string, Rectangle> CustTextures = new Dictionary<string, Rectangle>();
-        SpriteFont HPFontNorm, HPFontCrit, HPFontRecv, hpfnt, ChipCodesA, ChipCodesB, ChipDesc;
+        SpriteFont HPFontNorm, HPFontCrit, HPFontRecv, hpfnt, ChipCodesA, ChipCodesB, ChipDmg;
 
         FontHelper Fonts;
         public bool showCust { get; private set; }
@@ -55,7 +55,7 @@ namespace OpenBN
         bool DrawEnabled = false;
         Random Rnd = new Random();
 
-        int slotindex = 0;
+        int slotindex = 1;
         int varks_l = 0, varks_r = 0;
 
         int[][] ChipSlotTypes =
@@ -78,7 +78,7 @@ namespace OpenBN
             HPFontRecv = Fonts.List["HPFontPlus"];
             ChipCodesA = Fonts.List["ChipCodesA"];
             ChipCodesB = Fonts.List["ChipCodesB"];
-            ChipDesc = Fonts.List["ChipDesc"];
+            ChipDmg = Fonts.List["ChipDmg"];
 
             HPFontNorm.Spacing = 1;
             HPFontCrit.Spacing = 1;
@@ -97,10 +97,9 @@ namespace OpenBN
 
             Slots[1] = new TestBattleChip(Content, "schip011", "Spreadr3", 90, ChipElements.NULL, 'A');
             Slots[2] = new TestBattleChip(Content, "schip084", "Muramasa", -1, ChipElements.SWORD, '@');
-            Slots[3] = new TestBattleChip(Content, "schip017", "GunDelS3", -2, ChipElements.NULL, 'B');
+            Slots[3] = new TestBattleChip(Content, "schip062", "FlshBom1", 40, ChipElements.NULL, 'Q');
             Slots[4] = new TestBattleChip(Content, "schip021", "FireBrn3", 150, ChipElements.FIRE, 'C');
             Slots[5] = new TestBattleChip(Content, "schip025", "TrnArrw3", 50, ChipElements.AQUA, 'D');
-
 
 
             DisplayBattleChip(Slots[1]);
@@ -393,7 +392,7 @@ namespace OpenBN
                         break;
                 }
 
-                var Dmg_MS = 71 - ChipDesc.MeasureString(Dmg_Disp).X;
+                var Dmg_MS = 71 - ChipDmg.MeasureString(Dmg_Disp).X;
                 var dmg_vect = new Vector2((int)custPos.X + Dmg_MS, 75);
 
                 SB.Draw(SelectedChip.Image, img_vect, Color.White);
@@ -401,7 +400,7 @@ namespace OpenBN
 
                 SB.DrawString(Fonts.List["Normal"], SelectedChip.DisplayName, name_vect, Color.White);
                 SB.DrawString(ChipCodesA, SelectedChip.Code.ToString(), code_vect, Color.White);
-                SB.DrawString(Fonts.List["ChipDmg"], Dmg_Disp, dmg_vect, Color.White);
+                SB.DrawString(ChipDmg, Dmg_Disp, dmg_vect, Color.White);
             }
         }
 
