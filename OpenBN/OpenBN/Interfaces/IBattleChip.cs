@@ -144,31 +144,22 @@ namespace OpenBN
             {
                 TotalTiles = i * j;
             }
-          //  string oooo = "";
-          //  int uu = 0;
             Icons.Add(new Texture2D(Graphics, 14, 14));
             for (int j1 = 0; j1 < rowCount; j1++)
             {
                 for (int i1 = 0; i1 < colCount; i1++)
                 {
-                    //if (uu < TotalTiles)
-                    //{
-                    //uu++;
-                    //}
-                    //else break;
-
                     var r_x = (i1 ) * 14;
                     var r_y = (j1 ) * 14;
                     var srcrect = new Rectangle(r_x, r_y, 14, 14);
                     var dstrect = new Rectangle(0, 0, 14, 14);
-
 
                     Texture2D Trgt = new Texture2D(Graphics, 14, 14);
                     Color[] colors = new Color[14 * 14];
 
                     IconTexture.GetData<Color>(0, srcrect, colors, 0, 14 * 14);
                     Trgt.SetData<Color>(colors);
-                    Trgt.SaveAsPng(System.IO.File.Create(Content.RootDirectory + "/" + uu.ToString() + ".png"), 14, 14);
+                  //  Trgt.SaveAsPng(System.IO.File.Create(Content.RootDirectory + "/" + uu.ToString() + ".png"), 14, 14);
                     Icons.Add(Trgt);
 
                ///     oooo += uu.ToString() + ",";
