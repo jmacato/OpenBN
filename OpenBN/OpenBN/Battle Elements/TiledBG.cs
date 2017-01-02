@@ -13,78 +13,40 @@ namespace OpenBN
 
     public class TiledBackground : IBackground
     {
-        public Texture2D _texture;
-        readonly int _horizontalTileCount;
-        readonly int _verticalTileCount;
-        public Vector2 _startCoord;
+        public Texture2D texture;
+        readonly int horizontalTileCount;
+        readonly int verticalTileCount;
+        public Vector2 startCoord;
 
         public TiledBackground(Texture2D texture, int environmentWidth, int environmentHeight)
         {
-            _texture = texture;
-            _horizontalTileCount = (int)(System.Math.Round((double)environmentWidth / _texture.Width) + 1);
-            _verticalTileCount = (int)(System.Math.Round((double)environmentHeight / _texture.Height) + 1);
+            this.texture = texture;
+            horizontalTileCount = (int)(System.Math.Round((double)environmentWidth / texture.Width) + 1);
+            verticalTileCount = (int)(System.Math.Round((double)environmentHeight / texture.Height) + 1);
 
-            _startCoord = new Vector2(0, 0);
+            startCoord = new Vector2(0, 0);
         }
 
-        public void Update(Rectangle _cameraRectangle)
+        public void Update(Rectangle cameraRectangle)
         {
-            _startCoord.X = ((_cameraRectangle.X / _texture.Width) * _texture.Width) - _cameraRectangle.X;
-            _startCoord.Y = ((_cameraRectangle.Y / _texture.Height) * _texture.Height) - _cameraRectangle.Y;
+            startCoord.X = ((cameraRectangle.X / texture.Width) * texture.Width) - cameraRectangle.X;
+            startCoord.Y = ((cameraRectangle.Y / texture.Height) * texture.Height) - cameraRectangle.Y;
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            for (int i = -1; i < _horizontalTileCount; i++)
+            for (int i = -1; i < horizontalTileCount; i++)
             {
-                for (int j = -1; j < _verticalTileCount; j++)
+                for (int j = -1; j < verticalTileCount; j++)
                 {
-                    spriteBatch.Draw(_texture,
+                    spriteBatch.Draw(texture,
                     new Rectangle(
-                    (int)_startCoord.X + (i * _texture.Width),
-                    (int)_startCoord.Y + (j * _texture.Height),
-                    _texture.Width, _texture.Height),
+                    (int)startCoord.X + (i * texture.Width),
+                    (int)startCoord.Y + (j * texture.Height),
+                    texture.Width, texture.Height),
                     Color.White);
                 }
             }
         }
     }
-
-    public class AnimatedSprite
-    {
-        /// <summary>
-        /// Set Animation Frame Buffer
-        /// </summary>
-        public List<Texture2D> TextureList { get; }
-
-        /// <summary>
-        /// Commands list:
-        /// Fxx (hex 0-FF) - Current Frame, if no succeding D command, default to single frame
-        /// Dxx (hex 2-FF) - How many frames the current target frame should be displayed.
-        /// LPP            - Loop animation
-        /// RXX            - Loop animation 0xXX times
-        /// </summary>
-        public List<string> Commands { get; }
-
-        public bool AnimationFinished { get; private set;}
-
-        public bool IsLooping { get; set; }
-
-        public void StopLoop()
-        {
-
-        }
-
-        public void Update()
-        {
-
-        }
-
-        public void Render()
-        {
-
-        }
-
-    }
-
 }

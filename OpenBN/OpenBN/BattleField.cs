@@ -235,7 +235,7 @@ namespace OpenBN
 
             BG_SS = new Sprite("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);
             myBackground = new TiledBackground(BG_SS.AnimationGroup.Values.First().CurrentFrame, 240, 160);
-            myBackground._startCoord = bgpos;
+            myBackground.startCoord = bgpos;
             BGChanged = true;
         }
 
@@ -523,7 +523,7 @@ namespace OpenBN
                     }
 
                     BG_SS.AnimationGroup.Values.First().Next();
-                    myBackground._texture = BG_SS.AnimationGroup.Values.First().CurrentFrame;
+                    myBackground.texture = BG_SS.AnimationGroup.Values.First().CurrentFrame;
                     var bgFrameBounds = BG_SS.AnimationGroup.Values.First().CurrentFrame.Bounds;
 
                     if (!(dX == 0 & dY == 0))
