@@ -99,11 +99,11 @@ namespace OpenBN
             var y = new ChipIconProvider(Content, Graphics);
 
 
-            Slots[1] = new TestBattleChip(11, y,Content,"Spreadr3", 90, ChipElements.NULL, 'A');
-            Slots[2] = new TestBattleChip(84, y, Content, "Muramasa", -1, ChipElements.SWORD, '@');
-            Slots[3] = new TestBattleChip(62, y, Content, "FlshBom1", 40, ChipElements.NULL, 'Q');
-            Slots[4] = new TestBattleChip(21, y, Content, "FireBrn3", 150, ChipElements.FIRE, 'C');
-            Slots[5] = new TestBattleChip(25, y, Content, "TrnArrw3", 50, ChipElements.AQUA, 'D');
+            Slots[1] = new TestBattleChip(137, y,Content, "NumbrBl", -1, ChipElements.NULL, '@');
+            Slots[2] = new TestBattleChip(69, y, Content, "PoisSeed", -2, ChipElements.NULL, '@');
+            Slots[3] = new TestBattleChip(70, y, Content, "Sword", 80, ChipElements.SWORD, 'A');
+            Slots[4] = new TestBattleChip(71, y, Content, "WideSwrd", 80, ChipElements.SWORD, 'B');
+            Slots[5] = new TestBattleChip(72, y, Content, "LongSwrd", 100, ChipElements.SWORD, 'C');
 
 
             DisplayBattleChip(Slots[1]);

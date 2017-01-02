@@ -60,17 +60,7 @@ namespace OpenBN
             Element = elem;
             Code = code;
 
-    //        var opop = id;
-       //     if (opop > 17) opop++;
-
             Icon = iconprov.Icons[id];
-
-            //Image = Content.Load<Texture2D>("BC/schip029");
-            //DisplayName = "Thunder";
-            //Damage = 40;
-            //Element = ChipElements.THUNDER;
-            //Code = '@';
-
         }
     }
 
@@ -104,12 +94,6 @@ namespace OpenBN
         }
 
         //Methods
-
-        public void GetIcon(int index)
-        {
-  
-        }
-
         public ChipIconProvider(ContentManager Content, GraphicsDevice Graphics)
         {
             Icons = new List<Texture2D>();
@@ -159,17 +143,11 @@ namespace OpenBN
 
                     IconTexture.GetData<Color>(0, srcrect, colors, 0, 14 * 14);
                     Trgt.SetData<Color>(colors);
-                  //  Trgt.SaveAsPng(System.IO.File.Create(Content.RootDirectory + "/" + uu.ToString() + ".png"), 14, 14);
                     Icons.Add(Trgt);
-
-               ///     oooo += uu.ToString() + ",";
                 }
-             //   oooo += "\r\n";
 
             }
-            Debug.Print(oooo);
-            //   SB.Dispose();
-
         }
     }
+
 }
