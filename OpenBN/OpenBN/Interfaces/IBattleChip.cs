@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,8 @@ namespace OpenBN
         int Damage { get; set; }
         ChipElements Element { get; set; }
         char Code { get; set; }
+        Texture2D Icon { get; set; }
+
 
         void Execute(CustomWindow CW, BattleField BT, Stage ST);
 
@@ -31,6 +34,8 @@ namespace OpenBN
     public class TestBattleChip : IBattleChip
     {
         public Texture2D Image { get; set; }
+        public Texture2D Icon { get; set; }
+
         public string DisplayName { get; set; }
         public int Damage { get; set; }
         public ChipElements Element { get; set; }
@@ -44,15 +49,16 @@ namespace OpenBN
 
         }
 
-        public TestBattleChip(ContentManager Content, string img, string dspn, int dmg, ChipElements elem, char code)
+        public TestBattleChip(int id, ChipIconProvider iconprov, ContentManager Content, string dspn, int dmg, ChipElements elem, char code)
         {
 
             this.Content = Content;
-            Image = Content.Load<Texture2D>("BC/" + img); 
+            Image = Content.Load<Texture2D>("BC/schip" + id.ToString().PadLeft(3, '0'));
             DisplayName = dspn;
             Damage = dmg;
             Element = elem;
             Code = code;
+            Icon = iconprov.Icons[id];
 
             //Image = Content.Load<Texture2D>("BC/schip029");
             //DisplayName = "Thunder";
@@ -63,4 +69,108 @@ namespace OpenBN
         }
     }
 
+    public class ChipIconProvider
+    {
+
+        //Fields
+        Texture2D IconTexture;
+        ContentManager Content;
+        GraphicsDevice Graphics;
+        int rowCount, colCount, totalTiles;
+        public List<Texture2D> Icons;
+
+        //Properties
+        public int RowCount
+        {
+            get { return rowCount; }
+            private set { rowCount = value; }
+        }
+
+        public int ColCount
+        {
+            get { return colCount; }
+            private set { colCount = value; }
+        }
+
+        public int TotalTiles
+        {
+            get { return totalTiles; }
+            private set { totalTiles = value; }
+        }
+
+        //Methods
+
+        public void GetIcon(int index)
+        {
+  
+        }
+
+        public ChipIconProvider(ContentManager Content, GraphicsDevice Graphics)
+        {
+            Icons = new List<Texture2D>();
+            this.Graphics = Graphics;
+            this.Content = Content;
+            SpriteBatch SB = new SpriteBatch(Graphics);
+            int magentacnt = 0;
+            IconTexture = Content.Load<Texture2D>("BC/ChipIcons");
+            Color[] ColorData = new Color[IconTexture.Width * IconTexture.Height];
+            IconTexture.GetData<Color>(ColorData);
+
+            //Get the number of empty pixels
+            foreach (Color clr in ColorData)
+            {
+                if (clr == Color.FromNonPremultiplied(0, 240, 240,255))
+                {
+                    magentacnt++;
+                }
+            }
+
+            var i = IconTexture.Height / 14;
+            var j = IconTexture.Width / 14;
+            
+            RowCount = i;
+            ColCount = j;
+
+            if (magentacnt != 0)
+            {
+                var empty = magentacnt / (14 * 14);
+                TotalTiles = i * j - empty;
+            } else
+            {
+                TotalTiles = i * j;
+            }
+
+            //    Icons = new Texture2D[i * j];
+
+            int uu = 0;
+            for (int j1 = 0; j1 < rowCount; j1++)
+                for (int i1 = 0; i1 < colCount; i1++)
+                {
+                    var r_x = i1 * 14;
+                    var r_y = j1 * 14;
+                    var srcrect = new Rectangle(r_x, r_y, 14, 14);
+                    var dstrect = new Rectangle(0, 0, 14, 14);
+
+
+                    Texture2D Trgt = new Texture2D(Graphics, 14, 14);
+                    Color[] colors = new Color[14*14];
+
+                    IconTexture.GetData<Color>(0,srcrect,colors,0,14*14);
+                    Trgt.SetData<Color>(colors);
+                   // Icons[((i1+1) * (j1+1))-1] = Trgt;
+
+                    Icons.Add(Trgt);
+                    if (uu < TotalTiles)
+                    {
+                        uu++;
+                    }
+                    else break;
+
+                }
+
+         //   SB.Dispose();
+
+        }
+
+    }
 }

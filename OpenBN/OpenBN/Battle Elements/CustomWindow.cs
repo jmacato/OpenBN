@@ -36,7 +36,7 @@ namespace OpenBN
         public int HPState;
 
         Dictionary<string, Rectangle> CustTextures = new Dictionary<string, Rectangle>();
-        SpriteFont HPFontNorm, HPFontCrit, HPFontRecv, hpfnt, ChipCodesA, ChipCodesB, ChipDmg;
+        SpriteFont HPFontNorm, HPFontCrit, HPFontRecv, hpfnt, ChipCodesA, ChipCodesB, ChipDmg;//, ChipIcon;
 
         FontHelper Fonts;
         public bool showCust { get; private set; }
@@ -79,6 +79,7 @@ namespace OpenBN
             ChipCodesA = Fonts.List["ChipCodesA"];
             ChipCodesB = Fonts.List["ChipCodesB"];
             ChipDmg = Fonts.List["ChipDmg"];
+       //     ChipIcon = Fonts.List["ChipIcons"];
 
             HPFontNorm.Spacing = 1;
             HPFontCrit.Spacing = 1;
@@ -95,11 +96,14 @@ namespace OpenBN
             EmblemRot = 0;
             Initialized = true;
 
-            Slots[1] = new TestBattleChip(Content, "schip011", "Spreadr3", 90, ChipElements.NULL, 'A');
-            Slots[2] = new TestBattleChip(Content, "schip084", "Muramasa", -1, ChipElements.SWORD, '@');
-            Slots[3] = new TestBattleChip(Content, "schip062", "FlshBom1", 40, ChipElements.NULL, 'Q');
-            Slots[4] = new TestBattleChip(Content, "schip021", "FireBrn3", 150, ChipElements.FIRE, 'C');
-            Slots[5] = new TestBattleChip(Content, "schip025", "TrnArrw3", 50, ChipElements.AQUA, 'D');
+            var y = new ChipIconProvider(Content, Graphics);
+
+
+            Slots[1] = new TestBattleChip(11, y,Content,"Spreadr3", 90, ChipElements.NULL, 'A');
+            Slots[2] = new TestBattleChip(84, y, Content, "Muramasa", -1, ChipElements.SWORD, '@');
+            Slots[3] = new TestBattleChip(62, y, Content, "FlshBom1", 40, ChipElements.NULL, 'Q');
+            Slots[4] = new TestBattleChip(21, y, Content, "FireBrn3", 150, ChipElements.FIRE, 'C');
+            Slots[5] = new TestBattleChip(25, y, Content, "TrnArrw3", 50, ChipElements.AQUA, 'D');
 
 
             DisplayBattleChip(Slots[1]);
@@ -126,13 +130,6 @@ namespace OpenBN
         {
             showCust = true;
             ChipCodeStr = "";
-
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    var x = Rnd.Next(64, 90);
-            //    x = Rnd.Next(64, 90);
-            //    ChipCodeStr += (char)x;
-            //}
         }
 
         public void Hide()
@@ -168,6 +165,7 @@ namespace OpenBN
             for (int i = 1; i < 6; i++)
             {
                 ChipCodeStr += Slots[i].Code;
+
             }
             DisplayBattleChip(Slots[slotindex]);
         }
@@ -367,6 +365,18 @@ namespace OpenBN
             var startpoint = new Vector2(custPos.X + 8, 119);
             var Measure = ChipCodesB.MeasureString(ChipCodeStr);
             SB.DrawString(ChipCodesB, ChipCodeStr, startpoint, Color.White);
+
+            ///     SB.DrawString(ChipIcon, ((char)3).ToString(), startpoint - new Vector2(0, 16), Color.White);
+
+
+            for (int i = 1; i < 6; i++)
+            {
+                var destrect = RectFromString(CWSS.Metadata["CHIPSLOT_1_" + i.ToString()]);
+                destrect = new Rectangle((int)custPos.X + destrect.X, destrect.Y, 14, 14);
+                SB.Draw(Slots[i].Icon, destrect, Color.White);
+            }
+
+
         }
 
         public void DrawBattleChip()
