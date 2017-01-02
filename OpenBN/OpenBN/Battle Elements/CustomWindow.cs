@@ -30,6 +30,7 @@ namespace OpenBN
         public int CurrentHP { get; private set; }
         public int LastHP { get; private set; }
         public int MaxHP { get; set; }
+
         public string ChipCodeStr = "@ABCD";
 
         public int HPState;
@@ -38,9 +39,7 @@ namespace OpenBN
         SpriteFont HPFontNorm, HPFontCrit, HPFontRecv, hpfnt, ChipCodesA, ChipCodesB, ChipDesc;
 
         FontHelper Fonts;
-
         public bool showCust { get; private set; }
-
         public bool Initialized { get; set; }
 
         Vector2 custPos = new Vector2(-120, 0);
@@ -72,7 +71,7 @@ namespace OpenBN
             CustomWindowTexture = CWSS.AnimationGroup["CUST"].Frames["CUSTWIN"];
             HPBarTexture = CWSS.AnimationGroup["CUST"].Frames["HPBAR"];
 
-            SetFocus("OKBUTTON");
+            SetFocus("CHIPSLOT_1_1");
 
             HPFontNorm = Fonts.List["HPFont"];
             HPFontCrit = Fonts.List["HPFontMinus"];
@@ -96,8 +95,16 @@ namespace OpenBN
             EmblemRot = 0;
             Initialized = true;
 
-            TestBattleChip TBtlChp = new TestBattleChip(Content);
-            DisplayBattleChip(TBtlChp);
+            Slots[1] = new TestBattleChip(Content, "schip011", "Spreadr3", 90, ChipElements.NULL, 'A');
+            Slots[2] = new TestBattleChip(Content, "schip084", "Muramasa", -1, ChipElements.SWORD, '@');
+            Slots[3] = new TestBattleChip(Content, "schip017", "GunDelS3", -2, ChipElements.NULL, 'B');
+            Slots[4] = new TestBattleChip(Content, "schip021", "FireBrn3", 150, ChipElements.FIRE, 'C');
+            Slots[5] = new TestBattleChip(Content, "schip025", "TrnArrw3", 50, ChipElements.AQUA, 'D');
+
+
+
+            DisplayBattleChip(Slots[1]);
+
 
         }
 
@@ -121,12 +128,12 @@ namespace OpenBN
             showCust = true;
             ChipCodeStr = "";
 
-            for (int i = 0; i < 5; i++)
-            {
-                var x = Rnd.Next(64, 90);
-                x = Rnd.Next(64, 90);
-                ChipCodeStr += (char)x;
-            }
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    var x = Rnd.Next(64, 90);
+            //    x = Rnd.Next(64, 90);
+            //    ChipCodeStr += (char)x;
+            //}
         }
 
         public void Hide()
@@ -140,15 +147,30 @@ namespace OpenBN
             UpdateTransition();
             //HP Bar update logic
             UpdateHPBar();
-            //Emblem Rotation update logic
+
             if (showCust)
+            {
+                //Emblem Rotation update logic
                 UpdateEmblem();
-            //Keyboard Handling logic
-            if (showCust)
+                //Keyboard Handling logic
                 HandleInputs();
+                //Update the Chip Slot codes
+                UpdateChipSlotCodes();
+            }
+
             //Advance frames
             CWSS.AdvanceAllGroups();
 
+        }
+
+        private void UpdateChipSlotCodes()
+        {
+            ChipCodeStr = "";
+            for (int i = 1; i < 6; i++)
+            {
+                ChipCodeStr += Slots[i].Code;
+            }
+            DisplayBattleChip(Slots[slotindex]);
         }
 
         private void HandleInputs()
@@ -167,6 +189,7 @@ namespace OpenBN
                                 slotindex = (slotindex - 1) % 6;
                                 slotindex = InverseClamp(slotindex, 1, 5);
                                 SetFocus("CHIPSLOT_1_" + slotindex.ToString());
+
                             }
                         }
                         break;
@@ -259,11 +282,6 @@ namespace OpenBN
             }
         }
 
-        public void SetHP(int TargetHP)
-        {
-            LastHP = (int)MyMath.Clamp(LastHP + TargetHP, 0, MaxHP);
-        }
-
         public void Draw()
         {
             if (!Initialized) return;
@@ -273,7 +291,7 @@ namespace OpenBN
                 if (custPos.X != -120)
                 {
                     DrawCustWindow();
-                    DrawMiniChipCodes(custPos.X);
+                    DrawChipSlotCodes();
                     DrawEmblem();
                     DrawBattleChip();
                     DrawFocusRects();
@@ -345,9 +363,9 @@ namespace OpenBN
                                 0);
         }
 
-        public void DrawMiniChipCodes(float x)
+        public void DrawChipSlotCodes()
         {
-            var startpoint = new Vector2(x + 8, 119);
+            var startpoint = new Vector2(custPos.X + 8, 119);
             var Measure = ChipCodesB.MeasureString(ChipCodeStr);
             SB.DrawString(ChipCodesB, ChipCodeStr, startpoint, Color.White);
         }
@@ -398,6 +416,11 @@ namespace OpenBN
             SelectedChip = BattleChip;
         }
 
+        public void SetHP(int TargetHP)
+        {
+            LastHP = (int)MyMath.Clamp(LastHP + TargetHP, 0, MaxHP);
+        }
+
         public void SetFocus(string rectname)
         {
             CurrentFocusRect = RectFromString(CWSS.Metadata[rectname]);
@@ -406,21 +429,6 @@ namespace OpenBN
 
         IBattleChip SelectedChip { get; set; }
         Rectangle CurrentFocusRect { get; set; }
-
-
-
+        IBattleChip[] Slots = new IBattleChip[6];
     }
-
-
-
-    public class ChipSlot
-    {
-        public enum Type
-        {
-            Null,
-            Slot,
-            OKButton,
-        }
-    }
-
 }

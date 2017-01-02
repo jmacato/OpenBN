@@ -44,14 +44,22 @@ namespace OpenBN
 
         }
 
-        public TestBattleChip(ContentManager Content)
+        public TestBattleChip(ContentManager Content, string img, string dspn, int dmg, ChipElements elem, char code)
         {
+
             this.Content = Content;
-            Image = Content.Load<Texture2D>("BC/schip029");
-            DisplayName = "Thunder";
-            Damage = 40;
-            Element = ChipElements.THUNDER;
-            Code = '@';
+            Image = Content.Load<Texture2D>("BC/" + img); 
+            DisplayName = dspn;
+            Damage = dmg;
+            Element = elem;
+            Code = code;
+
+            //Image = Content.Load<Texture2D>("BC/schip029");
+            //DisplayName = "Thunder";
+            //Damage = 40;
+            //Element = ChipElements.THUNDER;
+            //Code = '@';
+
         }
     }
 
