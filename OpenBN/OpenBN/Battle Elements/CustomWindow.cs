@@ -201,13 +201,6 @@ namespace OpenBN
         private void UpdateChipSlotCodes()
         {
             ChipCodeStr = "";
-            //for (int i = 0; i < Slots.Length; i++)
-            //{
-            //    if(Slots[i].Element != ChipElements.NONE)
-            //    ChipCodeStr += Slots[i].Code;
-
-            //}
-
             for (int si = 0; si < Slots.GetLength(0); si++)
             {
                 for (int sj = 0; sj < Slots.GetLength(1); sj++)
@@ -219,7 +212,6 @@ namespace OpenBN
                     }
                 }
             }
-
         }
 
 
@@ -263,8 +255,6 @@ namespace OpenBN
                         break;
                 }
 
-
-
                 switch (KEY_UP.KeyState)
                 {
                     case KeyState.Down:
@@ -292,8 +282,6 @@ namespace OpenBN
                         waitframe_d = waitframe_d % OVERFLOW_MODULO;
                         break;
                 }
-
-
 
             }
         }
@@ -487,17 +475,24 @@ namespace OpenBN
             var Measure = ChipCodesB.MeasureString(ChipCodeStr);
             SB.DrawString(ChipCodesB, ChipCodeStr, startpoint, Color.White);
 
-            ///     SB.DrawString(ChipIcon, ((char)3).ToString(), startpoint - new Vector2(0, 16), Color.White);
-
-
-            //for (int i = 0; i < Slots.Length; i++)
-            //{
-            //    var destrect = RectFromString(CWSS.Metadata["CHIPSLOT_1_" + (i + 1).ToString()]);
-            //    destrect = new Rectangle((int)custPos.X + destrect.X, destrect.Y, 14, 14);
-            //    SB.Draw(Slots[i].Icon, destrect, Color.White);
-            //}
-
-
+            for (int si = 0; si < Slots.GetLength(0); si++)
+            {
+                for (int sj = 0; sj < Slots.GetLength(1); sj++)
+                {
+                    if (Slots[si, sj] != null)
+                    {
+                        if (Slots[si, sj].Element != ChipElements.NONE)
+                        {
+                            var rect = String.Format("CHIPSLOT_{0}_{1}", si+1, sj+1);
+                            var destrect = RectFromString(CWSS.Metadata[rect]);
+                            destrect = new Rectangle((int)custPos.X + destrect.X, destrect.Y, 14, 14);
+                            SB.Draw(Slots[si, sj].Icon, destrect, Color.White);
+                        }
+                        
+                    }
+                }
+            }
+            
         }
 
         public void DrawBattleChip()
