@@ -73,9 +73,9 @@ namespace OpenBN
         /// </summary>
         int[,] SlotType =
         {
-           {1,1,1,1,1,2},
-           {1,1,1,0,0,0}
-        };
+ {1,1,1,1,1,2},
+ {1,1,1,0,0,0}
+};
 
         /// <summary>
         /// Stores the Current Status of each slots
@@ -116,24 +116,26 @@ namespace OpenBN
 
             Emblem = Content.Load<Texture2D>("Navi/MM/Emblem");
             EmblemOrigin = new Vector2((float)Math.Ceiling((float)Emblem.Width),
-                                       (float)Math.Ceiling((float)Emblem.Height)) / 2;
+             (float)Math.Ceiling((float)Emblem.Height)) / 2;
             EmblemPos = new Vector2(103, 11);
             EmblemRot = 0;
             Initialized = true;
 
             var y = new ChipIconProvider(Content, Graphics);
 
-
-
             Slots[0, 0] = new TestBattleChip(54, y, Content, "Static", 20, ChipElements.WIND, '@');
             Slots[0, 1] = new TestBattleChip(69, y, Content, "PoisSeed", -2, ChipElements.NULL, '@');
             Slots[0, 2] = new TestBattleChip(70, y, Content, "Sword", 80, ChipElements.SWORD, 'A');
             Slots[0, 3] = new TestBattleChip(71, y, Content, "WideSwrd", 80, ChipElements.SWORD, 'B');
             Slots[0, 4] = new TestBattleChip(72, y, Content, "LongSwrd", 100, ChipElements.SWORD, 'C');
+
+            Slots[1, 0] = new TestBattleChip(57, y, Content, "MachGun3", 70, ChipElements.TARGET, 'A');
+            Slots[1, 1] = new TestBattleChip(61, y, Content, "MegEnBom", 80, ChipElements.NULL, 'B');
+            Slots[1, 2] = new TestBattleChip(66, y, Content, "BugBomb", 100, ChipElements.NULL, 'C');
+
             Slots[0, 5] = new CustomStatusBattleChip(1, Content);
 
             for (int si = 0; si < Slots.GetLength(0); si++)
-            {
                 for (int sj = 0; sj < Slots.GetLength(1); sj++)
                 {
                     var chkslot = Slots[si, sj];
@@ -144,13 +146,14 @@ namespace OpenBN
                             SlotStatus[si, sj] = 1;
                     }
                 }
-            }
+
 
             DisplayBattleChip(Slots[0, 0]);
 
         }
 
-        public CustomWindow(FontHelper Font)
+
+        public CustomWindow(FontHelper Font, ref Inputs input)
         {
             Fonts = Font;
             MaxHP = 9999;
@@ -158,10 +161,6 @@ namespace OpenBN
             LastHP = CurrentHP;
             showCust = false;
             DrawEnabled = true;
-        }
-
-        public CustomWindow(FontHelper Font, ref Inputs input) : this(Font)
-        {
             this.Input = input;
         }
 
@@ -189,8 +188,7 @@ namespace OpenBN
                 UpdateEmblem();
                 //Keyboard Handling logic
                 HandleInputs();
-                //Update the Chip Slot codes
-                UpdateChipSlotCodes();
+
             }
 
             //Advance frames
@@ -207,8 +205,8 @@ namespace OpenBN
                 {
                     if (Slots[si, sj] != null)
                     {
-                        if (Slots[si,sj].Element != ChipElements.NONE)
-                          ChipCodeStr += Slots[si, sj].Code;
+                        if (Slots[si, sj].Element != ChipElements.NONE)
+                            ChipCodeStr += Slots[si, sj].Code;
                     }
                 }
             }
@@ -316,8 +314,6 @@ namespace OpenBN
                     break;
             }
 
-
-
         }
 
         private void UpdateEmblem()
@@ -396,7 +392,7 @@ namespace OpenBN
                 if (custPos.X != -120)
                 {
                     DrawCustWindow();
-                    DrawChipSlotCodes();
+                    DrawChipSlots();
                     DrawEmblem();
                     DrawBattleChip();
                     DrawFocusRects();
@@ -446,9 +442,9 @@ namespace OpenBN
             int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
             Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
             SB.DrawString(hpfnt,
-                CurrentHP.ToString(),
-                hptxtrct,
-                Color.White);
+            CurrentHP.ToString(),
+            hptxtrct,
+            Color.White);
 
         }
 
@@ -456,43 +452,40 @@ namespace OpenBN
         {
 
             SB.Draw(Emblem, new Rectangle(
-                                (int)(custPos.X + EmblemPos.X), (int)EmblemPos.Y,
-                                (int)Math.Ceiling(Emblem.Width * EmblemScalar),
-                                (int)Math.Ceiling(Emblem.Height * EmblemScalar)
-                                ),
-                                null,
-                                Color.White,
-                                (float)EmblemRot,
-                                EmblemOrigin,
-                                SpriteEffects.None,
-                                0);
+            (int)(custPos.X + EmblemPos.X), (int)EmblemPos.Y,
+            (int)Math.Ceiling(Emblem.Width * EmblemScalar),
+            (int)Math.Ceiling(Emblem.Height * EmblemScalar)
+            ),
+            null,
+            Color.White,
+            (float)EmblemRot,
+            EmblemOrigin,
+            SpriteEffects.None,
+            0);
         }
 
-        public void DrawChipSlotCodes()
+        public void DrawChipSlots()
         {
-
-            var startpoint = new Vector2(custPos.X + 8, 119);
-            var Measure = ChipCodesB.MeasureString(ChipCodeStr);
-            SB.DrawString(ChipCodesB, ChipCodeStr, startpoint, Color.White);
-
             for (int si = 0; si < Slots.GetLength(0); si++)
-            {
                 for (int sj = 0; sj < Slots.GetLength(1); sj++)
                 {
                     if (Slots[si, sj] != null)
                     {
                         if (Slots[si, sj].Element != ChipElements.NONE)
                         {
-                            var rect = String.Format("CHIPSLOT_{0}_{1}", si+1, sj+1);
+                            var rect = String.Format("CHIPSLOT_{0}_{1}", si + 1, sj + 1);
                             var destrect = RectFromString(CWSS.Metadata[rect]);
                             destrect = new Rectangle((int)custPos.X + destrect.X, destrect.Y, 14, 14);
                             SB.Draw(Slots[si, sj].Icon, destrect, Color.White);
+
+                            string code = Slots[si, sj].Code.ToString();
+                            var startpoint = new Vector2(custPos.X + destrect.X - 1, destrect.Y + destrect.Height);
+                            var Measure = ChipCodesB.MeasureString(code);
+                            SB.DrawString(ChipCodesB, code, startpoint, Color.White);
+
                         }
-                        
                     }
                 }
-            }
-            
         }
 
         public void DrawBattleChip()
