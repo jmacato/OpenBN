@@ -29,7 +29,7 @@ namespace OpenBN
     public enum ChipElements
     {
         FIRE, AQUA, THUNDER, WOOD, SWORD, WIND,
-        TARGET, BLOCK, MODIFIER, WRECK, NULL
+        TARGET, BLOCK, MODIFIER, WRECK, NULL, NONE
     }
 
     public class TestBattleChip : IBattleChip
@@ -59,7 +59,6 @@ namespace OpenBN
             Damage = dmg;
             Element = elem;
             Code = code;
-
             Icon = iconprov.Icons[id];
         }
     }
@@ -99,8 +98,8 @@ namespace OpenBN
             Icons = new List<Texture2D>();
             this.Graphics = Graphics;
             this.Content = Content;
-            SpriteBatch SB = new SpriteBatch(Graphics);
             int magentacnt = 0;
+
             IconTexture = Content.Load<Texture2D>("BC/ChipIcons");
             Color[] ColorData = new Color[IconTexture.Width * IconTexture.Height];
             IconTexture.GetData<Color>(ColorData);
@@ -149,5 +148,46 @@ namespace OpenBN
             }
         }
     }
+
+
+    public class CustomStatusBattleChip : IBattleChip
+    {
+        public Texture2D Image { get; set; }
+        public Texture2D Icon { get; set; }
+
+        public string DisplayName { get; set; }
+        public int Damage { get; set; }
+        public ChipElements Element { get; set; }
+        public char Code { get; set; }
+        public SpriteBatch SB { get; set; }
+        public GraphicsDevice Graphics { get; set; }
+        public ContentManager Content { get; set; }
+
+        public virtual void Execute(CustomWindow CW, BattleField BT, Stage ST)
+        {
+
+        }
+
+        public CustomStatusBattleChip(int id, ContentManager Content)
+        {
+            var chipimage = "";
+
+            switch (id)
+            {
+                case 0:
+                    chipimage = "info_nodata";
+                    break;
+                case 1:
+                    chipimage = "info_sendChip";
+                    break;
+            }
+
+            this.Content = Content;
+            Image = Content.Load<Texture2D>("BC/"+chipimage);
+            DisplayName = "";
+            Element = ChipElements.NONE;
+        }
+    }
+
 
 }

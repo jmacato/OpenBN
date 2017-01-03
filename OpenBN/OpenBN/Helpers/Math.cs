@@ -45,7 +45,6 @@ namespace OpenBN
             return result;
         }
 
-
         public static T InverseClamp<T>(T value, T min, T max) where T : System.IComparable<T>
         {
             T result = value;
@@ -64,8 +63,6 @@ namespace OpenBN
         {
             return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
         }
-
-
 
     }
 }

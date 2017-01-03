@@ -27,8 +27,9 @@ namespace OpenBN.ScriptedSprites
             int ColSize = 0, RowSize = 0;
             var t = script.Split("\r\n".ToCharArray());
             int i = 0; string curanimkey = "";                  
-            SpriteBatch SB = new SpriteBatch(graphics);
+
             Texture2D texture = CM.Load<Texture2D>(texturedir);
+
             foreach (string y in t)
             {
                 var x = y.Trim().Trim('\t').Split(' ');
@@ -62,22 +63,12 @@ namespace OpenBN.ScriptedSprites
                         }
                          
                         var srcrect = new Rectangle(r_x,r_y,r_w,r_h);
-                        var dstrect = new Rectangle(0, 0, r_w, r_h);
+       
+                        Texture2D Trgt = new Texture2D(graphics, r_w, r_h);
+                        Color[] colors = new Color[r_w * r_h];
 
-                        RenderTarget2D frm_hndlr = new RenderTarget2D(graphics, r_w, r_h);
-                        graphics.SetRenderTarget(frm_hndlr);
-                        graphics.Clear(Color.Transparent);
-                        SB.Begin();
-                        SB.Draw(texture, dstrect, srcrect, Color.White);
-                        SB.End();
-                        graphics.SetRenderTarget(null);
-
-                        Texture2D Trgt = new Texture2D(graphics, frm_hndlr.Width, frm_hndlr.Height);
-                        Color[] colors = new Color[frm_hndlr.Width * frm_hndlr.Height];
-
-                        frm_hndlr.GetData<Color>(colors);
+                        texture.GetData<Color>(0, srcrect, colors, 0, colors.Count());
                         Trgt.SetData<Color>(colors);
-                        frm_hndlr.Dispose();
 
                         TempFrames.Add(ptr, Trgt);
                         break;
@@ -139,8 +130,8 @@ namespace OpenBN.ScriptedSprites
                         break;
                 }
             }
-            SB.Dispose();
         }
+
         public void AdvanceAllGroups()
         {
             foreach(string Anim in AnimationGroup.Keys)

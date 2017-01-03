@@ -100,6 +100,8 @@
     <Content Include="GameThumbnail.png">
       <XnaPlatformSpecific>true</XnaPlatformSpecific>
     </Content>
+    <Content Include="info_nodata.png" />
+    <Content Include="info_sendChip.png" />
     <Content Include="SASL Definition.txt" />
   </ItemGroup>
   <ItemGroup>

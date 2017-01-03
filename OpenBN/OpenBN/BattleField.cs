@@ -10,7 +10,6 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using OpenBN.ScriptedSprites;
-using static OpenBN.ColorHelper;
 using static OpenBN.MyMath;
 
 using System.Reflection;
@@ -59,7 +58,6 @@ namespace OpenBN
         CustomWindow CustWindow;
         Texture2D flsh;
 
-        SpriteBatch targetBatch;
         RenderTarget2D target;
 
         RenderTarget2D EnemyNameCache;
@@ -132,7 +130,6 @@ namespace OpenBN
         protected override void Initialize()
         {
             mTimer.Start();
-         //   graphics.SynchronizeWithVerticalRetrace = false;
             base.Initialize();
 
             terminateGame = false;
@@ -150,9 +147,8 @@ namespace OpenBN
         }
         protected override void LoadContent()
         {
-            //  SoundEffect.MasterVolume = 0f;
+
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            targetBatch = new SpriteBatch(GraphicsDevice);
 
             target = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
 
@@ -169,7 +165,6 @@ namespace OpenBN
             CustWindow = new CustomWindow(Fonts, ref Input);
             UserNavi = new UserNavi("MM");
 
-
             RenderQueue.Add(Stage);
             RenderQueue.Add(UserNavi);
             RenderQueue.Add(CustWindow);
@@ -184,16 +179,6 @@ namespace OpenBN
 
             Desaturate = Content.Load<Effect>("Shaders/Desaturate");
             Desaturate.Parameters["ColourAmount"].SetValue(1);
-            //     LoadSfx();
-            //    LoadBgm();
-
-            /*
-            EnemyNames.Add("Mettaur");
-            EnemyNames.Add("Mettaur");
-            EnemyNames.Add("Mettaur");
-            */
-
-
             LoadBG();
             flash.RunWorkerAsync();
         }
@@ -201,12 +186,10 @@ namespace OpenBN
         protected override void OnDeactivated(object sender, EventArgs e)
         {
             IsGameActive = false;
-            // if (ContentLoaded) PlaySfx(60);
         }
         protected override void OnActivated(object sender, EventArgs e)
         {
             IsGameActive = true;
-            //  if (ContentLoaded) PlaySfx(60);
         }
 
         protected override void OnExiting(object sender, EventArgs e)
@@ -240,9 +223,6 @@ namespace OpenBN
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void SixtyHzBgWrkr_DoWork(object sender, DoWorkEventArgs e)
         {
             do

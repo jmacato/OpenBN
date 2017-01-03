@@ -20,6 +20,8 @@ namespace OpenBN
 
     public class CustomWindow : IBattleEntity
     {
+        const int OVERFLOW_MODULO = 1024;
+
         public string ID { get; set; }
         public SpriteBatch SB { get; set; }
         public ContentManager Content { get; set; }
@@ -31,9 +33,9 @@ namespace OpenBN
         public int LastHP { get; private set; }
         public int MaxHP { get; set; }
 
-        public string ChipCodeStr = "@ABCD";
+        public string ChipCodeStr { get; set; }
 
-        public int HPState;
+        public int HPState { get; set; }
 
         Dictionary<string, Rectangle> CustTextures = new Dictionary<string, Rectangle>();
         SpriteFont HPFontNorm, HPFontCrit, HPFontRecv, hpfnt, ChipCodesA, ChipCodesB, ChipDmg;//, ChipIcon;
@@ -55,14 +57,38 @@ namespace OpenBN
         bool DrawEnabled = false;
         Random Rnd = new Random();
 
-        int slotindex = 1;
-        int varks_l = 0, varks_r = 0;
+        int SlotColumn = 1, SlotRow = 1;
+        int waitframe_l = 0, waitframe_r = 0, waitframe_u = 0, waitframe_d = 0;
 
-        int[][] ChipSlotTypes =
+        IBattleChip SelectedChip { get; set; }
+        Rectangle CurrentFocusRect { get; set; }
+
+        /// <summary>
+        /// Determine the type of focusable object in the Custom Window
+        /// 
+        /// 0 - Nothing
+        /// 1 - Chip Slot
+        /// 2 - OK Button
+        /// 
+        /// </summary>
+        int[,] SlotType =
         {
-            new int[] {1,1,1,1,1,2},
-            new int[] {1,1,1,0,0,2}
+           {1,1,1,1,1,2},
+           {1,1,1,0,0,0}
         };
+
+        /// <summary>
+        /// Stores the Current Status of each slots
+        /// 
+        /// 0 - Nothing
+        /// 1 - Contains BC
+        /// 2 - BC's Selected 
+        /// 
+        /// </summary>
+        int[,] SlotStatus = new int[2, 6];
+
+        IBattleChip[,] Slots = new IBattleChip[2, 6];
+
 
         public void Initialize()
         {
@@ -79,7 +105,6 @@ namespace OpenBN
             ChipCodesA = Fonts.List["ChipCodesA"];
             ChipCodesB = Fonts.List["ChipCodesB"];
             ChipDmg = Fonts.List["ChipDmg"];
-       //     ChipIcon = Fonts.List["ChipIcons"];
 
             HPFontNorm.Spacing = 1;
             HPFontCrit.Spacing = 1;
@@ -99,15 +124,29 @@ namespace OpenBN
             var y = new ChipIconProvider(Content, Graphics);
 
 
-            Slots[1] = new TestBattleChip(137, y,Content, "NumbrBl", -1, ChipElements.NULL, '@');
-            Slots[2] = new TestBattleChip(69, y, Content, "PoisSeed", -2, ChipElements.NULL, '@');
-            Slots[3] = new TestBattleChip(70, y, Content, "Sword", 80, ChipElements.SWORD, 'A');
-            Slots[4] = new TestBattleChip(71, y, Content, "WideSwrd", 80, ChipElements.SWORD, 'B');
-            Slots[5] = new TestBattleChip(72, y, Content, "LongSwrd", 100, ChipElements.SWORD, 'C');
 
+            Slots[0, 0] = new TestBattleChip(54, y, Content, "Static", 20, ChipElements.WIND, '@');
+            Slots[0, 1] = new TestBattleChip(69, y, Content, "PoisSeed", -2, ChipElements.NULL, '@');
+            Slots[0, 2] = new TestBattleChip(70, y, Content, "Sword", 80, ChipElements.SWORD, 'A');
+            Slots[0, 3] = new TestBattleChip(71, y, Content, "WideSwrd", 80, ChipElements.SWORD, 'B');
+            Slots[0, 4] = new TestBattleChip(72, y, Content, "LongSwrd", 100, ChipElements.SWORD, 'C');
+            Slots[0, 5] = new CustomStatusBattleChip(1, Content);
 
-            DisplayBattleChip(Slots[1]);
+            for (int si = 0; si < Slots.GetLength(0); si++)
+            {
+                for (int sj = 0; sj < Slots.GetLength(1); sj++)
+                {
+                    var chkslot = Slots[si, sj];
 
+                    if (chkslot != null)
+                    {
+                        if (chkslot.GetType().Name != "CustomStatusBattleChip")
+                            SlotStatus[si, sj] = 1;
+                    }
+                }
+            }
+
+            DisplayBattleChip(Slots[0, 0]);
 
         }
 
@@ -162,54 +201,135 @@ namespace OpenBN
         private void UpdateChipSlotCodes()
         {
             ChipCodeStr = "";
-            for (int i = 1; i < 6; i++)
-            {
-                ChipCodeStr += Slots[i].Code;
+            //for (int i = 0; i < Slots.Length; i++)
+            //{
+            //    if(Slots[i].Element != ChipElements.NONE)
+            //    ChipCodeStr += Slots[i].Code;
 
+            //}
+
+            for (int si = 0; si < Slots.GetLength(0); si++)
+            {
+                for (int sj = 0; sj < Slots.GetLength(1); sj++)
+                {
+                    if (Slots[si, sj] != null)
+                    {
+                        if (Slots[si,sj].Element != ChipElements.NONE)
+                          ChipCodeStr += Slots[si, sj].Code;
+                    }
+                }
             }
-            DisplayBattleChip(Slots[slotindex]);
+
         }
+
 
         private void HandleInputs()
         {
+            int WAITCOUNT = 7;
             if (Input != null)
             {
-                var ks_l = Input.KbStream[Keys.Left];
-                var ks_r = Input.KbStream[Keys.Right];
-                switch (ks_l.KeyState)
+                var KEY_LEFT = Input.KbStream[Keys.Left];
+                var KEY_RIGHT = Input.KbStream[Keys.Right];
+                var KEY_UP = Input.KbStream[Keys.Up];
+                var KEY_DOWN = Input.KbStream[Keys.Down];
+
+                switch (KEY_LEFT.KeyState)
                 {
                     case KeyState.Down:
-                        varks_l++;
+                        waitframe_l++;
                         {
-                            if (varks_l % 8 == 0)
+                            if (waitframe_l % WAITCOUNT == 0)
                             {
-                                slotindex = (slotindex - 1) % 6;
-                                slotindex = InverseClamp(slotindex, 1, 5);
-                                SetFocus("CHIPSLOT_1_" + slotindex.ToString());
-
+                                TraverseChipSlots(SlotRow, SlotColumn - 1);
                             }
                         }
                         break;
                     case KeyState.Up:
-                        varks_l = varks_l % 128;
+                        waitframe_l = waitframe_l % OVERFLOW_MODULO;
                         break;
                 }
-                switch (ks_r.KeyState)
+
+                switch (KEY_RIGHT.KeyState)
                 {
                     case KeyState.Down:
-                        varks_r++;
-                        if (varks_r % 8 == 0)
+                        waitframe_r++;
+                        if (waitframe_r % WAITCOUNT == 0)
                         {
-                            slotindex = (slotindex + 1) % 6;
-                            slotindex = Clamp(slotindex, 1, 5);
-                            SetFocus("CHIPSLOT_1_" + slotindex.ToString());
+                            TraverseChipSlots(SlotRow, SlotColumn + 1);
                         }
                         break;
                     case KeyState.Up:
-                        varks_r = varks_r % 128;
+                        waitframe_r = waitframe_r % OVERFLOW_MODULO;
                         break;
                 }
+
+
+
+                switch (KEY_UP.KeyState)
+                {
+                    case KeyState.Down:
+                        waitframe_u++;
+                        if (waitframe_u % WAITCOUNT == 0)
+                        {
+                            TraverseChipSlots(SlotRow - 1, SlotColumn);
+                        }
+                        break;
+                    case KeyState.Up:
+                        waitframe_u = waitframe_u % OVERFLOW_MODULO;
+                        break;
+                }
+
+                switch (KEY_DOWN.KeyState)
+                {
+                    case KeyState.Down:
+                        waitframe_d++;
+                        if (waitframe_d % WAITCOUNT == 0)
+                        {
+                            TraverseChipSlots(SlotRow + 1, SlotColumn);
+                        }
+                        break;
+                    case KeyState.Up:
+                        waitframe_d = waitframe_d % OVERFLOW_MODULO;
+                        break;
+                }
+
+
+
             }
+        }
+
+        private void TraverseChipSlots(int row, int col)
+        {
+
+            var TmpSlotRow = Clamp(row, 1, SlotType.GetLength(0));
+            var TmpSlotColumn = InverseClamp(col, 1, SlotType.GetLength(1));
+            var CurSlotType = SlotType[TmpSlotRow - 1, TmpSlotColumn - 1];
+            var CurSlotStat = SlotStatus[TmpSlotRow - 1, TmpSlotColumn - 1];
+
+            switch (CurSlotType)
+            {
+                case 0:
+                    break;
+                case 1:
+                    if (CurSlotStat != 0)
+                    {
+                        SetFocus(String.Format("CHIPSLOT_{0}_{1}", TmpSlotRow, TmpSlotColumn));
+                        DisplayBattleChip(Slots[TmpSlotRow - 1, TmpSlotColumn - 1]);
+                        SlotRow = TmpSlotRow;
+                        SlotColumn = TmpSlotColumn;
+                    }
+
+                    break;
+                case 2:
+                    SetFocus("OKBUTTON");
+                    DisplayBattleChip(Slots[TmpSlotRow - 1, TmpSlotColumn - 1]);
+                    SlotRow = TmpSlotRow;
+                    SlotColumn = TmpSlotColumn;
+                    break;
+            }
+
+
+
         }
 
         private void UpdateEmblem()
@@ -362,6 +482,7 @@ namespace OpenBN
 
         public void DrawChipSlotCodes()
         {
+
             var startpoint = new Vector2(custPos.X + 8, 119);
             var Measure = ChipCodesB.MeasureString(ChipCodeStr);
             SB.DrawString(ChipCodesB, ChipCodeStr, startpoint, Color.White);
@@ -369,12 +490,12 @@ namespace OpenBN
             ///     SB.DrawString(ChipIcon, ((char)3).ToString(), startpoint - new Vector2(0, 16), Color.White);
 
 
-            for (int i = 1; i < 6; i++)
-            {
-                var destrect = RectFromString(CWSS.Metadata["CHIPSLOT_1_" + i.ToString()]);
-                destrect = new Rectangle((int)custPos.X + destrect.X, destrect.Y, 14, 14);
-                SB.Draw(Slots[i].Icon, destrect, Color.White);
-            }
+            //for (int i = 0; i < Slots.Length; i++)
+            //{
+            //    var destrect = RectFromString(CWSS.Metadata["CHIPSLOT_1_" + (i + 1).ToString()]);
+            //    destrect = new Rectangle((int)custPos.X + destrect.X, destrect.Y, 14, 14);
+            //    SB.Draw(Slots[i].Icon, destrect, Color.White);
+            //}
 
 
         }
@@ -387,7 +508,17 @@ namespace OpenBN
                 var name_vect = new Vector2((int)custPos.X + 17, 9);
                 var code_vect = new Vector2((int)custPos.X + 16, 72);
                 var elem_vect = new Vector2((int)custPos.X + 25, 73);
-                var ChipElem = CWSS.AnimationGroup["CUST"].Frames["TYPE_" + SelectedChip.Element.ToString()];
+                Texture2D ChipElem;
+                if (SelectedChip.Element != ChipElements.NONE)
+                {
+                    ChipElem = CWSS.AnimationGroup["CUST"].Frames["TYPE_" + SelectedChip.Element.ToString()];
+                }
+                else
+                {
+                    ChipElem = new Texture2D(Graphics, 16, 16);
+                    ;
+                }
+
                 string Dmg_Disp = "";
                 switch (SelectedChip.Damage)
                 {
@@ -406,11 +537,15 @@ namespace OpenBN
                 var dmg_vect = new Vector2((int)custPos.X + Dmg_MS, 75);
 
                 SB.Draw(SelectedChip.Image, img_vect, Color.White);
-                SB.Draw(ChipElem, elem_vect, Color.White);
 
-                SB.DrawString(Fonts.List["Normal"], SelectedChip.DisplayName, name_vect, Color.White);
-                SB.DrawString(ChipCodesA, SelectedChip.Code.ToString(), code_vect, Color.White);
-                SB.DrawString(ChipDmg, Dmg_Disp, dmg_vect, Color.White);
+                if (SelectedChip.Element != ChipElements.NONE)
+                {
+                    SB.Draw(ChipElem, elem_vect, Color.White);
+                    SB.DrawString(ChipCodesA, SelectedChip.Code.ToString(), code_vect, Color.White);
+                    SB.DrawString(ChipDmg, Dmg_Disp, dmg_vect, Color.White);
+                    SB.DrawString(Fonts.List["Normal"], SelectedChip.DisplayName, name_vect, Color.White);
+                }
+
             }
         }
 
@@ -433,11 +568,7 @@ namespace OpenBN
         public void SetFocus(string rectname)
         {
             CurrentFocusRect = RectFromString(CWSS.Metadata[rectname]);
-            // CWSS.ResetAllGroups();
         }
 
-        IBattleChip SelectedChip { get; set; }
-        Rectangle CurrentFocusRect { get; set; }
-        IBattleChip[] Slots = new IBattleChip[6];
     }
 }
