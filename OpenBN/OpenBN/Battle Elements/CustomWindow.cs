@@ -308,7 +308,7 @@ namespace OpenBN
                     break;
                 case 2:
                     SetFocus("OKBUTTON");
-                    DisplayBattleChip(Slots[TmpSlotRow - 1, TmpSlotColumn - 1]);
+                    DisplayBattleChip(Slots[0, 5]);
                     SlotRow = TmpSlotRow;
                     SlotColumn = TmpSlotColumn;
                     break;

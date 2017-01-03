@@ -46,7 +46,7 @@ namespace OpenBN
         Dictionary<Keys, bool> KeyLatch = new Dictionary<Keys, bool>();
 
         //For bgm looping
-        SoundEffectInstance bgminst;
+    //    SoundEffectInstance bgminst;
 
         List<IBattleEntity> RenderQueue = new List<IBattleEntity>();
         List<string> EnemyNames = new List<string>(3);
@@ -121,7 +121,7 @@ namespace OpenBN
             this.Window.Title = "OpenBN";
             Content.RootDirectory = "Content";
 
-            this.Window.AllowUserResizing = false;
+           // this.Window.AllowUserResizing = true;
             this.Window.ClientSizeChanged += Window_ClientSizeChanged;
 
         }
@@ -131,25 +131,12 @@ namespace OpenBN
         {
             mTimer.Start();
             base.Initialize();
-
-            terminateGame = false;
-
-            //Assign bgwrkrs
-            bgUpdater.DoWork += BgUpdater_DoWork;
-            UserNavBgWrk.DoWork += UserNavBgWrk_DoWork;
-            flash.DoWork += Flash_DoWork;
-            SixtyHzBgWrkr.DoWork += SixtyHzBgWrkr_DoWork;
-
-            foreach (Keys x in MonitoredKeys)
-            {
-                KeyLatch.Add(x, false);
-            }
         }
         protected override void LoadContent()
         {
+            terminateGame = false;
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
             target = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
 
             flsh = RectangleFill(new Rectangle(0, 0, screenres.W, screenres.H), ColorHelper.FromHex(0xF8F8F8), false);
@@ -180,6 +167,20 @@ namespace OpenBN
             Desaturate = Content.Load<Effect>("Shaders/Desaturate");
             Desaturate.Parameters["ColourAmount"].SetValue(1);
             LoadBG();
+
+
+
+            //Assign bgwrkrs
+            bgUpdater.DoWork += BgUpdater_DoWork;
+            UserNavBgWrk.DoWork += UserNavBgWrk_DoWork;
+            flash.DoWork += Flash_DoWork;
+            SixtyHzBgWrkr.DoWork += SixtyHzBgWrkr_DoWork;
+
+            foreach (Keys x in MonitoredKeys)
+            {
+                KeyLatch.Add(x, false);
+            }
+
             flash.RunWorkerAsync();
         }
 
@@ -204,6 +205,7 @@ namespace OpenBN
             graphics.PreferredBackBufferHeight = Viewbox.Height;
             graphics.PreferredBackBufferWidth = Viewbox.Width;
             graphics.ApplyChanges();
+
         }
 
 
@@ -237,11 +239,11 @@ namespace OpenBN
                         SoundEffect.MasterVolume = desat;
                     }
 
-                    if (!mute && bgminst != null)
-                        if (bgminst.State == SoundState.Paused && desat > 0)
-                        {
-                            bgminst.Resume();
-                        }
+                    //if (!mute && bgminst != null)
+                    //    if (bgminst.State == SoundState.Paused && desat > 0)
+                    //    {
+                    //        bgminst.Resume();
+                    //    }
                     CustWindow.Update();
                     Thread.Sleep(16);
                 }
@@ -255,8 +257,8 @@ namespace OpenBN
                         SoundEffect.MasterVolume = desat;
                     }
 
-                    if (!mute && bgminst != null)
-                        if (bgminst.State == SoundState.Playing && desat < 0.1) bgminst.Pause();
+                    //if (!mute && bgminst != null)
+                    //    if (bgminst.State == SoundState.Playing && desat < 0.1) bgminst.Pause();
 
                     Thread.Sleep(16);
                 }
@@ -544,10 +546,10 @@ namespace OpenBN
             else { Thread.Sleep(InactiveWaitMs); }
 
 
-                float hz = (1f / (gameTime.ElapsedGameTime.Milliseconds))*1000;
-                hz = Clamp(hz, 0, 1200);
-                var y = Math.Floor(hz);
-                debugTXT = y.ToString();
+                //float hz = (1f / (gameTime.ElapsedGameTime.Milliseconds))*1000;
+                //hz = Clamp(hz, 0, 1200);
+                //var y = Math.Floor(hz);
+                //debugTXT = y.ToString();
 
 
         }
