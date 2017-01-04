@@ -337,7 +337,7 @@ namespace OpenBN
                                     {
                                         Debug.Print("ChgSht");
                                         UserNavi.SetAnimation("BUSTER");
-                                        debugTXT += "\r\n" + Input.KbStream[Keys.X].DurDelta.ToString();
+                                  //      debugTXT += "\r\n" + Input.KbStream[Keys.X].DurDelta.ToString();
                                         //      PlaySfx(76);
                                         BusterState = 0;
                                         break;
@@ -495,7 +495,7 @@ namespace OpenBN
                         {
                             framedel = Convert.ToInt32(BG_SS.Metadata["FRAMEDELAY"]);
                             framedel = MyMath.Clamp(framedel, 2, 128);
-                            debugTXT = "\r\n FM:" + framedel;
+                           // debugTXT = "\r\n FM:" + framedel;
                         }
                         else
                         {
@@ -747,14 +747,16 @@ namespace OpenBN
         /// </summary>
         private void DrawDebugText()
         {
-            var Font1 = Fonts.List["Normal"];
+            return;
+            var Font1 = Fonts.List["BattleMessage"];
+            Font1.Spacing = 0;
             //Measure text length and store to vector
-            var FontVect = Font1.MeasureString(debugTXT);
+            var FontVect = Font1.MeasureString("<BATTLE=START.>");
             //Calculate vectors
-            var InitTextPos = (screenresvect / 2) - FontVect + ((screenresvect / 2) * cancelY);
+            var InitTextPos = (screenresvect / 2) - (FontVect / 2) - new Vector2(0,8);
             var TextPos = InitTextPos;
             //Draw it
-            spriteBatch.DrawString(Font1, debugTXT, TextPos, Color.White);
+            spriteBatch.DrawString(Font1, "<BATTLE=START.>",TextPos, Color.White);
         }
 
         /// <summary>
