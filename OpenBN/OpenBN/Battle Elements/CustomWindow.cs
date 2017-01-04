@@ -48,7 +48,7 @@ namespace OpenBN
         Sprite CWSS;
 
         Texture2D Emblem;
-        double EmblemRot, EmblemScalar = 1;
+        public double EmblemRot, EmblemScalar = 1;
         Vector2 EmblemOrigin, EmblemPos;
         bool IsEmblemRotating = false;
 

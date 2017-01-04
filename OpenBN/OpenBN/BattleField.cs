@@ -46,7 +46,7 @@ namespace OpenBN
         Dictionary<Keys, bool> KeyLatch = new Dictionary<Keys, bool>();
 
         //For bgm looping
-    //    SoundEffectInstance bgminst;
+        //    SoundEffectInstance bgminst;
 
         List<IBattleEntity> RenderQueue = new List<IBattleEntity>();
         List<string> EnemyNames = new List<string>(3);
@@ -121,7 +121,7 @@ namespace OpenBN
             this.Window.Title = "OpenBN";
             Content.RootDirectory = "Content";
 
-           // this.Window.AllowUserResizing = true;
+            // this.Window.AllowUserResizing = true;
             this.Window.ClientSizeChanged += Window_ClientSizeChanged;
 
         }
@@ -337,7 +337,7 @@ namespace OpenBN
                                     {
                                         Debug.Print("ChgSht");
                                         UserNavi.SetAnimation("BUSTER");
-                                  //      debugTXT += "\r\n" + Input.KbStream[Keys.X].DurDelta.ToString();
+                                        //      debugTXT += "\r\n" + Input.KbStream[Keys.X].DurDelta.ToString();
                                         //      PlaySfx(76);
                                         BusterState = 0;
                                         break;
@@ -475,7 +475,7 @@ namespace OpenBN
         /// <summary>
         ///  Handles the diagonally scrolling BG
         /// </summary>
-        
+
         private void BgUpdater_DoWork(object sender, DoWorkEventArgs e)
         {
             double dX = 1, dY = 1;
@@ -495,7 +495,7 @@ namespace OpenBN
                         {
                             framedel = Convert.ToInt32(BG_SS.Metadata["FRAMEDELAY"]);
                             framedel = MyMath.Clamp(framedel, 2, 128);
-                           // debugTXT = "\r\n FM:" + framedel;
+                            // debugTXT = "\r\n FM:" + framedel;
                         }
                         else
                         {
@@ -546,10 +546,10 @@ namespace OpenBN
             else { Thread.Sleep(InactiveWaitMs); }
 
 
-                //float hz = (1f / (gameTime.ElapsedGameTime.Milliseconds))*1000;
-                //hz = Clamp(hz, 0, 1200);
-                //var y = Math.Floor(hz);
-                //debugTXT = y.ToString();
+            //float hz = (1f / (gameTime.ElapsedGameTime.Milliseconds))*1000;
+            //hz = Clamp(hz, 0, 1200);
+            //var y = Math.Floor(hz);
+            //debugTXT = y.ToString();
 
 
         }
@@ -642,7 +642,7 @@ namespace OpenBN
             spriteBatch.Draw(target, Viewbox, Color.White);
             spriteBatch.End();
         }
-        
+
         #region Helper Functions
 
         /// <summary>
@@ -747,16 +747,44 @@ namespace OpenBN
         /// </summary>
         private void DrawDebugText()
         {
-            return;
-            var Font1 = Fonts.List["BattleMessage"];
+            //// return;
+            // var Font1 = Fonts.List["BattleMessage"];
+            // Font1.Spacing = 0;
+            // //Measure text length and store to vector
+            // var FontVect = Font1.MeasureString("<BATTLE=START.>");
+            // //Calculate vectors
+            // var InitTextPos = (screenresvect / 2) - (FontVect / 2) - new Vector2(0,8);
+            // var TextPos = InitTextPos;
+            // //Draw it
+            // spriteBatch.DrawString(Font1, "<BATTLE=START.>",TextPos, Color.White);
+
+            // return;
+            var Font1 = Fonts.List["Debug"];
             Font1.Spacing = 0;
             //Measure text length and store to vector
-            var FontVect = Font1.MeasureString("<BATTLE=START.>");
+            string DebugText = "";
+            DebugText += "BGPRGC{3,4}\r\n";
+            DebugText += "BGPOSX{0,4}\r\n";
+            DebugText += "BGPOSY{1,4}\r\n";
+            DebugText += "EMBROT{2,4}\r\n";
+            DebugText += "CUSTOM {4:EN;4;DIS}\r\n";
+
+
+
+            DebugText = String.Format(DebugText, bgpos.X, bgpos.Y,
+                Math.Round(CustWindow.EmblemRot, 2), 
+                BG_SS.AnimationGroup.Values.First().PC.ToString().ToUpper()
+                , CustWindow.showCust.GetHashCode());
+
+            var FontVect = Font1.MeasureString(DebugText);
             //Calculate vectors
-            var InitTextPos = (screenresvect / 2) - (FontVect / 2) - new Vector2(0,8);
+            //  var InitTextPos = (screenresvect) * new Vector2(1,1) - (FontVect) ;
+            var InitTextPos = new Vector2(screenresvect.X - FontVect.X- 1, 1);
             var TextPos = InitTextPos;
             //Draw it
-            spriteBatch.DrawString(Font1, "<BATTLE=START.>",TextPos, Color.White);
+            spriteBatch.DrawString(Font1, DebugText, TextPos, Color.White * 0.5f);
+
+
         }
 
         /// <summary>
