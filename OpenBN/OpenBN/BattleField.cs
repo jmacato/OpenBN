@@ -785,6 +785,8 @@ namespace OpenBN
             spriteBatch.DrawString(Font1, DebugText, TextPos, Color.White * 0.5f);
 
 
+
+
         }
 
         /// <summary>
