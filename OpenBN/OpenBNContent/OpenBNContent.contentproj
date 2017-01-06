@@ -963,6 +963,10 @@
       <Name>BG</Name>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Misc\CustBar.sasl">
+      <Name>CustBar</Name>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Misc\Custwindow-SS.sasl">
       <Name>Custwindow-SS</Name>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -2565,6 +2569,13 @@
       <Name>Debug</Name>
       <Importer>TextureImporter</Importer>
       <Processor>FontTextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Misc\CustBar.png">
+      <Name>CustBar</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

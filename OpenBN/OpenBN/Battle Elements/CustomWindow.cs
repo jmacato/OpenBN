@@ -13,6 +13,7 @@ using OpenBN.ScriptedSprites;
 using static OpenBN.Helpers.Misc;
 using static OpenBN.MyMath;
 using System.Diagnostics;
+using System.Threading;
 
 namespace OpenBN
 {
@@ -71,11 +72,7 @@ namespace OpenBN
         /// 2 - OK Button
         /// 
         /// </summary>
-        int[,] SlotType =
-        {
- {1,1,1,1,1,2},
- {1,1,1,0,0,0}
-};
+        int[,] SlotType = {{1,1,1,1,1,2},{1,1,1,0,0,0}};
 
         /// <summary>
         /// Stores the Current Status of each slots
@@ -93,6 +90,7 @@ namespace OpenBN
         public void Initialize()
         {
             CWSS = new Sprite("Misc/Custwindow-SS.sasl", "Misc/Custwindow", Graphics, Content);
+            CustomBar = new Sprite("Misc/CustBar.sasl", "Misc/CustBar", Graphics, Content);
 
             CustomWindowTexture = CWSS.AnimationGroup["CUST"].Frames["CUSTWIN"];
             HPBarTexture = CWSS.AnimationGroup["CUST"].Frames["HPBAR"];
@@ -166,6 +164,7 @@ namespace OpenBN
 
         public void Show()
         {
+          //  do { Thread.Sleep(10)}
             showCust = true;
             ChipCodeStr = "";
         }
@@ -173,6 +172,7 @@ namespace OpenBN
         public void Hide()
         {
             showCust = false;
+            ResetCustBar();
         }
 
         public void Update() //Called only every frame (i guess)
@@ -181,6 +181,8 @@ namespace OpenBN
             UpdateTransition();
             //HP Bar update logic
             UpdateHPBar();
+            UpdateCustBar();
+            UpdateBtlMsg();
 
             if (showCust)
             {
@@ -188,12 +190,9 @@ namespace OpenBN
                 UpdateEmblem();
                 //Keyboard Handling logic
                 HandleInputs();
-
             }
-
             //Advance frames
             CWSS.AdvanceAllGroups();
-
         }
 
         private void UpdateChipSlotCodes()
@@ -211,7 +210,6 @@ namespace OpenBN
                 }
             }
         }
-
 
         private void HandleInputs()
         {
@@ -386,7 +384,6 @@ namespace OpenBN
         public void Draw()
         {
             if (!Initialized) return;
-            SB.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
             if (CWSS != null && DrawEnabled)
             {
                 if (custPos.X != -120)
@@ -398,8 +395,9 @@ namespace OpenBN
                     DrawFocusRects();
                 }
                 DrawHPBar();
+                if (custPos.X == -120)
+                DrawCustBar();
             }
-            SB.End();
         }
 
         public void DrawFocusRects()
@@ -558,5 +556,102 @@ namespace OpenBN
             CurrentFocusRect = RectFromString(CWSS.Metadata[rectname]);
         }
 
+        Texture2D BattleMessageTexture;
+
+        void ShowBattleMessage(string message)
+        {
+
+        }
+
+        void UpdateBtlMsg()
+        {
+
+        }
+
+        void DrawBtlMsg()
+        {
+
+        }
+
+        enum CustomBarState
+        {
+            Full, Loading, Paused
+        }
+
+        enum CustomBarModifiers
+        {
+            Normal, Slow, Fast
+        }
+
+        Sprite CustomBar;
+
+        TimeSpan CBTime;
+        CustomBarState CBState = CustomBarState.Loading; CustomBarModifiers CBModifier = CustomBarModifiers.Normal;
+
+        void ResetCustBar()
+        {
+            CBTime = TimeSpan.FromMilliseconds(0);
+            CBState = CustomBarState.Loading;
+        }
+        
+
+
+        void UpdateCustBar()
+        {
+            CustomBar.AdvanceAllGroups();
+            switch (CBModifier)
+            {
+                case CustomBarModifiers.Normal:
+                    CBTime += gameTime.ElapsedGameTime;
+                    break;
+                case CustomBarModifiers.Slow:
+                    CBTime += TimeSpan.FromMilliseconds(gameTime.ElapsedGameTime.TotalMilliseconds / 2);
+                    break;
+                case CustomBarModifiers.Fast:
+                    CBTime += TimeSpan.FromMilliseconds(gameTime.ElapsedGameTime.TotalMilliseconds *2);
+                    break;
+                default:
+                    break;
+            }
+
+            if (CBState != CustomBarState.Full)
+            {
+                if (CBTime.TotalSeconds > 10)
+                {
+                    CBState = CustomBarState.Full;
+                    CBTime = TimeSpan.FromMilliseconds(0);
+                    CustBarProgress = 1;
+                }
+                else
+                {
+                    CustBarProgress = CBTime.TotalMilliseconds / (1000 * 10);
+                }
+            }
+
+
+        }
+        Rectangle CustBarRect = new Rectangle(48, 0, 144, 16);
+        Rectangle CustBarFillRect = new Rectangle(56, 7, 128, 8);
+      public   double CustBarProgress = 0.0f;
+        internal GameTime gameTime;
+
+        void DrawCustBar()
+        {
+            //    if (CBState == CustomBarState.Full)
+            SB.Draw(CustomBar.AnimationGroup["CUSTOMFULL"].CurrentFrame, CustBarRect, Color.White);
+            var Prog = (int)Math.Ceiling(128f * CustBarProgress);
+            switch (CBState)
+            {
+                case CustomBarState.Full:
+                        break;
+                case CustomBarState.Loading:
+                    SB.Draw(CustomBar.AnimationGroup["CUSTOMBAREMPTY"].CurrentFrame, new Rectangle(56, 7, 128, 8), Color.White);
+                    SB.Draw(CustomBar.AnimationGroup["CUSTOMBARFILL"].CurrentFrame, new Rectangle(56, 7, Prog, 8), Color.White);
+                    break;
+
+            }
+        }
+
     }
+
 }

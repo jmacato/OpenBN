@@ -69,9 +69,7 @@ namespace OpenBN
 
         float flash_opacity = 1;
         bool terminateGame;
-        bool mute = false;
         public bool DisplayEnemyNames = true;
-        string debugTXT = "";
         bool manualTick = true;
         int manualTickCount = 0;
         float desat = 1;
@@ -182,6 +180,7 @@ namespace OpenBN
             }
 
             flash.RunWorkerAsync();
+            UpdateViewbox();
         }
 
         protected override void OnDeactivated(object sender, EventArgs e)
@@ -461,14 +460,14 @@ namespace OpenBN
                 Thread.Sleep(30);
             } while (flash_opacity >= 0);
 
-            flash.Dispose();
+            flsh.Dispose();
 
             // PlayBgm(1);
             SixtyHzBgWrkr.RunWorkerAsync();
             CustWindow.Show();
             Stage.showCust = true;
             Input.Halt = false;
-
+            flash = null;
             return;
         }
 
@@ -538,10 +537,9 @@ namespace OpenBN
                 //Send fresh data to input handler
                 Input.Update(Keyboard.GetState(), gameTime);
                 UserNavi.battlepos = Stage.GetStageCoords(UserNavi.btlrow, UserNavi.btlcol, UserNavi.battleposoffset);
-
+                CustWindow.gameTime = gameTime;
                 UpdateRenderables();
                 HandleInputs();
-                UpdateViewbox();
             }
             else { Thread.Sleep(InactiveWaitMs); }
 
@@ -621,12 +619,8 @@ namespace OpenBN
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
             if (BG_SS != null) { myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0)); myBackground.Draw(spriteBatch); }
 
-            spriteBatch.End();
 
             if (RenderQueue.Count > 0) { foreach (IBattleEntity s in RenderQueue) { s.Draw(); } }
-
-
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
             DrawEnemyNames();
             DrawDebugText();
@@ -655,11 +649,10 @@ namespace OpenBN
         {
 
             // Make a 1x1 texture named pixel.  
-            Texture2D pixel = new Texture2D(GraphicsDevice, 1, 1);
+            Texture2D pixel = new Texture2D(GraphicsDevice, Rect.Width, Rect.Height);
             // Create a 1D array of color data to fill the pixel texture with.  
-            Color[] colorData = { Colr };
+            Color[] colorData = new Color[Rect.Width * Rect.Height];
             // Set the texture data with our color information.  
-            pixel.SetData<Color>(colorData);
 
             if (Draw)
             {
@@ -668,19 +661,11 @@ namespace OpenBN
             }
             else
             {
-                var SprtBtch = new SpriteBatch(GraphicsDevice);
-                //They want ze copy of it
-                RenderTarget2D FilledRect = new RenderTarget2D(GraphicsDevice, Rect.Width, Rect.Height);
-                GraphicsDevice.SetRenderTarget(FilledRect);
-                GraphicsDevice.Clear(Color.Transparent);
-                SprtBtch.Begin();
-                SprtBtch.Draw(pixel, Rect, Color.White);
-                SprtBtch.End();
-
-
-                GraphicsDevice.SetRenderTarget(null);
-                SprtBtch = null;
-                pixel = FilledRect;
+                for(int x = 0; x < colorData.Count(); x++)
+                {
+                    colorData[x] = Colr;
+                }
+                pixel.SetData<Color>(colorData);
             }
 
             return pixel;
@@ -768,18 +753,20 @@ namespace OpenBN
             DebugText += "BGPOSY{1,4}\r\n";
             DebugText += "EMBROT{2,4}\r\n";
             DebugText += "CUSTOM {4:EN;4;DIS}\r\n";
+            DebugText += "CUSTOM {5,4}\r\n";
 
 
 
             DebugText = String.Format(DebugText, bgpos.X, bgpos.Y,
                 Math.Round(CustWindow.EmblemRot, 2), 
                 BG_SS.AnimationGroup.Values.First().PC.ToString().ToUpper()
-                , CustWindow.showCust.GetHashCode());
+                , CustWindow.showCust.GetHashCode()
+                , CustWindow.CustBarProgress);
 
             var FontVect = Font1.MeasureString(DebugText);
             //Calculate vectors
             //  var InitTextPos = (screenresvect) * new Vector2(1,1) - (FontVect) ;
-            var InitTextPos = new Vector2(screenresvect.X - FontVect.X- 1, 1);
+            var InitTextPos = new Vector2(screenresvect.X - FontVect.X- 1, (screenresvect.Y / 2) - (FontVect.Y/2));
             var TextPos = InitTextPos;
             //Draw it
             spriteBatch.DrawString(Font1, DebugText, TextPos, Color.White * 0.5f);

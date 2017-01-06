@@ -43,8 +43,6 @@ namespace OpenBN
         public void Draw()
         {
             if (!Initialized) return;
-            SB.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
-
             foreach (Panel Pnl in PanelArray)
             {
                 string AnimationGroupKey = "";
@@ -123,7 +121,6 @@ namespace OpenBN
 
                 SB.Draw(text, rect, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, layer);
             }
-            SB.End();
         }
 
         Sprite StageRed, StageBlue;
