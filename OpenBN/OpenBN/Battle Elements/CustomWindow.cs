@@ -624,22 +624,21 @@ namespace OpenBN
                 }
                 else
                 {
-                    CustBarProgress = CBTime.TotalMilliseconds / (1000 * 10);
+                    CustBarProgress = (CBTime.TotalMilliseconds / (1000 * 10));
                 }
             }
 
 
         }
         Rectangle CustBarRect = new Rectangle(48, 0, 144, 16);
-        Rectangle CustBarFillRect = new Rectangle(56, 7, 128, 8);
-      public   double CustBarProgress = 0.0f;
+        public double CustBarProgress = 0.0f;
         internal GameTime gameTime;
 
         void DrawCustBar()
         {
             //    if (CBState == CustomBarState.Full)
             SB.Draw(CustomBar.AnimationGroup["CUSTOMFULL"].CurrentFrame, CustBarRect, Color.White);
-            var Prog = (int)Math.Ceiling(128f * CustBarProgress);
+            var Prog = (int)Math.Floor(128 * CustBarProgress);
             switch (CBState)
             {
                 case CustomBarState.Full:

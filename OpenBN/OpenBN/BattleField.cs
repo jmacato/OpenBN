@@ -753,7 +753,7 @@ namespace OpenBN
             DebugText += "BGPOSY{1,4}\r\n";
             DebugText += "EMBROT{2,4}\r\n";
             DebugText += "CUSTOM {4:EN;4;DIS}\r\n";
-            DebugText += "CUSTOM {5,4}\r\n";
+            DebugText += "CUSTOM {5,5}\r\n";
 
 
 
@@ -761,7 +761,7 @@ namespace OpenBN
                 Math.Round(CustWindow.EmblemRot, 2), 
                 BG_SS.AnimationGroup.Values.First().PC.ToString().ToUpper()
                 , CustWindow.showCust.GetHashCode()
-                , CustWindow.CustBarProgress);
+                , Math.Round(CustWindow.CustBarProgress*100,2));
 
             var FontVect = Font1.MeasureString(DebugText);
             //Calculate vectors
