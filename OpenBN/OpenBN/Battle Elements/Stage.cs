@@ -48,7 +48,6 @@ namespace OpenBN
                 string AnimationGroupKey = "";
 
                 Sprite CurAG = StageRed;
-                int layer = 0;
 
                 switch (Pnl.StgPnlClr)
                 {
@@ -57,8 +56,6 @@ namespace OpenBN
                         break;
                     case StagePnlColor.Red:
                         CurAG = StageRed;
-                        layer = 1;
-
                         break;
                 }
 

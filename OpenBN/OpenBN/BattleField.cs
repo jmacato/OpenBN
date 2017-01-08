@@ -612,7 +612,7 @@ namespace OpenBN
         protected override void Draw(GameTime gameTime)
         {
             if (!IsGameActive) { return; }
-            target = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
+          //  target = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
