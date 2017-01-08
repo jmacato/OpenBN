@@ -218,7 +218,7 @@ namespace OpenBN
             if (BG_SS != null) BG_SS.Dispose();
 
             BG_SS = new Sprite("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);
-            myBackground = new TiledBackground(BG_SS.AnimationGroup.Values.First().CurrentFrame, 240, 160);
+            myBackground = new TiledBackground(BG_SS.AnimationGroup.Values.First().CurrentFrame, 240, 160, BG_SS.texture);
             myBackground.startCoord = bgpos;
             BGChanged = true;
         }
@@ -504,8 +504,8 @@ namespace OpenBN
                     }
 
                     BG_SS.AnimationGroup.Values.First().Next();
-                    myBackground.texture = BG_SS.AnimationGroup.Values.First().CurrentFrame;
-                    var bgFrameBounds = BG_SS.AnimationGroup.Values.First().CurrentFrame.Bounds;
+                    myBackground.curtextrect = BG_SS.AnimationGroup.Values.First().CurrentFrame;
+                    var bgFrameBounds = BG_SS.AnimationGroup.Values.First().CurrentFrame;
 
                     if (!(dX == 0 & dY == 0))
                     {
@@ -611,8 +611,8 @@ namespace OpenBN
 
         protected override void Draw(GameTime gameTime)
         {
-            // if (!IsGameActive) { base.Draw(gameTime); return; }
-
+            if (!IsGameActive) { return; }
+            target = new RenderTarget2D(GraphicsDevice, screenres.W, screenres.H);
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 

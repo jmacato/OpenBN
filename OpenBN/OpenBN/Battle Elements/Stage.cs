@@ -105,7 +105,7 @@ namespace OpenBN
                         break;
                 }
 
-                Texture2D text, bottomtext;
+                Rectangle text, bottomtext;
                 Rectangle rect, bottomrect;
                 // CurAG.AnimationGroup[AnimationGroupKey].Active = true;
                 text = CurAG.AnimationGroup[AnimationGroupKey].CurrentFrame;
@@ -116,10 +116,9 @@ namespace OpenBN
                 {
                     bottomtext = CurAG.AnimationGroup["BOTTOM"].CurrentFrame;
                     bottomrect = new Rectangle(Pnl.StgPnlPos.X, Pnl.StgPnlPos.Y + text.Height, bottomtext.Width, bottomtext.Height);
-                    SB.Draw(bottomtext, bottomrect, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, 0);
+                    SB.Draw(CurAG.texture, bottomrect, bottomtext, Color.White);
                 }
-
-                SB.Draw(text, rect, null, Color.White, 0, Vector2.Zero, SpriteEffects.None, layer);
+                SB.Draw(CurAG.texture, rect, text, Color.White);
             }
         }
 

@@ -3,8 +3,6 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-
-
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework.Input;
@@ -53,7 +51,7 @@ namespace OpenBN
         Vector2 EmblemOrigin, EmblemPos;
         bool IsEmblemRotating = false;
 
-        Texture2D CustomWindowTexture, HPBarTexture;
+        Rectangle CustomWindowTexture, HPBarTexture;
 
         bool DrawEnabled = false;
         Random Rnd = new Random();
@@ -408,10 +406,10 @@ namespace OpenBN
             var w = CurrentFocusRect.Width;
             var h = CurrentFocusRect.Height;
 
-            Texture2D TextTL = CWSS.AnimationGroup["CURSOR0_TL"].CurrentFrame;
-            Texture2D TextTR = CWSS.AnimationGroup["CURSOR0_TR"].CurrentFrame;
-            Texture2D TextBL = CWSS.AnimationGroup["CURSOR0_BL"].CurrentFrame;
-            Texture2D TextBR = CWSS.AnimationGroup["CURSOR0_BR"].CurrentFrame;
+            Rectangle TextTL = CWSS.AnimationGroup["CURSOR0_TL"].CurrentFrame;
+            Rectangle TextTR = CWSS.AnimationGroup["CURSOR0_TR"].CurrentFrame;
+            Rectangle TextBL = CWSS.AnimationGroup["CURSOR0_BL"].CurrentFrame;
+            Rectangle TextBR = CWSS.AnimationGroup["CURSOR0_BR"].CurrentFrame;
 
             var of = 4;
 
@@ -420,23 +418,23 @@ namespace OpenBN
             Vector2 BL = new Vector2((x + w) - 8, y + h - 8) - new Vector2(-of, -of);
             Vector2 BR = new Vector2(x, (y + h) - 8) - new Vector2(of, -of);
 
-            SB.Draw(TextTL, TL, Color.White);
-            SB.Draw(TextTR, TR, Color.White);
-            SB.Draw(TextBL, BL, Color.White);
-            SB.Draw(TextBR, BR, Color.White);
+            SB.Draw(CWSS.texture, TL, TextTL, Color.White);
+            SB.Draw(CWSS.texture, TR, TextTR, Color.White);
+            SB.Draw(CWSS.texture, BL, TextBL, Color.White);
+            SB.Draw(CWSS.texture, BR, TextBR, Color.White);
 
         }
 
         public void DrawCustWindow()
         {
             var y = new Rectangle((int)custPos.X, 0, CustomWindowTexture.Width, CustomWindowTexture.Height);
-            SB.Draw(CustomWindowTexture, y, Color.White);
+            SB.Draw(CWSS.texture, y, CustomWindowTexture, Color.White);
         }
 
         public void DrawHPBar()
         {
             var hprct = new Rectangle((int)custPos.X + 122, 0, HPBarTexture.Width, HPBarTexture.Height);
-            SB.Draw(HPBarTexture, hprct, Color.White);
+            SB.Draw(CWSS.texture, hprct, HPBarTexture, Color.White);
             int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
             Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
             SB.DrawString(hpfnt,
@@ -494,15 +492,14 @@ namespace OpenBN
                 var name_vect = new Vector2((int)custPos.X + 17, 9);
                 var code_vect = new Vector2((int)custPos.X + 16, 72);
                 var elem_vect = new Vector2((int)custPos.X + 25, 73);
-                Texture2D ChipElem;
+                Rectangle ChipElem;
                 if (SelectedChip.Element != ChipElements.NONE)
                 {
                     ChipElem = CWSS.AnimationGroup["CUST"].Frames["TYPE_" + SelectedChip.Element.ToString()];
                 }
                 else
                 {
-                    ChipElem = new Texture2D(Graphics, 16, 16);
-                    ;
+                    ChipElem = CWSS.AnimationGroup["CUST"].Frames["TYPE_NULL"]; 
                 }
 
                 string Dmg_Disp = "";
@@ -526,7 +523,7 @@ namespace OpenBN
 
                 if (SelectedChip.Element != ChipElements.NONE)
                 {
-                    SB.Draw(ChipElem, elem_vect, Color.White);
+                    SB.Draw(CWSS.texture, elem_vect, ChipElem, Color.White);
                     SB.DrawString(ChipCodesA, SelectedChip.Code.ToString(), code_vect, Color.White);
                     SB.DrawString(ChipDmg, Dmg_Disp, dmg_vect, Color.White);
                     SB.DrawString(Fonts.List["Normal"], SelectedChip.DisplayName, name_vect, Color.White);
@@ -586,7 +583,7 @@ namespace OpenBN
         Sprite CustomBar;
 
         TimeSpan CBTime;
-        CustomBarState CBState = CustomBarState.Loading; CustomBarModifiers CBModifier = CustomBarModifiers.Normal;
+        CustomBarState CBState = CustomBarState.Full; CustomBarModifiers CBModifier = CustomBarModifiers.Normal;
 
         void ResetCustBar()
         {
@@ -637,15 +634,15 @@ namespace OpenBN
         void DrawCustBar()
         {
             //    if (CBState == CustomBarState.Full)
-            SB.Draw(CustomBar.AnimationGroup["CUSTOMFULL"].CurrentFrame, CustBarRect, Color.White);
+            SB.Draw(CustomBar.texture,CustBarRect,CustomBar.AnimationGroup["CUSTOMFULL"].CurrentFrame, Color.White);
             var Prog = (int)Math.Floor(128 * CustBarProgress);
             switch (CBState)
             {
                 case CustomBarState.Full:
                         break;
                 case CustomBarState.Loading:
-                    SB.Draw(CustomBar.AnimationGroup["CUSTOMBAREMPTY"].CurrentFrame, new Rectangle(56, 7, 128, 8), Color.White);
-                    SB.Draw(CustomBar.AnimationGroup["CUSTOMBARFILL"].CurrentFrame, new Rectangle(56, 7, Prog, 8), Color.White);
+                    SB.Draw(CustomBar.texture, new Rectangle(56, 7, 128, 8), CustomBar.AnimationGroup["CUSTOMBAREMPTY"].CurrentFrame,  Color.White);
+                    SB.Draw(CustomBar.texture, new Rectangle(56, 7, Prog, 8), CustomBar.AnimationGroup["CUSTOMBARFILL"].CurrentFrame, Color.White);
                     break;
 
             }
