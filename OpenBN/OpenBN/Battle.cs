@@ -45,21 +45,6 @@ namespace OpenBN
             // UUU LAA UUU LAA *summons cybeasts instead*
             // PS: If monogame does focusing logic better, i'll definitely switch X|
             {
-                //mTimer = new System.Windows.Forms.Timer { Interval = 1000 / 60 };
-                //mTimer.Tick += (s, e) =>
-                //{
-                //    if (LocChanged)
-                //    {
-                //        if (manualTickCount > 2)
-                //        {
-                //            manualTick = true;
-                //            Tick();
-                //            manualTick = false;
-                //        }
-                //        manualTickCount++;
-                //    }
-
-                //};
                 var host = typeof(Game).GetField("host", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this);
                 host.GetType()
                     .BaseType.GetField("Suspend", BindingFlags.NonPublic | BindingFlags.Instance)
@@ -101,7 +86,6 @@ namespace OpenBN
             cancelY = new Vector2(1, 0);
             defaultrect = new Rectangle(0, 0, 240, 160);
             desat = 1;
-
             displayEnemyNames = true;
             EnemyNames = new List<string>(3);
             flash_opacity = 1;
@@ -146,9 +130,15 @@ namespace OpenBN
             LoadBG();
             bgUpdater = new BackgroundWorker();
             flash = new BackgroundWorker();
+            MainTimer = new BackgroundWorker();
+
             //Assign bgwrkrs
             bgUpdater.DoWork += BgUpdater_DoWork;
             flash.DoWork += Flash_DoWork;
+            MainTimer.DoWork += MainTimer_DoWork;
+            GraphicsDevice.DeviceLost += GraphicsDevice_DeviceLost;
+            GraphicsDevice.DeviceReset += GraphicsDevice_DeviceReset;
+            MainTimer.RunWorkerAsync();
 
             foreach (var x in MonitoredKeys)
             {
@@ -163,7 +153,46 @@ namespace OpenBN
 
             base.LoadContent();
         }
-        
+
+        private void GraphicsDevice_DeviceLost(object sender, EventArgs e)
+        {
+            Debug.Print("GraphicsDevice_DeviceLost");
+        }
+
+        private void GraphicsDevice_DeviceReset(object sender, EventArgs e)
+        {
+            Debug.Print("GraphicsDevice_DeviceReset");
+            //if (MainTimer.IsBusy)
+            //{
+                graphics = new GraphicsDeviceManager(this);
+             ResetRenderTarget();
+            // //   this.IsFixedTimeStep = false;
+            
+            graphics.SynchronizeWithVerticalRetrace = false;
+
+            //}
+        }
+        Stopwatch sw;
+
+        private void MainTimer_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var handler = new RunGameTicks(RunTick);
+            handler = RunTick;
+            do
+            {
+                try
+                {
+                    if (curdrawin == false)
+                        handler();
+                } catch (Exception ex)
+                {
+                    throw ex;
+                }
+ 
+                Thread.Sleep(16);
+            } while (true);
+        }
+
         private void ResetRenderTarget()
         {
             target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
@@ -264,15 +293,8 @@ namespace OpenBN
             Stage.showCust = true;
             Input.Halt = false;
             flash = null;
-            var handler = new RunGameTicks(RunTick);
-            handler = RunTick;
-            do
-            {
-
-                if (!curdrawin)
-                    handler();
-                Thread.Sleep(16);
-            } while (!terminateGame);
+    
+   
         }
 
         /// <summary>
@@ -336,10 +358,9 @@ namespace OpenBN
                 }
             } while (!terminateGame);
         }
-
         private void RunTick()
         {
-
+           // SuppressDraw();
             Tick();
         }
 
@@ -412,10 +433,18 @@ namespace OpenBN
         protected override void Draw(GameTime gameTime)
         {
             //  if (!IsActive) { return; }
-           // if (!bgUpdater.IsBusy) return;
-
+            // if (!bgUpdater.IsBusy) return;
+            ////  if (delegatedDrawCall) { delegatedDrawCall = false; } else { base.Draw(gameTime); return; }
+            if (curdrawin)
+            {
+                GraphicsDevice.SetRenderTarget(null);
+                GraphicsDevice.Clear(Color.Black);
+                GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+               // base.Draw(gameTime);
+                return;
+            }
             curdrawin = true;
-            ResetRenderTarget();
+            //ResetRenderTarget();
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
@@ -429,14 +458,14 @@ namespace OpenBN
 
             DrawComponents();
             CustWindow.Draw();
-            //   DrawEnemyNames();
-            //  DrawDebugText();
+            DrawEnemyNames();
+            DrawDebugText();
 
-            //Draw the flash
-            //if (flash_opacity > Math.Round(0f,2))
-            //{
-            //    spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity);
-            //}
+           // Draw the flash
+            if (flash_opacity > Math.Round(0f, 2))
+            {
+                spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity);
+            }
 
             spriteBatch.End();
             GraphicsDevice.SetRenderTarget(null);
@@ -446,8 +475,9 @@ namespace OpenBN
             GraphicsDevice.Clear(Color.Black);
             targetBatch.Draw(target, Viewbox, Color.White);
             targetBatch.End();
-            base.Draw(gameTime);
             curdrawin = false;
+
+            base.Draw(gameTime);
         }
 
         #region Declares        
@@ -458,7 +488,7 @@ namespace OpenBN
         private Rectangle defaultrect;
         public GraphicsDeviceManager graphics;
         public SpriteBatch spriteBatch, targetBatch;
-        private BackgroundWorker bgUpdater, flash;
+        private BackgroundWorker bgUpdater, flash, MainTimer;
         private Dictionary<Keys, bool> KeyLatch;
         private List<string> EnemyNames;
         public Inputs Input;
