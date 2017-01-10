@@ -19,7 +19,7 @@ namespace OpenBN
         Texture2D Icon { get; set; }
 
 
-        void Execute(CustomWindow CW, BattleField BT, Stage ST);
+        void Execute(CustomWindow CW, Battle BT, Stage ST);
 
         SpriteBatch SB { get; set; }
         GraphicsDevice Graphics { get; set; }
@@ -45,7 +45,7 @@ namespace OpenBN
         public GraphicsDevice Graphics { get; set; }
         public ContentManager Content { get; set; }
 
-        public void Execute(CustomWindow CW, BattleField BT, Stage ST)
+        public void Execute(CustomWindow CW, Battle BT, Stage ST)
         {
 
         }
@@ -163,7 +163,7 @@ namespace OpenBN
         public GraphicsDevice Graphics { get; set; }
         public ContentManager Content { get; set; }
 
-        public virtual void Execute(CustomWindow CW, BattleField BT, Stage ST)
+        public virtual void Execute(CustomWindow CW, Battle BT, Stage ST)
         {
 
         }

@@ -9,10 +9,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using OpenBN.ScriptedSprites;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 using static OpenBN.MyMath;
-    using System.Reflection;
+using System.Reflection;
 
 namespace OpenBN
 {
@@ -28,7 +27,7 @@ namespace OpenBN
             // UUU LAA UUU LAA *summons cybeasts instead*
             // PS: If monogame does focusing logic better, i'll definitely switch X|
             {
-                mTimer = new System.Windows.Forms.Timer {Interval = 1000/60};
+                mTimer = new System.Windows.Forms.Timer { Interval = 1000 / 60 };
                 mTimer.Tick += (s, e) =>
                 {
                     if (manualTickCount > 2)
@@ -39,14 +38,14 @@ namespace OpenBN
                     }
                     manualTickCount++;
                 };
-                var host = typeof (Game).GetField("host", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this);
+                var host = typeof(Game).GetField("host", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this);
                 host.GetType()
                     .BaseType.GetField("Suspend", BindingFlags.NonPublic | BindingFlags.Instance)
                     .SetValue(host, null);
                 host.GetType()
                     .BaseType.GetField("Resume", BindingFlags.NonPublic | BindingFlags.Instance)
                     .SetValue(host, null);
-                myForm = (Form) Control.FromHandle(Window.Handle);
+                myForm = (Form)Control.FromHandle(Window.Handle);
             }
 
 
@@ -56,8 +55,8 @@ namespace OpenBN
             graphics.IsFullScreen = false;
 
             //Set real screen resolution
-            graphics.PreferredBackBufferWidth = screenRes.W*screenresscalar;
-            graphics.PreferredBackBufferHeight = screenRes.H*screenresscalar;
+            graphics.PreferredBackBufferWidth = screenRes.W * screenresscalar;
+            graphics.PreferredBackBufferHeight = screenRes.H * screenresscalar;
 
             Window.Title = "OpenBN";
             Content.RootDirectory = "Content";
@@ -108,7 +107,7 @@ namespace OpenBN
                 Keys.A, Keys.S, Keys.X, Keys.Z,
                 Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Q, Keys.W, Keys.R, Keys.M
             };
-            ArrowKeys = new[] {Keys.Up, Keys.Down, Keys.Left, Keys.Right};
+            ArrowKeys = new[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
 
             Fonts = new FontHelper(Content);
             Input = new Inputs(MonitoredKeys);
@@ -136,11 +135,18 @@ namespace OpenBN
 
         protected override void OnDeactivated(object sender, EventArgs e)
         {
+            ResetRenderTarget();
             IsGameActive = false;
+        }
+
+        private void ResetRenderTarget()
+        {
+            target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
         }
 
         protected override void OnActivated(object sender, EventArgs e)
         {
+            ResetRenderTarget();
             IsGameActive = true;
         }
 
@@ -161,7 +167,7 @@ namespace OpenBN
 
         private void LoadBG()
         {
-            string[] bgcodelist = {"AD", "CA", "GA", "SS", "SK", "GA_HP", "GV"};
+            string[] bgcodelist = { "AD", "CA", "GA", "SS", "SK", "GA_HP", "GV" };
             var rnd = new Random();
 
             var bgcode = bgcodelist[rnd.Next(bgcodelist.Count())];
@@ -205,7 +211,7 @@ namespace OpenBN
             switch (myForm.WindowState)
             {
                 case FormWindowState.Normal:
-                    if (IsActive) IsGameActive = true;
+                    IsGameActive = true;
                     break;
                 case FormWindowState.Minimized:
                     IsGameActive = false;
@@ -279,11 +285,11 @@ namespace OpenBN
 
                     if (!(dX == 0 & dY == 0))
                     {
-                        if (scrollcnt%framedel == 0)
+                        if (scrollcnt % framedel == 0)
                         {
-                            bgpos.X = (int) (Math.Ceiling(bgpos.X + dX)%bgFrameBounds.Width);
-                            if (bgpos.X%2 != 0)
-                                bgpos.Y = (int) (Math.Ceiling(bgpos.Y + dY)%bgFrameBounds.Height);
+                            bgpos.X = (int)(Math.Ceiling(bgpos.X + dX) % bgFrameBounds.Width);
+                            if (bgpos.X % 2 != 0)
+                                bgpos.Y = (int)(Math.Ceiling(bgpos.Y + dY) % bgFrameBounds.Height);
                             scrollcnt = 0;
                         }
                         scrollcnt++;
@@ -370,7 +376,7 @@ namespace OpenBN
                 DepthStencilState.None, RasterizerState.CullNone);
             if (BG_SS != null)
             {
-                myBackground.Update(new Rectangle((int) bgpos.X, (int) bgpos.Y, 0, 0));
+                myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0));
                 myBackground.Draw(spriteBatch);
             }
 
@@ -382,7 +388,7 @@ namespace OpenBN
             //Draw the flash
             if (flash_opacity > 0)
             {
-                spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255)*flash_opacity);
+                spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity);
             }
 
             spriteBatch.End();
@@ -438,7 +444,7 @@ namespace OpenBN
             // Make a 1x1 texture named pixel.  
             var pixel = new Texture2D(GraphicsDevice, Rect.Width, Rect.Height);
             // Create a 1D array of color data to fill the pixel texture with.  
-            var colorData = new Color[Rect.Width*Rect.Height];
+            var colorData = new Color[Rect.Width * Rect.Height];
             // Set the texture data with our color information.  
 
             if (Draw)
@@ -487,13 +493,13 @@ namespace OpenBN
                     var FontVect = Font2.MeasureString(EnemyName);
 
                     //Calculate vectors
-                    var InitTextPos = (screenResVector - FontVect)*cancelY - new Vector2(2, -2);
+                    var InitTextPos = (screenResVector - FontVect) * cancelY - new Vector2(2, -2);
                     var TextPos = TextOffset + InitTextPos;
                     var RectFill =
                         new Rectangle(
-                            (int) (TextPos.X - TextOffset.X),
-                            (int) TextPos.Y + 2, (int) (FontVect.X) + 2,
-                            (int) FontVect.Y - 4);
+                            (int)(TextPos.X - TextOffset.X),
+                            (int)TextPos.Y + 2, (int)(FontVect.X) + 2,
+                            (int)FontVect.Y - 4);
 
                     //Fill background
                     RectangleFill(RectFill, ColorHelper.FromHex(0x282828));
@@ -503,7 +509,7 @@ namespace OpenBN
 
                     //Draw it
                     spriteBatch.DrawString(Font2, EnemyName, TextPos, Color.White);
-                    TextOffset += (FontVect*cancelX) + new Vector2(0, 1);
+                    TextOffset += (FontVect * cancelX) + new Vector2(0, 1);
                     Debug.Print("Drawn!");
                 }
                 GraphicsDevice.SetRenderTarget(null);
@@ -539,14 +545,14 @@ namespace OpenBN
                 Math.Round(CustWindow.EmblemRot, 2),
                 BG_SS.AnimationGroup.Values.First().PC.ToString().ToUpper()
                 , CustWindow.showCust.GetHashCode()
-                , Math.Round(CustWindow.CustBarProgress*100, 2));
+                , Math.Round(CustWindow.CustBarProgress * 100, 2));
 
             var FontVect = Font1.MeasureString(DebugText);
             //Calculate vectors
-            var InitTextPos = new Vector2(screenResVector.X - FontVect.X - 1, (screenResVector.Y/2) - (FontVect.Y/2));
+            var InitTextPos = new Vector2(screenResVector.X - FontVect.X - 1, (screenResVector.Y / 2) - (FontVect.Y / 2));
             var TextPos = InitTextPos;
             //Draw it
-            spriteBatch.DrawString(Font1, DebugText, TextPos, Color.White*0.5f);
+            spriteBatch.DrawString(Font1, DebugText, TextPos, Color.White * 0.5f);
         }
 
         /// <summary>
@@ -556,22 +562,22 @@ namespace OpenBN
         {
             // 240/160 | 3:2 aspect ratio
             var origratio = 1.5;
-            var viewportratio = GraphicsDevice.Viewport.Width/(double) GraphicsDevice.Viewport.Height;
+            var viewportratio = GraphicsDevice.Viewport.Width / (double)GraphicsDevice.Viewport.Height;
 
             var viewportWidth = GraphicsDevice.Viewport.Width;
             var viewportHeight = GraphicsDevice.Viewport.Height;
 
             if (origratio > viewportratio)
             {
-                viewportHeight = Convert.ToInt16(viewportWidth/origratio);
+                viewportHeight = Convert.ToInt16(viewportWidth / origratio);
             }
             else
             {
-                viewportWidth = Convert.ToInt16(viewportHeight*origratio);
+                viewportWidth = Convert.ToInt16(viewportHeight * origratio);
             }
 
-            var viewportX = (GraphicsDevice.Viewport.Width/2) - (viewportWidth/2);
-            var viewportY = (GraphicsDevice.Viewport.Height/2) - (viewportHeight/2);
+            var viewportX = (GraphicsDevice.Viewport.Width / 2) - (viewportWidth / 2);
+            var viewportY = (GraphicsDevice.Viewport.Height / 2) - (viewportHeight / 2);
 
             Viewbox = new Rectangle(viewportX, viewportY, viewportWidth, viewportHeight);
         }

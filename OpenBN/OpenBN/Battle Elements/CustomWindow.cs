@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using OpenBN.ScriptedSprites;
 using static OpenBN.Helpers.Misc;
 using static OpenBN.MyMath;
 

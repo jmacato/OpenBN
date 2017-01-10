@@ -92,7 +92,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Battle.cs" />
     <Compile Include="Battle Elements\Stage.cs" />
-    <Compile Include="Sprites\SpriteScript.cs" />
+    <Compile Include="Sprites\Sprites.cs" />
     <Compile Include="Interfaces\Structs.cs" />
     <Compile Include="Battle Elements\TiledBG.cs" />
     <Compile Include="Battle Elements\UserNavi.cs" />

@@ -11,7 +11,7 @@ using System.Text;
 /// Sprite Animation Scripting Language Parser
 /// (c) Jumar Macato 2016  
 /// </summary>
-namespace OpenBN.ScriptedSprites
+namespace OpenBN
 {
     class Sprite
     {
@@ -20,6 +20,7 @@ namespace OpenBN.ScriptedSprites
 
         private Dictionary<string, Rectangle> TempFrames = new Dictionary<string, Rectangle>();
         private Dictionary<int, AnimationCommand> TempCmd = new Dictionary<int, AnimationCommand>();
+
         public Texture2D texture { get; private set; }
         public Sprite(string scriptdir, string texturedir, GraphicsDevice graphics, ContentManager CM)
         {
@@ -29,7 +30,7 @@ namespace OpenBN.ScriptedSprites
             int i = 0; string curanimkey = "";                  
 
             texture = CM.Load<Texture2D>(texturedir);
-
+            
             foreach (string y in t)
             {
                 var x = y.Trim().Trim('\t').Split(' ');
