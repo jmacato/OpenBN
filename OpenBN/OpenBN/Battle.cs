@@ -139,6 +139,7 @@ namespace OpenBN
             MainTimer.DoWork += MainTimer_DoWork;
             GraphicsDevice.DeviceLost += GraphicsDevice_DeviceLost;
             GraphicsDevice.DeviceReset += GraphicsDevice_DeviceReset;
+            GraphicsDevice.DeviceResetting += GraphicsDevice_DeviceResetting;
             MainTimer.RunWorkerAsync();
 
             foreach (var x in MonitoredKeys)
@@ -155,6 +156,11 @@ namespace OpenBN
             base.LoadContent();
         }
 
+        private void GraphicsDevice_DeviceResetting(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         private void GraphicsDevice_DeviceLost(object sender, EventArgs e)
         {
             Debug.Print("GraphicsDevice_DeviceLost");
@@ -162,11 +168,14 @@ namespace OpenBN
 
         private void GraphicsDevice_DeviceReset(object sender, EventArgs e)
         {
-            Debug.Print("GraphicsDevice_DeviceReset");
+            //Debug.Print("GraphicsDevice_DeviceReset");
             //if (MainTimer.IsBusy)
             //{
-          //  graphics = new GraphicsDeviceManager(this);
-          //  ResetRenderTarget();
+            //  graphics = new GraphicsDeviceManager(this);
+          //  spriteBatch = new SpriteBatch(GraphicsDevice);
+          //  targetBatch = new SpriteBatch(GraphicsDevice);
+
+            ResetRenderTarget();
             // //   this.IsFixedTimeStep = false;
 
             // graphics.SynchronizeWithVerticalRetrace = false;
@@ -373,7 +382,7 @@ namespace OpenBN
             {
                 //SuppressDraw();
                 Update();
-                Tick();
+                //Tick();
             }
             catch (Exception ex)
             {
@@ -399,6 +408,8 @@ namespace OpenBN
             if (IsActive)
             {
                 //Send fresh data to input handler
+               // if (!IsActive) { base.SuppressDraw(); return; }
+
                 Input.Update(KbState, myGameTime);
                 UpdateComponents(myGameTime);
                 HandleInputs();
@@ -457,7 +468,6 @@ namespace OpenBN
 
         protected override void Draw(GameTime gameTime)
         {
-            //  if (!IsActive) { return; }
             // if (!bgUpdater.IsBusy) return;
             ////  if (delegatedDrawCall) { delegatedDrawCall = false; } else { base.Draw(gameTime); return; }
             //if (curdrawin)
