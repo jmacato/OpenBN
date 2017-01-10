@@ -8,39 +8,21 @@ using System;
 namespace OpenBN
 {
 
-    public class Stage : IBattleEntity
+    public class Stage : BattleComponent
     {
         public Point StgPos { get; set; }
 
-        public SpriteBatch SB { get; set; }
-        public GraphicsDevice Graphics { get; set; }
-        public ContentManager Content { get; set; }
-        public bool Initialized { get; set; }
-
         //List of Top-Left Corners of the panels
-        public List<int> PnlRowPnt = new List<int> { 0, 24, 48 };
-        public List<int> PnlColPnt = new List<int> { 0, 40, 80, 120, 160, 200 };
-        public Point BottomLeftPnt = new Point(1, 1);
-        public List<Panel> PanelArray = new List<Panel>();
-
-        List<StagePnlColor> DefaultPnlColr = new List<StagePnlColor>
-            {
-                StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
-                StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
-                StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
-            };
-
-        List<StagePnlType> DefaultPnlType = new List<StagePnlType>
-            {
-                StagePnlType.NORMAL,StagePnlType.ICE,StagePnlType.GRASS,StagePnlType.POISON,StagePnlType.HOLY,StagePnlType.HOLE,
-                StagePnlType.NORMAL,StagePnlType.ICE,StagePnlType.GRASS,StagePnlType.POISON,StagePnlType.HOLY,StagePnlType.HOLE,
-                StagePnlType.NORMAL,StagePnlType.ICE,StagePnlType.GRASS,StagePnlType.POISON,StagePnlType.HOLY,StagePnlType.HOLE,
-            };
+        public List<int> PnlRowPnt, PnlColPnt;
+        public Point BottomLeftPnt;
+        public List<Panel> PanelArray;
+        List<StagePnlColor> DefaultPnlColr;
+        List<StagePnlType> DefaultPnlType;
 
         public bool showCust { get; set; }
         public int lolxy = 71;
 
-        public void Draw()
+        public override void Draw()
         {
             if (!Initialized) return;
             foreach (Panel Pnl in PanelArray)
@@ -58,7 +40,6 @@ namespace OpenBN
                         CurAG = StageRed;
                         break;
                 }
-
                 switch (Pnl.StgPnlTyp)
                 {
                     case StagePnlType.NORMAL:
@@ -104,26 +85,24 @@ namespace OpenBN
 
                 Rectangle text, bottomtext;
                 Rectangle rect, bottomrect;
-                // CurAG.AnimationGroup[AnimationGroupKey].Active = true;
                 text = CurAG.AnimationGroup[AnimationGroupKey].CurrentFrame;
                 rect = new Rectangle(Pnl.StgPnlPos.X, Pnl.StgPnlPos.Y, text.Width, text.Height);
-
-
                 if (Pnl.StgRowCol.X == 2 & Pnl.StgPnlTyp != StagePnlType.NONE)
                 {
                     bottomtext = CurAG.AnimationGroup["BOTTOM"].CurrentFrame;
                     bottomrect = new Rectangle(Pnl.StgPnlPos.X, Pnl.StgPnlPos.Y + text.Height, bottomtext.Width, bottomtext.Height);
-                    SB.Draw(CurAG.texture, bottomrect, bottomtext, Color.White);
+                    spriteBatch.Draw(CurAG.texture, bottomrect, bottomtext, Color.White);
                 }
-                SB.Draw(CurAG.texture, rect, text, Color.White);
+                spriteBatch.Draw(CurAG.texture, rect, text, Color.White);
             }
         }
 
         Sprite StageRed, StageBlue;
 
-        public void Update()
+        public override void Update(GameTime gameTime)
         {
             //Animate the panels if necessary
+            base.Update(gameTime);
 
             if (showCust)
             {
@@ -151,11 +130,8 @@ namespace OpenBN
                 }
             }
 
-            if (StageRed != null & StageBlue != null)
-            {
-                StageRed.AdvanceAllGroups();
-                StageBlue.AdvanceAllGroups();
-            }
+            StageRed.AdvanceAllGroups();
+            StageBlue.AdvanceAllGroups();
 
         }
 
@@ -169,20 +145,13 @@ namespace OpenBN
 
         public void Initialize()
         {
-
             StgPos = new Point(0, 71);
             StageRed = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Red", Graphics, Content);
             StageBlue = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Blue", Graphics, Content);
-            Initialized = true;
-        }
 
-        public Stage()
-        {
-            Random xrnd = new Random();
-
-            for (int i = 0; i < 3; i++) // For each row
+            for (int i = 0; i < 3; i++)
             {
-                for (int j = 0; j < 6; j++) // For each col
+                for (int j = 0; j < 6; j++)
                 {
                     //Get the linear index of the col/row pair
                     var u = GetIndex(i, j);
@@ -191,12 +160,7 @@ namespace OpenBN
                     //Designate specific pos with offset of the StgPos
                     var y = new Point(PnlColPnt[j] + StgPos.X, PnlRowPnt[i] + StgPos.Y);
                     //Set panel type, could be modified on code
-
-                    // Test                  
-                    //StagePnlType xxxx = (StagePnlType)xrnd.Next(11);
-
                     var z = DefaultPnlType[u];
-                    //var z = xxxx;
 
                     var e = new Point(i, j);
                     var q = new Panel()
@@ -209,8 +173,34 @@ namespace OpenBN
                     PanelArray.Add(q);
                 }
             }
+
+            Initialized = true;
         }
 
+        public Stage(Game parent) : base(parent)
+        {
+
+            DefaultPnlType = new List<StagePnlType>
+            {
+                StagePnlType.NORMAL,StagePnlType.ICE,StagePnlType.GRASS,StagePnlType.POISON,StagePnlType.HOLY,StagePnlType.HOLE,
+                StagePnlType.NORMAL,StagePnlType.ICE,StagePnlType.GRASS,StagePnlType.POISON,StagePnlType.HOLY,StagePnlType.HOLE,
+                StagePnlType.NORMAL,StagePnlType.ICE,StagePnlType.GRASS,StagePnlType.POISON,StagePnlType.HOLY,StagePnlType.HOLE,
+            };
+
+            DefaultPnlColr = new List<StagePnlColor>
+            {
+                StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
+                StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
+                StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
+            };
+
+            PnlRowPnt = new List<int> { 0, 24, 48 };
+            PnlColPnt = new List<int> { 0, 40, 80, 120, 160, 200 };
+            BottomLeftPnt = new Point(1, 1);
+            PanelArray = new List<Panel>();
+
+            Initialize();
+        }
 
         public int GetIndex(int i, int j)
         {
@@ -247,24 +237,4 @@ namespace OpenBN
         public Point StgRowCol { get; set; }
     }
 
-    public enum StagePnlColor
-    {
-        Red, Blue, None
-    }
-
-    public enum StagePnlType
-    {
-        NORMAL,
-        CRACKED,
-        BROKEN,
-        POISON,
-        ICE,
-        GRASS,
-        HOLE,
-        HOLY,
-        CONV_D, CONV_U,
-        CONV_L, CONV_R,
-        VOLCANO,
-        NONE
-    }
 }

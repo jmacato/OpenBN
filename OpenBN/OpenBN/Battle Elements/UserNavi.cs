@@ -8,7 +8,7 @@ using System.Linq;
 namespace OpenBN
 {
 
-    class Navi : IBattleEntity
+    class Navi 
     {
         public GraphicsDevice Graphics { get; set; }
         public ContentManager Content { get; set; }

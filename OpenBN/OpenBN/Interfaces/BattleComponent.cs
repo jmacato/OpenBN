@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
 
-namespace OpenBN.Interfaces
+namespace OpenBN
 {
     public class BattleComponent
     {
@@ -28,6 +28,9 @@ namespace OpenBN.Interfaces
             this.Content = ((BattleField)parent).Content;
             this.Graphics = ((BattleField)parent).GraphicsDevice;
             this.Input = ((BattleField)parent).Input;
+
+            if (((BattleField)parent).Components == null) ((BattleField)parent).Components = new List<BattleComponent>();
+            ((BattleField)parent).Components.Add(this);
         }
 
         public virtual void Update(GameTime gameTime)

@@ -15,7 +15,7 @@ using System.Threading;
 
 namespace OpenBN
 {
-    public class CustomWindow : Interfaces.BattleComponent
+    public class CustomWindow : BattleComponent
     {
 
         #region Declares
@@ -187,6 +187,7 @@ namespace OpenBN
 
             CBState = CustomBarState.Full;
             CBModifier = CustomBarModifiers.Normal;
+            CBTime = new TimeSpan(0);
 
             SlotType = new int[,] { { 1, 1, 1, 1, 1, 2 }, { 1, 1, 1, 0, 0, 0 } };
             SlotStatus = new int[2, 6];
@@ -198,7 +199,6 @@ namespace OpenBN
         public override void Update(GameTime gameTime) 
         {
             base.Update(gameTime);
-            //  base.Update(gameTime);
             //Custom Window transition update logic
             UpdateTransition();
             //HP Bar update logic
@@ -213,7 +213,6 @@ namespace OpenBN
                 //Keyboard Handling logic
                 HandleInputs();
             }
-
             //Advance frames
             CustomWin.AdvanceAllGroups();
         }

@@ -11,7 +11,7 @@
             this.H = H;
         }
     }
-
+    
     public struct Point
     {
         public int X;
@@ -22,6 +22,27 @@
             this.X = X;
             this.Y = Y;
         }
+    }
+
+    public enum StagePnlColor
+    {
+        Red, Blue, None
+    }
+
+    public enum StagePnlType
+    {
+        NORMAL,
+        CRACKED,
+        BROKEN,
+        POISON,
+        ICE,
+        GRASS,
+        HOLE,
+        HOLY,
+        CONV_D, CONV_U,
+        CONV_L, CONV_R,
+        VOLCANO,
+        NONE
     }
 
     public enum CustomBarState

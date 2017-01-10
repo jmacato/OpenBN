@@ -86,8 +86,8 @@
     <Compile Include="Helpers\Misc.cs" />
     <Compile Include="Interfaces\BattleComponent.cs" />
     <Compile Include="Interfaces\IBattleChip.cs" />
-    <Compile Include="Interfaces\IBattleEntities.cs" />
     <Compile Include="Helpers\InputHelper.cs" />
+    <Compile Include="Interfaces\IParentComponent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="BattleField.cs" />
@@ -96,7 +96,6 @@
     <Compile Include="Structs.cs" />
     <Compile Include="Battle Elements\TiledBG.cs" />
     <Compile Include="Battle Elements\UserNavi.cs" />
-    <Compile Include="TestGameComponent.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
