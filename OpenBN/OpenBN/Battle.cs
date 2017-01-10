@@ -34,24 +34,32 @@ namespace OpenBN
             }
         }
 
+        delegate void RunGameTicks();
+
+
         public Battle()
         {
             IsFixedTimeStep = false;
+
             // Necessary enchantments to ward off the updater and focusing bugs
             // UUU LAA UUU LAA *summons cybeasts instead*
             // PS: If monogame does focusing logic better, i'll definitely switch X|
             {
-                mTimer = new System.Windows.Forms.Timer { Interval = 1000 / 60 };
-                mTimer.Tick += (s, e) =>
-                {
-                    if (manualTickCount > 2)
-                    {
-                        manualTick = true;
-                        Tick();
-                        manualTick = false;
-                    }
-                    manualTickCount++;
-                };
+                //mTimer = new System.Windows.Forms.Timer { Interval = 1000 / 60 };
+                //mTimer.Tick += (s, e) =>
+                //{
+                //    if (LocChanged)
+                //    {
+                //        if (manualTickCount > 2)
+                //        {
+                //            manualTick = true;
+                //            Tick();
+                //            manualTick = false;
+                //        }
+                //        manualTickCount++;
+                //    }
+
+                //};
                 var host = typeof(Game).GetField("host", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this);
                 host.GetType()
                     .BaseType.GetField("Suspend", BindingFlags.NonPublic | BindingFlags.Instance)
@@ -79,13 +87,28 @@ namespace OpenBN
             Window.ClientSizeChanged += Window_ClientSizeChanged;
         }
 
-        // public bool IsActive { get; private set; }
+           // public bool IsActive { get; private set; }
         public bool BGChanged { get; private set; }
         public new List<BattleComponent> Components { get; set; }
         public bool Initialized { get; private set; }
+        public bool locChanged;
+        public bool LocChanged
+        {
+            get {
+                bool x = false;
+                if (locChanged) x = true;
+                locChanged = false;
+                return x;
+            }
+            set
+            {
+                locChanged = value;
+            }
+        }
 
         private new void Initialize()
         {
+
             bgpos = new Vector2(0, 0);
             bgUpdater = new BackgroundWorker();
             cancelX = new Vector2(0, 1);
@@ -104,7 +127,7 @@ namespace OpenBN
             screenResVector = new Vector2(240, 160);
             scrollcnt = 0;
             Viewbox = new Rectangle(0, 0, 240, 160);
-            mTimer.Start();
+            //mTimer.Start();
         }
 
         protected override void LoadContent()
@@ -113,6 +136,7 @@ namespace OpenBN
             terminateGame = false;
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
 
             flsh = RectangleFill(new Rectangle(0, 0, screenRes.W, screenRes.H), ColorHelper.FromHex(0xF8F8F8), false);
@@ -149,6 +173,7 @@ namespace OpenBN
             UpdateViewbox();
             Initialized = true;
 
+            graphics.SynchronizeWithVerticalRetrace = false;
 
             base.LoadContent();
         }
@@ -253,6 +278,15 @@ namespace OpenBN
             Stage.showCust = true;
             Input.Halt = false;
             flash = null;
+            var handler = new RunGameTicks(RunTick);
+            handler = RunTick;
+            do
+            {
+
+                if (!curdrawin)
+                    handler();
+                Thread.Sleep(16);
+            } while (!terminateGame);
         }
 
         /// <summary>
@@ -262,13 +296,14 @@ namespace OpenBN
         {
             double dX = 1, dY = 1;
             double framedel = 1;
-
+            
             do
             {
                 // if (terminateGame) return;
 
-                if (!manualTick)
-                    manualTickCount = 0;
+                //if (!manualTick)
+                //    manualTickCount = 0;
+
 
                 {
                     if (BGChanged)
@@ -314,6 +349,12 @@ namespace OpenBN
                     Thread.Sleep(16);
                 }
             } while (!terminateGame);
+        }
+
+        private void RunTick()
+        {
+
+            Tick();
         }
 
         bool curdrawin = false;
@@ -385,12 +426,14 @@ namespace OpenBN
         protected override void Draw(GameTime gameTime)
         {
             //  if (!IsActive) { return; }
+           // if (!bgUpdater.IsBusy) return;
+
             curdrawin = true;
             ResetRenderTarget();
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone);
             if (BG_SS != null)
             {
@@ -404,22 +447,21 @@ namespace OpenBN
             //  DrawDebugText();
 
             //Draw the flash
-            if (flash_opacity > 0)
-            {
-                spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity);
-            }
+            //if (flash_opacity > Math.Round(0f,2))
+            //{
+            //    spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity);
+            //}
 
             spriteBatch.End();
             GraphicsDevice.SetRenderTarget(null);
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+            targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, Desaturate);
             GraphicsDevice.Clear(Color.Black);
-            spriteBatch.Draw(target, Viewbox, Color.White);
-            spriteBatch.End();
-            curdrawin = false;
+            targetBatch.Draw(target, Viewbox, Color.White);
+            targetBatch.End();
             base.Draw(gameTime);
-
+            curdrawin = false;
         }
 
         #region Declares        
@@ -429,7 +471,7 @@ namespace OpenBN
         private Rectangle Viewbox;
         private Rectangle defaultrect;
         public GraphicsDeviceManager graphics;
-        public SpriteBatch spriteBatch;
+        public SpriteBatch spriteBatch, targetBatch;
         private BackgroundWorker bgUpdater, flash;
         private Dictionary<Keys, bool> KeyLatch;
         private List<string> EnemyNames;
