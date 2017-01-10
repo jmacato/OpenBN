@@ -91,20 +91,6 @@ namespace OpenBN
         public bool BGChanged { get; private set; }
         public new List<BattleComponent> Components { get; set; }
         public bool Initialized { get; private set; }
-        public bool locChanged;
-        public bool LocChanged
-        {
-            get {
-                bool x = false;
-                if (locChanged) x = true;
-                locChanged = false;
-                return x;
-            }
-            set
-            {
-                locChanged = value;
-            }
-        }
 
         private new void Initialize()
         {
@@ -115,6 +101,7 @@ namespace OpenBN
             cancelY = new Vector2(1, 0);
             defaultrect = new Rectangle(0, 0, 240, 160);
             desat = 1;
+
             displayEnemyNames = true;
             EnemyNames = new List<string>(3);
             flash_opacity = 1;
@@ -127,7 +114,6 @@ namespace OpenBN
             screenResVector = new Vector2(240, 160);
             scrollcnt = 0;
             Viewbox = new Rectangle(0, 0, 240, 160);
-            //mTimer.Start();
         }
 
         protected override void LoadContent()
