@@ -7,10 +7,10 @@ namespace OpenBN
 {
     public class BattleComponent
     {
-        internal SpriteBatch spriteBatch { get; private set; }
-        internal ContentManager Content { get; private set; }
-        internal GraphicsDevice Graphics { get; private set; }
-        internal Inputs Input { get; private set; }
+        internal SpriteBatch spriteBatch { get; set; }
+        internal ContentManager Content { get; set; }
+        internal GraphicsDevice Graphics { get; set; }
+        internal Inputs Input { get; set; }
 
         internal bool Initialized { get; set; }
         public GameTime gameTime { get; private set; }

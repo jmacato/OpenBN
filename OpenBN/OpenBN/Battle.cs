@@ -45,22 +45,13 @@ namespace OpenBN
             // Necessary enchantments to ward off the updater and focusing bugs
             // UUU LAA UUU LAA *summons cybeasts instead*
             // PS: If monogame does focusing logic better, i'll definitely switch X|
-            {
-                var host = typeof(Game).GetField("host", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this);
-                host.GetType()
-                    .BaseType.GetField("Suspend", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .SetValue(host, null);
-                host.GetType()
-                    .BaseType.GetField("Resume", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .SetValue(host, null);
 
-                myForm = (Form)Control.FromHandle(Window.Handle);
-            }
-
-            Initialize();
+            myForm = (Form)Control.FromHandle(Window.Handle);
 
             graphics = new GraphicsDeviceManager(this);
             graphics.IsFullScreen = false;
+            screenRes = new Size(240, 160);
+            screenresscalar = 2;
 
             //Set real screen resolution
             graphics.PreferredBackBufferWidth = screenRes.W * screenresscalar;
@@ -94,16 +85,9 @@ namespace OpenBN
             KeyLatch = new Dictionary<Keys, bool>();
             manualTick = true;
             manualTickCount = 0;
-            screenRes = new Size(240, 160);
-            screenresscalar = 2;
             screenResVector = new Vector2(240, 160);
             scrollcnt = 0;
             Viewbox = new Rectangle(0, 0, 240, 160);
-        }
-
-        protected override void LoadContent()
-        {
-            if (Initialized) return;
             terminateGame = false;
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -125,9 +109,6 @@ namespace OpenBN
 
             Stage = new Stage(this);
             CustWindow = new CustomWindow(this);
-
-            Desaturate = Content.Load<Effect>("Shaders/Desaturate");
-            Desaturate.Parameters["ColourAmount"].SetValue(1);
             LoadBG();
             bgUpdater = new BackgroundWorker();
             flash = new BackgroundWorker();
@@ -139,7 +120,6 @@ namespace OpenBN
             MainTimer.DoWork += MainTimer_DoWork;
             GraphicsDevice.DeviceLost += GraphicsDevice_DeviceLost;
             GraphicsDevice.DeviceReset += GraphicsDevice_DeviceReset;
-            GraphicsDevice.DeviceResetting += GraphicsDevice_DeviceResetting;
             MainTimer.RunWorkerAsync();
 
             foreach (var x in MonitoredKeys)
@@ -150,15 +130,21 @@ namespace OpenBN
             flash.RunWorkerAsync();
             UpdateViewbox();
             Initialized = true;
-            //IsFixedTimeStep = false;
-            graphics.SynchronizeWithVerticalRetrace = false;
-           // this.TargetElapsedTime = TimeSpan.FromMilliseconds(1000 / 120);
-            base.LoadContent();
+            graphics.SynchronizeWithVerticalRetrace = true;
+            totalGameTime.Start();
+            lastUpdate.Start();
         }
 
-        private void GraphicsDevice_DeviceResetting(object sender, EventArgs e)
+        protected override void LoadContent()
         {
-            throw new NotImplementedException();
+            if (!Initialized) Initialize();
+
+
+            Desaturate = Content.Load<Effect>("Shaders/Desaturate");
+            Desaturate.Parameters["ColourAmount"].SetValue(1);
+
+            // this.TargetElapsedTime = TimeSpan.FromMilliseconds(1000 / 120);
+            base.LoadContent();
         }
 
         private void GraphicsDevice_DeviceLost(object sender, EventArgs e)
@@ -168,57 +154,82 @@ namespace OpenBN
 
         private void GraphicsDevice_DeviceReset(object sender, EventArgs e)
         {
-            //Debug.Print("GraphicsDevice_DeviceReset");
+            Debug.Print("GraphicsDevice_DeviceReset");
+
+            foreach(BattleComponent xx in Components)
+            {
+                xx.Graphics = GraphicsDevice;
+            }
+
             //if (MainTimer.IsBusy)
             //{
             //  graphics = new GraphicsDeviceManager(this);
-          //  spriteBatch = new SpriteBatch(GraphicsDevice);
-          //  targetBatch = new SpriteBatch(GraphicsDevice);
-
-            ResetRenderTarget();
+            //  ResetRenderTarget();
             // //   this.IsFixedTimeStep = false;
 
             // graphics.SynchronizeWithVerticalRetrace = false;
 
             //}
         }
-        Stopwatch maintime = new Stopwatch();
+
+        private void TimerProc(object state)
+        {
+            // The state object is the Timer object.
+            var handler = new RunGameTicks(RunTick);
+            handler = RunTick;
+            handler();
+        }
 
         private void MainTimer_DoWork(object sender, DoWorkEventArgs e)
         {
-            var handler = new RunGameTicks(RunTick);
-            handler = RunTick;
-            do
-            {
-                maintime.Start();
-                try
-                {
-                   // if (curdrawin == false)
-                        handler();
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
+            Stopwatch maintime = new Stopwatch();
 
-                do
-                {
-                    Thread.Sleep(TimeSpan.FromMilliseconds(1));
-                } while (maintime.Elapsed <= TimeSpan.FromMilliseconds(1000/60));
-                maintime.Reset();
-            } while (true);
+            //Force blank the form even when dragged.
+
+
+            myForm.KeyDown += MyForm_KeyDown;
+            myForm.KeyUp += MyForm_KeyUp;
+
+
+
+            System.Threading.Timer d = new System.Threading.Timer(new TimerCallback(TimerProc));
+            d.Change(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000/120));
+            
+
+            //do
+            //{
+            //    maintime.Start();
+            //    try
+            //    {
+            //        // if (curdrawin == false)
+             
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        throw ex;
+            //    }
+                
+            //    do { Thread.Sleep(TimeSpan.FromTicks(1000)); }
+            //     while (maintime.ElapsedMilliseconds <= 16);
+            //    maintime.Reset();
+            //} while (true);
         }
+
+        private void MyForm_KeyUp(object sender, KeyEventArgs e)
+        {
+         //   throw new NotImplementedException();
+        }
+
+        private void MyForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            kbstate = new KeyboardState((Keys)e.KeyValue);
+            Debug.Print(((Keys)e.KeyValue).ToString());
+        }
+
 
         private void ResetRenderTarget()
         {
             target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
-        }
-
-        protected override void OnExiting(object sender, EventArgs e)
-        {
-            //  terminateGame = true;
-            //  mTimer.Dispose();
-            //  Content.Unload();
         }
 
         private void Window_ClientSizeChanged(object sender, EventArgs e)
@@ -242,42 +253,6 @@ namespace OpenBN
             myBackground = new TiledBackground(BG_SS.AnimationGroup.Values.First().CurrentFrame, 240, 160, BG_SS.texture);
             myBackground.startCoord = bgpos;
             BGChanged = true;
-        }
-
-        private void MiscUpdates()
-        {
-
-            //if (IsActive)
-            //{
-            //    if (desat < 1)
-            //    {
-            //        desat += 0.1f;
-            //        desat = Clamp(desat, 0, 1);
-            //        Desaturate.Parameters["ColourAmount"].SetValue(desat);
-            //        SoundEffect.MasterVolume = desat;
-            //    }
-            //}
-            //else
-            //{
-            //    if (desat > 0)
-            //    {
-            //        desat -= 0.1f;
-            //        desat = Clamp(desat, 0, 1);
-            //        Desaturate.Parameters["ColourAmount"].SetValue(desat);
-            //        SoundEffect.MasterVolume = desat;
-            //    }
-            //}
-
-            // Oh XNA, why thoust focusing logic is broken.
-            //switch (myForm.WindowState)
-            //{
-            //    case FormWindowState.Normal:
-            //        IsActive = true;
-            //        break;
-            //    case FormWindowState.Minimized:
-            //        IsActive = false;
-            //        break;
-            //}
         }
 
         /// <summary>
@@ -376,44 +351,35 @@ namespace OpenBN
 
         private void RunTick()
         {
+            if (lastUpdate.ElapsedMilliseconds > 60)
+            myForm.Invalidate(myForm.ClientRectangle);
+            Update2();
 
-            // SuppressDraw();
-            try
-            {
-                //SuppressDraw();
-                Update();
-                //Tick();
-            }
-            catch (Exception ex)
-            {
-
-            }
 
         }
 
-        bool curdrawin = false;
+        KeyboardState kbstate;
 
-        
+
+
+        private void Update2()
+        {
+            myGameTime = new GameTime(totalGameTime.Elapsed, lastUpdate.Elapsed);
+            Input.Update(kbstate, myGameTime);
+            UpdateComponents(myGameTime);
+            HandleInputs();
+        }
+
+        Stopwatch totalGameTime =  new Stopwatch();
+        Stopwatch lastUpdate = new Stopwatch();
+
         protected override void Update(GameTime gameTime)
         {
-            this.myGameTime = gameTime;
-            KbState = Keyboard.GetState();
+            //Send fresh data to input handler
+
+            kbstate = Keyboard.GetState();
+            lastUpdate.Restart();
             base.Update(gameTime);
-        }
-
-        KeyboardState KbState;
-        void Update()
-        {
-            MiscUpdates();
-            if (IsActive)
-            {
-                //Send fresh data to input handler
-               // if (!IsActive) { base.SuppressDraw(); return; }
-
-                Input.Update(KbState, myGameTime);
-                UpdateComponents(myGameTime);
-                HandleInputs();
-            }
         }
         
         private void HandleInputs()
@@ -468,26 +434,14 @@ namespace OpenBN
 
         protected override void Draw(GameTime gameTime)
         {
-            // if (!bgUpdater.IsBusy) return;
-            ////  if (delegatedDrawCall) { delegatedDrawCall = false; } else { base.Draw(gameTime); return; }
-            //if (curdrawin)
-            //{
-            //  //  GraphicsDevice.SetRenderTarget(null);
-            // //   GraphicsDevice.Clear(Color.Black);
-            // //   GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            //     base.Draw(gameTime);
-            //    return;
-            //}
-            //curdrawin = true;
-            //ResetRenderTarget();
-            GraphicsDevice.SetRenderTarget(null);
-            GraphicsDevice.Clear(Color.Black);
+
+            ResetRenderTarget();
 
 
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone);
             if (BG_SS != null)
             {
@@ -509,14 +463,14 @@ namespace OpenBN
             spriteBatch.End();
             GraphicsDevice.SetRenderTarget(null);
 
-            targetBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp,
+            targetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp,
                 DepthStencilState.None, RasterizerState.CullNone, Desaturate);
             GraphicsDevice.Clear(Color.Black);
             targetBatch.Draw(target, Viewbox, Color.White);
             targetBatch.End();
-           // curdrawin = false;
-
+            // curdrawin = false;
             base.Draw(gameTime);
+
         }
 
         #region Declares        
@@ -659,8 +613,7 @@ namespace OpenBN
             DebugText += "CUSTOM {5,5}\r\n";
 
             DebugText = String.Format(DebugText, bgpos.X, bgpos.Y,
-             //   Math.Round(CustWindow.EmblemRot, 2),
-             maintime.Elapsed.ToString(),
+                Math.Round(CustWindow.EmblemRot, 2),
                 BG_SS.AnimationGroup.Values.First().PC.ToString().ToUpper()
                 , CustWindow.showCust.GetHashCode()
                 , Math.Round(CustWindow.CustBarProgress * 100, 2));

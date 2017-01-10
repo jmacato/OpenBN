@@ -566,20 +566,21 @@ namespace OpenBN
             CBTime = TimeSpan.FromMilliseconds(0);
             CBState = CustomBarState.Loading;
         }
-
+        TimeSpan OldCustBarTimeSpan = DateTime.UtcNow.TimeOfDay, CustBarTimeSpan = TimeSpan.Zero;
         private void UpdateCustBar()
         {
+            var y =  DateTime.UtcNow.TimeOfDay - OldCustBarTimeSpan;
             CustomBar.AdvanceAllGroups();
             switch (CBModifier)
             {
                 case CustomBarModifiers.Normal:
-                    CBTime += gameTime.ElapsedGameTime;
+                    CBTime += y;
                     break;
                 case CustomBarModifiers.Slow:
-                    CBTime += TimeSpan.FromMilliseconds(gameTime.ElapsedGameTime.TotalMilliseconds/2);
+                    CBTime += TimeSpan.FromMilliseconds(y.TotalMilliseconds / 2);
                     break;
                 case CustomBarModifiers.Fast:
-                    CBTime += TimeSpan.FromMilliseconds(gameTime.ElapsedGameTime.TotalMilliseconds*2);
+                    CBTime += TimeSpan.FromMilliseconds(y.TotalMilliseconds * 2);
                     break;
                 default:
                     break;
@@ -598,6 +599,8 @@ namespace OpenBN
                     CustBarProgress = (CBTime.TotalMilliseconds/(1000*10));
                 }
             }
+            OldCustBarTimeSpan = DateTime.UtcNow.TimeOfDay;
+
         }
 
         private void DrawCustBar()
