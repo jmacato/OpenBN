@@ -19,63 +19,29 @@ namespace OpenBN
     {
 
         #region Declares        
-
-        public Size screenres = new Size(240, 160);
-        public Vector2 screenresvect = new Vector2(240, 160);
-        public int screenresscalar = 2;
-
-        //Utility Vectors
-        public Vector2 cancelX = new Vector2(0, 1);
-        public Vector2 cancelY = new Vector2(1, 0);
-
-        Rectangle Viewbox = new Rectangle(0, 0, 240, 160);
-        Rectangle defaultrect = new Rectangle(0, 0, 240, 160);
-
+        public Size screenres;
+        public Vector2 screenresvect ,cancelX, cancelY, bgpos;
+        Rectangle Viewbox;
+        Rectangle defaultrect;
         public GraphicsDeviceManager graphics;
         public SpriteBatch spriteBatch;
-
-        Vector2 bgpos = new Vector2(0, 0);
-
-        //bgwrkr for bg scroll
         BackgroundWorker bgUpdater = new BackgroundWorker();
         BackgroundWorker flash = new BackgroundWorker();
-        BackgroundWorker UserNavBgWrk = new BackgroundWorker();
-        BackgroundWorker SixtyHzBgWrkr = new BackgroundWorker();
-
-        Dictionary<Keys, bool> KeyLatch = new Dictionary<Keys, bool>();
-
-        //For bgm looping
-        //    SoundEffectInstance bgminst;
-
-        List<string> EnemyNames = new List<string>(3);
-
+        Dictionary<Keys, bool> KeyLatch;
+        List<string> EnemyNames;
         public Inputs Input;
+        public FontHelper Fonts;
         Stage Stage;
-
         TiledBackground myBackground;
-        
-
         CustomWindow CustWindow;
         Texture2D flsh;
-
-        RenderTarget2D target;
-
-        RenderTarget2D EnemyNameCache;
-        public FontHelper Fonts;
+        RenderTarget2D target, EnemyNameCache;
         Sprite BG_SS;
         Effect Desaturate;
-
         System.Windows.Forms.Timer mTimer;
-
-        float flash_opacity = 1;
-        bool terminateGame;
-        public bool DisplayEnemyNames = true;
-        bool manualTick = true;
-        int manualTickCount = 0;
-        float desat = 1;
-        public int InactiveWaitMs = 10;
-        int scrollcnt = 0;
-
+        float flash_opacity, desat;
+        bool terminateGame, DisplayEnemyNames, manualTick;
+        int manualTickCount, InactiveWaitMs, scrollcnt, screenresscalar;
         Keys[] MonitoredKeys;
         Keys[] ArrowKeys;
         #endregion
@@ -85,7 +51,7 @@ namespace OpenBN
         public bool IsGameActive { get; private set; }
         public bool BGChanged { get; private set; }
 
-        public new List<BattleComponent> Components {get;set;}
+        public new List<BattleComponent> Components { get; set; }
 
         public BattleField()
         {
@@ -96,17 +62,20 @@ namespace OpenBN
             // UUU LAA UUU LAA *summons cybeasts instead*
             // PS: If monogame does focusing logic better, i'll definitely switch X|
             {
-                mTimer = new System.Windows.Forms.Timer { Interval = (int)(1000/60) };
+                mTimer = new System.Windows.Forms.Timer { Interval = (int)(1000 / 60) };
                 mTimer.Tick += (s, e) =>
                 {
                     if (manualTickCount > 2) { manualTick = true; Tick(); manualTick = false; }
-                        manualTickCount++;
+                    manualTickCount++;
                 };
                 object host = typeof(Game).GetField("host", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this);
                 host.GetType().BaseType.GetField("Suspend", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(host, null);
                 host.GetType().BaseType.GetField("Resume", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(host, null);
                 myForm = (System.Windows.Forms.Form)System.Windows.Forms.Form.FromHandle(Window.Handle);
             }
+
+
+            Initialize();
 
             graphics = new GraphicsDeviceManager(this);
             graphics.IsFullScreen = false;
@@ -115,19 +84,37 @@ namespace OpenBN
             graphics.PreferredBackBufferWidth = screenres.W * screenresscalar;
             graphics.PreferredBackBufferHeight = screenres.H * screenresscalar;
 
-            this.Window.Title = "OpenBN";
+            Window.Title = "OpenBN";
             Content.RootDirectory = "Content";
 
             // this.Window.AllowUserResizing = true;
-            this.Window.ClientSizeChanged += Window_ClientSizeChanged;
+            Window.ClientSizeChanged += Window_ClientSizeChanged;
 
         }
 
 
-        protected override void Initialize()
+        new void Initialize()
         {
+            bgpos = new Vector2(0, 0);
+            bgUpdater = new BackgroundWorker();
+            cancelX = new Vector2(0, 1);
+            cancelY = new Vector2(1, 0);
+            defaultrect = new Rectangle(0, 0, 240, 160);
+            desat = 1;
+            DisplayEnemyNames = true;
+            EnemyNames = new List<string>(3);
+            flash = new BackgroundWorker();
+            flash_opacity = 1;
+            InactiveWaitMs = 10;
+            KeyLatch = new Dictionary<Keys, bool>();
+            manualTick = true;
+            manualTickCount = 0;
+            screenres = new Size(240, 160);
+            screenresscalar = 2;
+            screenresvect = new Vector2(240, 160);
+            scrollcnt = 0;
+            Viewbox = new Rectangle(0, 0, 240, 160);
             mTimer.Start();
-            base.Initialize();
         }
 
         protected override void LoadContent()
@@ -181,6 +168,7 @@ namespace OpenBN
             mTimer.Dispose();
             Content.Unload();
         }
+
         private void Window_ClientSizeChanged(object sender, EventArgs e)
         {
             UpdateViewbox();
@@ -188,6 +176,7 @@ namespace OpenBN
             graphics.PreferredBackBufferWidth = Viewbox.Width;
             graphics.ApplyChanges();
         }
+
         private void LoadBG()
         {
             string[] bgcodelist = { "AD", "CA", "GA", "SS", "SK", "GA_HP", "GV" };
@@ -202,55 +191,41 @@ namespace OpenBN
             myBackground.startCoord = bgpos;
             BGChanged = true;
         }
-        private void SixtyHzBgWrkr_DoWork()
+
+        private void MiscUpdates()
         {
-            //do
-            //{
-                if (IsGameActive)
+            if (!manualTick) { manualTickCount = 0; }
+            if (IsGameActive)
+            {
+                if (desat < 1)
                 {
-                    if (desat < 1)
-                    {
-                        desat += 0.1f;
-                        desat = Clamp(desat, 0, 1);
-                        Desaturate.Parameters["ColourAmount"].SetValue(desat);
-                        SoundEffect.MasterVolume = desat;
-                    }
-
-                    //if (!mute && bgminst != null)
-                    //    if (bgminst.State == SoundState.Paused && desat > 0)
-                    //    {
-                    //        bgminst.Resume();
-                    //    }
-                //    Thread.Sleep(16);
+                    desat += 0.1f;
+                    desat = Clamp(desat, 0, 1);
+                    Desaturate.Parameters["ColourAmount"].SetValue(desat);
+                    SoundEffect.MasterVolume = desat;
                 }
-                else
+            }
+            else
+            {
+                if (desat > 0)
                 {
-                    if (desat > 0)
-                    {
-                        desat -= 0.1f;
-                        desat = Clamp(desat, 0, 1);
-                        Desaturate.Parameters["ColourAmount"].SetValue(desat);
-                        SoundEffect.MasterVolume = desat;
-                    }
-
-                    //if (!mute && bgminst != null)
-                    //    if (bgminst.State == SoundState.Playing && desat < 0.1) bgminst.Pause();
-
-                //    Thread.Sleep(16);
+                    desat -= 0.1f;
+                    desat = Clamp(desat, 0, 1);
+                    Desaturate.Parameters["ColourAmount"].SetValue(desat);
+                    SoundEffect.MasterVolume = desat;
                 }
+            }
 
-                // Oh XNA, why thoust focusing logic is broken.
-                switch (myForm.WindowState)
-                {
-                    case System.Windows.Forms.FormWindowState.Normal:
-                        if (this.IsActive) IsGameActive = true;
-                        break;
-                    case System.Windows.Forms.FormWindowState.Minimized:
-                        IsGameActive = false;
-                        break;
-                }
-
-            //} while (!terminateGame);
+            // Oh XNA, why thoust focusing logic is broken.
+            switch (myForm.WindowState)
+            {
+                case System.Windows.Forms.FormWindowState.Normal:
+                    if (this.IsActive) IsGameActive = true;
+                    break;
+                case System.Windows.Forms.FormWindowState.Minimized:
+                    IsGameActive = false;
+                    break;
+            }
         }
 
         /// <summary>
@@ -420,7 +395,7 @@ namespace OpenBN
         //    } while (!terminateGame);
         //}
 
-        
+
         /// <summary>
         /// Handles the flashing intro and SFX
         /// </summary>
@@ -428,7 +403,7 @@ namespace OpenBN
         {
             flash_opacity = 1;
             //PlaySfx(21);
-            UserNavBgWrk.RunWorkerAsync();
+            //UserNavBgWrk.RunWorkerAsync();
 
             bgUpdater.RunWorkerAsync();
             Thread.Sleep(1000); //-10% Opacity per frame
@@ -441,7 +416,7 @@ namespace OpenBN
             flsh.Dispose();
 
             // PlayBgm(1);
-            SixtyHzBgWrkr.RunWorkerAsync();
+            //SixtyHzBgWrkr.RunWorkerAsync();
             CustWindow.Show();
             Stage.showCust = true;
             Input.Halt = false;
@@ -505,13 +480,9 @@ namespace OpenBN
 
         protected override void Update(GameTime gameTime)
         {
-            SixtyHzBgWrkr_DoWork();
+            MiscUpdates();
             if (IsGameActive)
             {
-                if (!manualTick)
-                {
-                    manualTickCount = 0;
-                }
                 //Send fresh data to input handler
                 Input.Update(Keyboard.GetState(), gameTime);
                 UpdateComponents(gameTime);
@@ -573,7 +544,7 @@ namespace OpenBN
 
         protected override void Draw(GameTime gameTime)
         {
-          //  if (!IsGameActive) { return; }
+            //  if (!IsGameActive) { return; }
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
@@ -621,7 +592,7 @@ namespace OpenBN
             }
             else
             {
-                for(int x = 0; x < colorData.Count(); x++)
+                for (int x = 0; x < colorData.Count(); x++)
                 {
                     colorData[x] = Colr;
                 }
@@ -718,15 +689,15 @@ namespace OpenBN
 
 
             DebugText = String.Format(DebugText, bgpos.X, bgpos.Y,
-                Math.Round(CustWindow.EmblemRot, 2), 
+                Math.Round(CustWindow.EmblemRot, 2),
                 BG_SS.AnimationGroup.Values.First().PC.ToString().ToUpper()
                 , CustWindow.showCust.GetHashCode()
-                , Math.Round(CustWindow.CustBarProgress*100,2));
+                , Math.Round(CustWindow.CustBarProgress * 100, 2));
 
             var FontVect = Font1.MeasureString(DebugText);
             //Calculate vectors
             //  var InitTextPos = (screenresvect) * new Vector2(1,1) - (FontVect) ;
-            var InitTextPos = new Vector2(screenresvect.X - FontVect.X- 1, (screenresvect.Y / 2) - (FontVect.Y/2));
+            var InitTextPos = new Vector2(screenresvect.X - FontVect.X - 1, (screenresvect.Y / 2) - (FontVect.Y / 2));
             var TextPos = InitTextPos;
             //Draw it
             spriteBatch.DrawString(Font1, DebugText, TextPos, Color.White * 0.5f);
@@ -765,7 +736,7 @@ namespace OpenBN
 
         public void UpdateComponents(GameTime gameTime)
         {
-            foreach(BattleComponent x in this.Components)
+            foreach (BattleComponent x in this.Components)
             {
                 x.Update(gameTime);
             }
