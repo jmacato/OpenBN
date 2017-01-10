@@ -21,6 +21,8 @@ namespace OpenBN
 
         #region Declares
 
+        
+
         public Size screenres = new Size(240, 160);
         public Vector2 screenresvect = new Vector2(240, 160);
         public int screenresscalar = 2;
@@ -32,8 +34,8 @@ namespace OpenBN
         Rectangle Viewbox = new Rectangle(0, 0, 240, 160);
         Rectangle defaultrect = new Rectangle(0, 0, 240, 160);
 
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        public GraphicsDeviceManager graphics;
+        public SpriteBatch spriteBatch;
 
         Vector2 bgpos = new Vector2(0, 0);
 
@@ -51,17 +53,21 @@ namespace OpenBN
         List<IBattleEntity> RenderQueue = new List<IBattleEntity>();
         List<string> EnemyNames = new List<string>(3);
 
-        Inputs Input;
+        public Inputs Input;
         Stage Stage;
         TiledBackground myBackground;
-        UserNavi UserNavi;
+
+
+        Navi UserNavi;
+
+
         CustomWindow CustWindow;
         Texture2D flsh;
 
         RenderTarget2D target;
 
         RenderTarget2D EnemyNameCache;
-        FontHelper Fonts;
+        public FontHelper Fonts;
         Sprite BG_SS;
         Effect Desaturate;
 
@@ -130,6 +136,7 @@ namespace OpenBN
             mTimer.Start();
             base.Initialize();
         }
+
         protected override void LoadContent()
         {
             terminateGame = false;
@@ -147,12 +154,13 @@ namespace OpenBN
             Input.Halt = true;
 
             Stage = new Stage();
-            CustWindow = new CustomWindow(Fonts, ref Input);
-            UserNavi = new UserNavi("MM");
+            CustWindow = new CustomWindow(this);
+
+
+           // UserNavi = new UserNavi("MM");
 
             RenderQueue.Add(Stage);
-            RenderQueue.Add(UserNavi);
-            RenderQueue.Add(CustWindow);
+         //   RenderQueue.Add(UserNavi);
 
             for (int t = 0; t < RenderQueue.Count(); t++)
             {
@@ -166,13 +174,9 @@ namespace OpenBN
             Desaturate.Parameters["ColourAmount"].SetValue(1);
             LoadBG();
 
-
-
             //Assign bgwrkrs
             bgUpdater.DoWork += BgUpdater_DoWork;
-            UserNavBgWrk.DoWork += UserNavBgWrk_DoWork;
             flash.DoWork += Flash_DoWork;
-            SixtyHzBgWrkr.DoWork += SixtyHzBgWrkr_DoWork;
 
             foreach (Keys x in MonitoredKeys)
             {
@@ -196,6 +200,7 @@ namespace OpenBN
         {
             terminateGame = true;
             mTimer.Dispose();
+            Content.Unload();
         }
 
         private void Window_ClientSizeChanged(object sender, EventArgs e)
@@ -204,9 +209,7 @@ namespace OpenBN
             graphics.PreferredBackBufferHeight = Viewbox.Height;
             graphics.PreferredBackBufferWidth = Viewbox.Width;
             graphics.ApplyChanges();
-
         }
-
 
         private void LoadBG()
         {
@@ -224,10 +227,10 @@ namespace OpenBN
         }
 
 
-        private void SixtyHzBgWrkr_DoWork(object sender, DoWorkEventArgs e)
+        private void SixtyHzBgWrkr_DoWork()
         {
-            do
-            {
+            //do
+            //{
                 if (IsGameActive)
                 {
                     if (desat < 1)
@@ -243,8 +246,7 @@ namespace OpenBN
                     //    {
                     //        bgminst.Resume();
                     //    }
-                    CustWindow.Update();
-                    Thread.Sleep(16);
+                //    Thread.Sleep(16);
                 }
                 else
                 {
@@ -259,7 +261,7 @@ namespace OpenBN
                     //if (!mute && bgminst != null)
                     //    if (bgminst.State == SoundState.Playing && desat < 0.1) bgminst.Pause();
 
-                    Thread.Sleep(16);
+                //    Thread.Sleep(16);
                 }
 
                 // Oh XNA, why thoust focusing logic is broken.
@@ -273,175 +275,178 @@ namespace OpenBN
                         break;
                 }
 
-            } while (!terminateGame);
+            //} while (!terminateGame);
         }
 
         /// <summary>
         /// Handles User Navi's controls
         /// </summary>
-        private void UserNavBgWrk_DoWork(object sender, DoWorkEventArgs e)
-        {
+        //private void UserNavBgWrk_DoWork(object sender, DoWorkEventArgs e)
+        //{
 
-            UserNavi.btlcol = 1;
-            UserNavi.btlrow = 1;
-            UserNavi.enableRender = true;
-            UserNavi.SetAnimation("DEFAULT");
-            UserNavi.battlepos = Stage.GetStageCoords(UserNavi.btlrow, UserNavi.btlcol, UserNavi.battleposoffset);
+        //    UserNavi.btlcol = 1;
+        //    UserNavi.btlrow = 1;
+        //    UserNavi.enableRender = true;
+        //    UserNavi.SetAnimation("DEFAULT");
+        //    UserNavi.battlepos = Stage.GetStageCoords(UserNavi.btlrow, UserNavi.btlcol, UserNavi.battleposoffset);
 
-            int BusterState = 0;
+        //    int BusterState = 0;
 
-            int tmpcol = UserNavi.btlcol;
-            int tmprow = UserNavi.btlrow;
+        //    int tmpcol = UserNavi.btlcol;
+        //    int tmprow = UserNavi.btlrow;
 
-            do
-            {
-                if (IsGameActive && !CustWindow.showCust)
-                {
-                    if (Input != null && UserNavi.finish)
-                    {
-                        #region Buster & Charge Shot
-                        var ks_x = Input.KbStream[Keys.X];
-                        switch (ks_x.KeyState)
-                        {
-                            case KeyState.Down:
-                                if (ks_x.DurDelta < 800)
-                                {
-                                    if (BusterState == 1) break;
-                                    Debug.Print("chrg_Anim_start");
-                                    //    PlaySfx(14);
-                                    BusterState = 1;
-                                }
-                                else if (ks_x.DurDelta > 1500)
-                                {
-                                    if (BusterState == 2) break;
-                                    Debug.Print("chrg_Anim_start2");
-                                    //    PlaySfx(15);
-                                    BusterState = 2;
-                                }
-                                KeyLatch[Keys.X] = true;
-                                break;
-                            case KeyState.Up:
-                                if (KeyLatch[Keys.X] == true)
-                                {
-                                    KeyLatch[Keys.X] = false;
-                                    if (ks_x.DurDelta < 1500)
-                                    {
-                                        Debug.Print("BstrSht");
-                                        UserNavi.SetAnimation("BUSTER");
-                                        //       PlaySfx(7);
-                                        BusterState = 0;
-                                        break;
-                                    }
-                                    else if (Input.KbStream[Keys.X].DurDelta > 1500)
-                                    {
-                                        Debug.Print("ChgSht");
-                                        UserNavi.SetAnimation("BUSTER");
-                                        //      debugTXT += "\r\n" + Input.KbStream[Keys.X].DurDelta.ToString();
-                                        //      PlaySfx(76);
-                                        BusterState = 0;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        if (BusterState > 0)
-                                        {
-                                            BusterState = 0;
-                                            KeyLatch[Keys.X] = false;
-                                        }
-                                    }
-                                }
-                                break;
-                        }
-                        #endregion
-                        #region Stage Movement
-                        foreach (Keys ky_ar in ArrowKeys)
-                        {
-                            // if (!UserNavi.finish) break;
-                            var arrw_ks = Input.KbStream[ky_ar].KeyState;
-                            var arrw_dt = Input.KbStream[ky_ar].DurDelta;
-                            int tmp1 = 0;
-                            int tmp2 = 0;
-                            switch (arrw_ks)
-                            {
-                                case KeyState.Up:
-                                    if (KeyLatch[ky_ar] == true && UserNavi.finish)
-                                    {
-                                        tmp1 = tmpcol;
-                                        tmp2 = tmprow;
+        //    do
+        //    {
+        //        if (IsGameActive && !CustWindow.showCust)
+        //        {
+        //            if (Input != null && UserNavi.finish)
+        //            {
+        //                #region Buster & Charge Shot
+        //                var ks_x = Input.KbStream[Keys.X];
+        //                switch (ks_x.KeyState)
+        //                {
+        //                    case KeyState.Down:
+        //                        if (ks_x.DurDelta < 800)
+        //                        {
+        //                            if (BusterState == 1) break;
+        //                            Debug.Print("chrg_Anim_start");
+        //                            //    PlaySfx(14);
+        //                            BusterState = 1;
+        //                        }
+        //                        else if (ks_x.DurDelta > 1500)
+        //                        {
+        //                            if (BusterState == 2) break;
+        //                            Debug.Print("chrg_Anim_start2");
+        //                            //    PlaySfx(15);
+        //                            BusterState = 2;
+        //                        }
+        //                        KeyLatch[Keys.X] = true;
+        //                        break;
+        //                    case KeyState.Up:
+        //                        if (KeyLatch[Keys.X] == true)
+        //                        {
+        //                            KeyLatch[Keys.X] = false;
+        //                            if (ks_x.DurDelta < 1500)
+        //                            {
+        //                                Debug.Print("BstrSht");
+        //                                UserNavi.SetAnimation("BUSTER");
+        //                                //       PlaySfx(7);
+        //                                BusterState = 0;
+        //                                break;
+        //                            }
+        //                            else if (Input.KbStream[Keys.X].DurDelta > 1500)
+        //                            {
+        //                                Debug.Print("ChgSht");
+        //                                UserNavi.SetAnimation("BUSTER");
+        //                                //      debugTXT += "\r\n" + Input.KbStream[Keys.X].DurDelta.ToString();
+        //                                //      PlaySfx(76);
+        //                                BusterState = 0;
+        //                                break;
+        //                            }
+        //                            else
+        //                            {
+        //                                if (BusterState > 0)
+        //                                {
+        //                                    BusterState = 0;
+        //                                    KeyLatch[Keys.X] = false;
+        //                                }
+        //                            }
+        //                        }
+        //                        break;
+        //                }
+        //                #endregion
+        //                #region Stage Movement
+        //                foreach (Keys ky_ar in ArrowKeys)
+        //                {
+        //                    // if (!UserNavi.finish) break;
+        //                    var arrw_ks = Input.KbStream[ky_ar].KeyState;
+        //                    var arrw_dt = Input.KbStream[ky_ar].DurDelta;
+        //                    int tmp1 = 0;
+        //                    int tmp2 = 0;
+        //                    switch (arrw_ks)
+        //                    {
+        //                        case KeyState.Up:
+        //                            if (KeyLatch[ky_ar] == true && UserNavi.finish)
+        //                            {
+        //                                tmp1 = tmpcol;
+        //                                tmp2 = tmprow;
 
-                                        switch (ky_ar)
-                                        {
-                                            case Keys.Left:
-                                                tmp1--;
-                                                break;
-                                            case Keys.Right:
-                                                tmp1++;
-                                                break;
-                                            case Keys.Up:
-                                                tmp2--;
-                                                break;
-                                            case Keys.Down:
-                                                tmp2++;
-                                                break;
-                                        }
-                                        if (Stage.IsMoveAllowed(tmp2, tmp1))
-                                        {
-                                            switch (ky_ar)
-                                            {
-                                                case Keys.Left:
-                                                    tmpcol--;
-                                                    break;
-                                                case Keys.Right:
-                                                    tmpcol++;
-                                                    break;
-                                                case Keys.Up:
-                                                    tmprow--;
-                                                    break;
-                                                case Keys.Down:
-                                                    tmprow++;
-                                                    break;
-                                            }
-                                            UserNavi.SetAnimation("TELEPORT0");
-                                            KeyLatch[ky_ar] = false;
-                                            break;
-                                        }
-                                        KeyLatch[ky_ar] = false;
-                                    }
+        //                                switch (ky_ar)
+        //                                {
+        //                                    case Keys.Left:
+        //                                        tmp1--;
+        //                                        break;
+        //                                    case Keys.Right:
+        //                                        tmp1++;
+        //                                        break;
+        //                                    case Keys.Up:
+        //                                        tmp2--;
+        //                                        break;
+        //                                    case Keys.Down:
+        //                                        tmp2++;
+        //                                        break;
+        //                                }
+        //                                if (Stage.IsMoveAllowed(tmp2, tmp1))
+        //                                {
+        //                                    switch (ky_ar)
+        //                                    {
+        //                                        case Keys.Left:
+        //                                            tmpcol--;
+        //                                            break;
+        //                                        case Keys.Right:
+        //                                            tmpcol++;
+        //                                            break;
+        //                                        case Keys.Up:
+        //                                            tmprow--;
+        //                                            break;
+        //                                        case Keys.Down:
+        //                                            tmprow++;
+        //                                            break;
+        //                                    }
+        //                                    UserNavi.SetAnimation("TELEPORT0");
+        //                                    KeyLatch[ky_ar] = false;
+        //                                    break;
+        //                                }
+        //                                KeyLatch[ky_ar] = false;
+        //                            }
 
-                                    break;
-                                case KeyState.Down:
-                                    if (KeyLatch[ky_ar] == false)
-                                    {
-                                        KeyLatch[ky_ar] = true;
-                                    }
-                                    break;
-                            }
-                        }
-                        #endregion
-                    }
+        //                            break;
+        //                        case KeyState.Down:
+        //                            if (KeyLatch[ky_ar] == false)
+        //                            {
+        //                                KeyLatch[ky_ar] = true;
+        //                            }
+        //                            break;
+        //                    }
+        //                }
+        //                #endregion
+        //            }
 
-                    if (UserNavi.CurAnimation == "TELEPORT0" && UserNavi.finish)
-                    {
-                        UserNavi.btlcol = tmpcol;
-                        UserNavi.btlrow = tmprow;
-                        UserNavi.battlepos = Stage.GetStageCoords(tmprow, tmpcol, UserNavi.battleposoffset);
-                        UserNavi.SetAnimation("TELEPORT");
-                    }
-                    else if (UserNavi.CurAnimation != "DEFAULT" && UserNavi.finish)
-                    {
-                        UserNavi.SetAnimation("DEFAULT");
-                    }
+        //            if (UserNavi.CurAnimation == "TELEPORT0" && UserNavi.finish)
+        //            {
+        //                UserNavi.btlcol = tmpcol;
+        //                UserNavi.btlrow = tmprow;
+        //                UserNavi.battlepos = Stage.GetStageCoords(tmprow, tmpcol, UserNavi.battleposoffset);
+        //                UserNavi.SetAnimation("TELEPORT");
+        //            }
+        //            else if (UserNavi.CurAnimation != "DEFAULT" && UserNavi.finish)
+        //            {
+        //                UserNavi.SetAnimation("DEFAULT");
+        //            }
 
-                    Thread.Sleep(10);
+        //            Thread.Sleep(10);
 
-                    if (UserNavi != null) UserNavi.Next();
-                }
-                else
-                {
-                    Thread.Sleep(InactiveWaitMs);
-                }
-            } while (!terminateGame);
-        }
+        //            if (UserNavi != null) UserNavi.Next();
+        //        }
+        //        else
+        //        {
+        //            Thread.Sleep(InactiveWaitMs);
+        //        }
+        //    } while (!terminateGame);
+        //}
+
+        
+
 
         /// <summary>
         /// Handles the flashing intro and SFX
@@ -525,6 +530,7 @@ namespace OpenBN
             } while (!terminateGame);
         }
 
+        internal GameTime gameTime;
 
         protected override void Update(GameTime gameTime)
         {
@@ -536,14 +542,14 @@ namespace OpenBN
                 }
                 //Send fresh data to input handler
                 Input.Update(Keyboard.GetState(), gameTime);
-                UserNavi.battlepos = Stage.GetStageCoords(UserNavi.btlrow, UserNavi.btlcol, UserNavi.battleposoffset);
-                CustWindow.gameTime = gameTime;
+              //  UserNavi.battlepos = Stage.GetStageCoords(UserNavi.btlrow, UserNavi.btlcol, UserNavi.battleposoffset);
+                this.gameTime = gameTime;
+                CustWindow.Update(gameTime);
+
                 UpdateRenderables();
                 HandleInputs();
+                SixtyHzBgWrkr_DoWork();
             }
-            else { Thread.Sleep(InactiveWaitMs); }
-
-
             //float hz = (1f / (gameTime.ElapsedGameTime.Milliseconds))*1000;
             //hz = Clamp(hz, 0, 1200);
             //var y = Math.Floor(hz);
@@ -592,8 +598,12 @@ namespace OpenBN
                 case KeyState.Up:
                     if (KeyLatch[Keys.M] == true)
                     {
+
+
                         CustWindow.RotateEmblem();
                         LoadBG();
+
+
                         KeyLatch[Keys.M] = false;
                     }
                     break;
@@ -604,7 +614,7 @@ namespace OpenBN
         {
             foreach (IBattleEntity Renderable in RenderQueue)
             {
-                if (Renderable == CustWindow) continue;
+             //   if (Renderable == CustWindow) continue;
                 Renderable.Update();
             }
         }
@@ -622,6 +632,8 @@ namespace OpenBN
 
             if (RenderQueue.Count > 0) { foreach (IBattleEntity s in RenderQueue) { s.Draw(); } }
 
+
+            CustWindow.Draw();
             DrawEnemyNames();
             DrawDebugText();
 

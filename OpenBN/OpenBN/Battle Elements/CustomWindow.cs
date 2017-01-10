@@ -15,52 +15,31 @@ using System.Threading;
 
 namespace OpenBN
 {
-
-
-    public class CustomWindow : IBattleEntity
+    public class CustomWindow : Interfaces.BattleComponent
     {
+
+        #region Declares
+
         const int OVERFLOW_MODULO = 1024;
 
-        public string ID { get; set; }
-        public SpriteBatch SB { get; set; }
-        public ContentManager Content { get; set; }
-        public GraphicsDevice Graphics { get; set; }
-        public Inputs Input { get; set; }
-
-
-        public int CurrentHP { get; private set; }
-        public int LastHP { get; private set; }
-        public int MaxHP { get; set; }
+        public int
+            HPState,
+            CurrentHP,
+            LastHP,
+            MaxHP,
+            SlotColumn,
+            SlotRow,
+            waitframe_l,
+            waitframe_r,
+            waitframe_u,
+            waitframe_d;
 
         public string ChipCodeStr { get; set; }
 
-        public int HPState { get; set; }
-
-        Dictionary<string, Rectangle> CustTextures = new Dictionary<string, Rectangle>();
-        SpriteFont HPFontNorm, HPFontCrit, HPFontRecv, hpfnt, ChipCodesA, ChipCodesB, ChipDmg;//, ChipIcon;
-
-        FontHelper Fonts;
-        public bool showCust { get; private set; }
-        public bool Initialized { get; set; }
-
-        Vector2 custPos = new Vector2(-120, 0);
-        Sprite CWSS;
-
-        Texture2D Emblem;
-        public double EmblemRot, EmblemScalar = 1;
-        Vector2 EmblemOrigin, EmblemPos;
-        bool IsEmblemRotating = false;
-
-        Rectangle CustomWindowTexture, HPBarTexture;
-
-        bool DrawEnabled = false;
-        Random Rnd = new Random();
-
-        int SlotColumn = 1, SlotRow = 1;
-        int waitframe_l = 0, waitframe_r = 0, waitframe_u = 0, waitframe_d = 0;
-
-        IBattleChip SelectedChip { get; set; }
-        Rectangle CurrentFocusRect { get; set; }
+        IBattleChip SelectedChip;
+        IBattleChip[,] Slots;
+        CustomBarState CBState;
+        CustomBarModifiers CBModifier;
 
         /// <summary>
         /// Determine the type of focusable object in the Custom Window
@@ -70,7 +49,8 @@ namespace OpenBN
         /// 2 - OK Button
         /// 
         /// </summary>
-        int[,] SlotType = {{1,1,1,1,1,2},{1,1,1,0,0,0}};
+
+        int[,] SlotType;
 
         /// <summary>
         /// Stores the Current Status of each slots
@@ -80,18 +60,50 @@ namespace OpenBN
         /// 2 - BC's Selected 
         /// 
         /// </summary>
-        int[,] SlotStatus = new int[2, 6];
+        int[,] SlotStatus;
 
-        IBattleChip[,] Slots = new IBattleChip[2, 6];
+        TimeSpan CBTime;
+        Dictionary<string, Rectangle> CustTextures;
 
+        Sprite CustomWin, CustomBar;
+
+        SpriteFont
+            hpfnt,
+            HPFontNorm,
+            HPFontCrit,
+            HPFontRecv,
+            ChipCodesA,
+            ChipCodesB,
+            ChipDmg;
+
+        FontHelper Fonts;
+
+        public bool showCust,
+            IsEmblemRotating;
+
+        public double EmblemRot,
+            EmblemScalar,
+            CustBarProgress;
+
+        Vector2 custPos, EmblemOrigin,
+            EmblemPos;
+
+        Rectangle CWSrcRect,
+            HPBarSrcRect,
+            CurrentFocusRect,
+            CustBarRect;
+
+        Texture2D Emblem;
+
+        #endregion
 
         public void Initialize()
         {
-            CWSS = new Sprite("Misc/Custwindow-SS.sasl", "Misc/Custwindow", Graphics, Content);
+            CustomWin = new Sprite("Misc/Custwindow-SS.sasl", "Misc/Custwindow", Graphics, Content);
             CustomBar = new Sprite("Misc/CustBar.sasl", "Misc/CustBar", Graphics, Content);
 
-            CustomWindowTexture = CWSS.AnimationGroup["CUST"].Frames["CUSTWIN"];
-            HPBarTexture = CWSS.AnimationGroup["CUST"].Frames["HPBAR"];
+            CWSrcRect = CustomWin.AnimationGroup["CUST"].Frames["CUSTWIN"];
+            HPBarSrcRect = CustomWin.AnimationGroup["CUST"].Frames["HPBAR"];
 
             SetFocus("CHIPSLOT_1_1");
 
@@ -115,7 +127,6 @@ namespace OpenBN
              (float)Math.Ceiling((float)Emblem.Height)) / 2;
             EmblemPos = new Vector2(103, 11);
             EmblemRot = 0;
-            Initialized = true;
 
             var y = new ChipIconProvider(Content, Graphics);
 
@@ -145,36 +156,49 @@ namespace OpenBN
 
 
             DisplayBattleChip(Slots[0, 0]);
-
+            Initialized = true;
         }
 
-
-        public CustomWindow(FontHelper Font, ref Inputs input)
+        public CustomWindow(Game parent) : base(parent)
         {
-            Fonts = Font;
+            Fonts = ((BattleField)parent).Fonts;
             MaxHP = 9999;
             CurrentHP = MaxHP;
             LastHP = CurrentHP;
             showCust = false;
-            DrawEnabled = true;
-            this.Input = input;
-        }
 
-        public void Show()
-        {
-          //  do { Thread.Sleep(10)}
-            showCust = true;
-            ChipCodeStr = "";
-        }
+            EmblemRot = MathHelper.TwoPi;
+            EmblemScalar = 1;
+            CustBarProgress = 0.0f;
 
-        public void Hide()
-        {
+            SlotColumn = 1;
+            SlotRow = 1;
+            waitframe_l = 0;
+            waitframe_r = 0;
+            waitframe_u = 0;
+            waitframe_d = 0;
+
             showCust = false;
-            ResetCustBar();
+            IsEmblemRotating = false;
+
+            CustBarRect = new Rectangle(48, 0, 144, 16);
+            custPos = new Vector2(-120, 0);
+            CustTextures = new Dictionary<string, Rectangle>();
+
+            CBState = CustomBarState.Full;
+            CBModifier = CustomBarModifiers.Normal;
+
+            SlotType = new int[,] { { 1, 1, 1, 1, 1, 2 }, { 1, 1, 1, 0, 0, 0 } };
+            SlotStatus = new int[2, 6];
+            Slots = new IBattleChip[2, 6];
+
+            this.Initialize();
         }
 
-        public void Update() //Called only every frame (i guess)
+        public override void Update(GameTime gameTime) 
         {
+            base.Update(gameTime);
+            //  base.Update(gameTime);
             //Custom Window transition update logic
             UpdateTransition();
             //HP Bar update logic
@@ -189,9 +213,12 @@ namespace OpenBN
                 //Keyboard Handling logic
                 HandleInputs();
             }
+
             //Advance frames
-            CWSS.AdvanceAllGroups();
+            CustomWin.AdvanceAllGroups();
         }
+
+        #region Update Subroutines
 
         private void UpdateChipSlotCodes()
         {
@@ -379,12 +406,12 @@ namespace OpenBN
             }
         }
 
-        public void Draw()
+        #endregion
+
+        public override void Draw()
         {
-            if (!Initialized) return;
-            if (CWSS != null && DrawEnabled)
-            {
-                if (custPos.X != -120)
+            base.Draw();
+            if (custPos.X != -120)
                 {
                     DrawCustWindow();
                     DrawChipSlots();
@@ -394,11 +421,12 @@ namespace OpenBN
                 }
                 DrawHPBar();
                 if (custPos.X == -120)
-                DrawCustBar();
-            }
+                    DrawCustBar();
         }
 
-        public void DrawFocusRects()
+        #region Draw Subroutines
+
+        private void DrawFocusRects()
         {
 
             var x = custPos.X + CurrentFocusRect.X;
@@ -406,10 +434,10 @@ namespace OpenBN
             var w = CurrentFocusRect.Width;
             var h = CurrentFocusRect.Height;
 
-            Rectangle TextTL = CWSS.AnimationGroup["CURSOR0_TL"].CurrentFrame;
-            Rectangle TextTR = CWSS.AnimationGroup["CURSOR0_TR"].CurrentFrame;
-            Rectangle TextBL = CWSS.AnimationGroup["CURSOR0_BL"].CurrentFrame;
-            Rectangle TextBR = CWSS.AnimationGroup["CURSOR0_BR"].CurrentFrame;
+            Rectangle TextTL = CustomWin.AnimationGroup["CURSOR0_TL"].CurrentFrame;
+            Rectangle TextTR = CustomWin.AnimationGroup["CURSOR0_TR"].CurrentFrame;
+            Rectangle TextBL = CustomWin.AnimationGroup["CURSOR0_BL"].CurrentFrame;
+            Rectangle TextBR = CustomWin.AnimationGroup["CURSOR0_BR"].CurrentFrame;
 
             var of = 4;
 
@@ -418,49 +446,49 @@ namespace OpenBN
             Vector2 BL = new Vector2((x + w) - 8, y + h - 8) - new Vector2(-of, -of);
             Vector2 BR = new Vector2(x, (y + h) - 8) - new Vector2(of, -of);
 
-            SB.Draw(CWSS.texture, TL, TextTL, Color.White);
-            SB.Draw(CWSS.texture, TR, TextTR, Color.White);
-            SB.Draw(CWSS.texture, BL, TextBL, Color.White);
-            SB.Draw(CWSS.texture, BR, TextBR, Color.White);
+            spriteBatch.Draw(CustomWin.texture, TL, TextTL, Color.White);
+            spriteBatch.Draw(CustomWin.texture, TR, TextTR, Color.White);
+            spriteBatch.Draw(CustomWin.texture, BL, TextBL, Color.White);
+            spriteBatch.Draw(CustomWin.texture, BR, TextBR, Color.White);
 
         }
 
-        public void DrawCustWindow()
+        private void DrawCustWindow()
         {
-            var y = new Rectangle((int)custPos.X, 0, CustomWindowTexture.Width, CustomWindowTexture.Height);
-            SB.Draw(CWSS.texture, y, CustomWindowTexture, Color.White);
+            var y = new Rectangle((int)custPos.X, 0, CWSrcRect.Width, CWSrcRect.Height);
+            spriteBatch.Draw(CustomWin.texture, y, CWSrcRect, Color.White);
         }
 
-        public void DrawHPBar()
+        private void DrawHPBar()
         {
-            var hprct = new Rectangle((int)custPos.X + 122, 0, HPBarTexture.Width, HPBarTexture.Height);
-            SB.Draw(CWSS.texture, hprct, HPBarTexture, Color.White);
+            var hprct = new Rectangle((int)custPos.X + 122, 0, HPBarSrcRect.Width, HPBarSrcRect.Height);
+            spriteBatch.Draw(CustomWin.texture, hprct, HPBarSrcRect, Color.White);
             int hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
             Vector2 hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
-            SB.DrawString(hpfnt,
-            CurrentHP.ToString(),
-            hptxtrct,
-            Color.White);
+            spriteBatch.DrawString(hpfnt,
+             CurrentHP.ToString(),
+             hptxtrct,
+             Color.White);
 
         }
 
-        public void DrawEmblem()
+        private void DrawEmblem()
         {
 
-            SB.Draw(Emblem, new Rectangle(
-            (int)(custPos.X + EmblemPos.X), (int)EmblemPos.Y,
-            (int)Math.Ceiling(Emblem.Width * EmblemScalar),
-            (int)Math.Ceiling(Emblem.Height * EmblemScalar)
-            ),
-            null,
-            Color.White,
-            (float)EmblemRot,
-            EmblemOrigin,
-            SpriteEffects.None,
-            0);
+            spriteBatch.Draw(Emblem, new Rectangle(
+             (int)(custPos.X + EmblemPos.X), (int)EmblemPos.Y,
+             (int)Math.Ceiling(Emblem.Width * EmblemScalar),
+             (int)Math.Ceiling(Emblem.Height * EmblemScalar)
+             ),
+             null,
+             Color.White,
+             (float)EmblemRot,
+             EmblemOrigin,
+             SpriteEffects.None,
+             0);
         }
 
-        public void DrawChipSlots()
+        private void DrawChipSlots()
         {
             for (int si = 0; si < Slots.GetLength(0); si++)
                 for (int sj = 0; sj < Slots.GetLength(1); sj++)
@@ -470,21 +498,21 @@ namespace OpenBN
                         if (Slots[si, sj].Element != ChipElements.NONE)
                         {
                             var rect = String.Format("CHIPSLOT_{0}_{1}", si + 1, sj + 1);
-                            var destrect = RectFromString(CWSS.Metadata[rect]);
+                            var destrect = RectFromString(CustomWin.Metadata[rect]);
                             destrect = new Rectangle((int)custPos.X + destrect.X, destrect.Y, 14, 14);
-                            SB.Draw(Slots[si, sj].Icon, destrect, Color.White);
+                            spriteBatch.Draw(Slots[si, sj].Icon, destrect, Color.White);
 
                             string code = Slots[si, sj].Code.ToString();
                             var startpoint = new Vector2(custPos.X + destrect.X - 1, destrect.Y + destrect.Height);
                             var Measure = ChipCodesB.MeasureString(code);
-                            SB.DrawString(ChipCodesB, code, startpoint, Color.White);
+                            spriteBatch.DrawString(ChipCodesB, code, startpoint, Color.White);
 
                         }
                     }
                 }
         }
 
-        public void DrawBattleChip()
+        private void DrawBattleChip()
         {
             if (SelectedChip != null)
             {
@@ -495,11 +523,11 @@ namespace OpenBN
                 Rectangle ChipElem;
                 if (SelectedChip.Element != ChipElements.NONE)
                 {
-                    ChipElem = CWSS.AnimationGroup["CUST"].Frames["TYPE_" + SelectedChip.Element.ToString()];
+                    ChipElem = CustomWin.AnimationGroup["CUST"].Frames["TYPE_" + SelectedChip.Element.ToString()];
                 }
                 else
                 {
-                    ChipElem = CWSS.AnimationGroup["CUST"].Frames["TYPE_NULL"]; 
+                    ChipElem = CustomWin.AnimationGroup["CUST"].Frames["TYPE_NULL"];
                 }
 
                 string Dmg_Disp = "";
@@ -519,79 +547,35 @@ namespace OpenBN
                 var Dmg_MS = 71 - ChipDmg.MeasureString(Dmg_Disp).X;
                 var dmg_vect = new Vector2((int)custPos.X + Dmg_MS, 75);
 
-                SB.Draw(SelectedChip.Image, img_vect, Color.White);
+                spriteBatch.Draw(SelectedChip.Image, img_vect, Color.White);
 
                 if (SelectedChip.Element != ChipElements.NONE)
                 {
-                    SB.Draw(CWSS.texture, elem_vect, ChipElem, Color.White);
-                    SB.DrawString(ChipCodesA, SelectedChip.Code.ToString(), code_vect, Color.White);
-                    SB.DrawString(ChipDmg, Dmg_Disp, dmg_vect, Color.White);
-                    SB.DrawString(Fonts.List["Normal"], SelectedChip.DisplayName, name_vect, Color.White);
+                    spriteBatch.Draw(CustomWin.texture, elem_vect, ChipElem, Color.White);
+                    spriteBatch.DrawString(ChipCodesA, SelectedChip.Code.ToString(), code_vect, Color.White);
+                    spriteBatch.DrawString(ChipDmg, Dmg_Disp, dmg_vect, Color.White);
+                    spriteBatch.DrawString(Fonts.List["Normal"], SelectedChip.DisplayName, name_vect, Color.White);
                 }
 
             }
         }
 
-        public void RotateEmblem()
+        internal void RotateEmblem()
         {
             if (IsEmblemRotating) EmblemRot = 0;
             IsEmblemRotating = true;
         }
 
-        public void DisplayBattleChip(IBattleChip BattleChip)
+        private void DisplayBattleChip(IBattleChip BattleChip)
         {
             SelectedChip = BattleChip;
         }
-
-        public void SetHP(int TargetHP)
-        {
-            LastHP = (int)MyMath.Clamp(LastHP + TargetHP, 0, MaxHP);
-        }
-
-        public void SetFocus(string rectname)
-        {
-            CurrentFocusRect = RectFromString(CWSS.Metadata[rectname]);
-        }
-
-        Texture2D BattleMessageTexture;
-
-        void ShowBattleMessage(string message)
-        {
-
-        }
-
-        void UpdateBtlMsg()
-        {
-
-        }
-
-        void DrawBtlMsg()
-        {
-
-        }
-
-        enum CustomBarState
-        {
-            Full, Loading, Paused
-        }
-
-        enum CustomBarModifiers
-        {
-            Normal, Slow, Fast
-        }
-
-        Sprite CustomBar;
-
-        TimeSpan CBTime;
-        CustomBarState CBState = CustomBarState.Full; CustomBarModifiers CBModifier = CustomBarModifiers.Normal;
 
         void ResetCustBar()
         {
             CBTime = TimeSpan.FromMilliseconds(0);
             CBState = CustomBarState.Loading;
         }
-        
-
 
         void UpdateCustBar()
         {
@@ -605,7 +589,7 @@ namespace OpenBN
                     CBTime += TimeSpan.FromMilliseconds(gameTime.ElapsedGameTime.TotalMilliseconds / 2);
                     break;
                 case CustomBarModifiers.Fast:
-                    CBTime += TimeSpan.FromMilliseconds(gameTime.ElapsedGameTime.TotalMilliseconds *2);
+                    CBTime += TimeSpan.FromMilliseconds(gameTime.ElapsedGameTime.TotalMilliseconds * 2);
                     break;
                 default:
                     break;
@@ -627,25 +611,59 @@ namespace OpenBN
 
 
         }
-        Rectangle CustBarRect = new Rectangle(48, 0, 144, 16);
-        public double CustBarProgress = 0.0f;
-        internal GameTime gameTime;
 
         void DrawCustBar()
         {
             //    if (CBState == CustomBarState.Full)
-            SB.Draw(CustomBar.texture,CustBarRect,CustomBar.AnimationGroup["CUSTOMFULL"].CurrentFrame, Color.White);
+            spriteBatch.Draw(CustomBar.texture, CustBarRect, CustomBar.AnimationGroup["CUSTOMFULL"].CurrentFrame, Color.White);
             var Prog = (int)Math.Floor(128 * CustBarProgress);
             switch (CBState)
             {
                 case CustomBarState.Full:
-                        break;
+                    break;
                 case CustomBarState.Loading:
-                    SB.Draw(CustomBar.texture, new Rectangle(56, 7, 128, 8), CustomBar.AnimationGroup["CUSTOMBAREMPTY"].CurrentFrame,  Color.White);
-                    SB.Draw(CustomBar.texture, new Rectangle(56, 7, Prog, 8), CustomBar.AnimationGroup["CUSTOMBARFILL"].CurrentFrame, Color.White);
+                    spriteBatch.Draw(CustomBar.texture, new Rectangle(56, 7, 128, 8), CustomBar.AnimationGroup["CUSTOMBAREMPTY"].CurrentFrame, Color.White);
+                    spriteBatch.Draw(CustomBar.texture, new Rectangle(56, 7, Prog, 8), CustomBar.AnimationGroup["CUSTOMBARFILL"].CurrentFrame, Color.White);
                     break;
 
             }
+        }
+
+        #endregion
+
+        #region Setters
+        public void Show()
+        {
+            //  do { Thread.Sleep(10)}
+            showCust = true;
+            ChipCodeStr = "";
+        }
+        public void Hide()
+        {
+            showCust = false;
+            ResetCustBar();
+        }
+        public void SetHP(int TargetHP)
+        {
+            LastHP = (int)MyMath.Clamp(LastHP + TargetHP, 0, MaxHP);
+        }
+        public void SetFocus(string rectname)
+        {
+            CurrentFocusRect = RectFromString(CustomWin.Metadata[rectname]);
+        }
+        #endregion
+
+        void ShowBattleMessage(string message)
+        {
+
+        }
+        void UpdateBtlMsg()
+        {
+
+        }
+        void DrawBtlMsg()
+        {
+
         }
 
     }

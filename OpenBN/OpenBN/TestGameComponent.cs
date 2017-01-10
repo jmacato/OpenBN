@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -14,14 +15,38 @@ namespace OpenBN
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class GameComponent1 : Microsoft.Xna.Framework.GameComponent
+    public class TestGameComponent : GameComponent, IDrawable
     {
-        public GameComponent1(Game game)
+        public TestGameComponent(Game game)
             : base(game)
         {
-            // TODO: Construct any child components here
+
         }
 
+        public int DrawOrder
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public bool Visible
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public event EventHandler<EventArgs> DrawOrderChanged;
+        public event EventHandler<EventArgs> VisibleChanged;
+
+        public void Draw(GameTime gameTime)
+        {
+            throw new NotImplementedException();
+        }
+        
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
         /// to run.  This is where it can query for any required services and load content.

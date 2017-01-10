@@ -80,11 +80,11 @@
   <ItemGroup>
     <Compile Include="Battle Elements\CustomWindow.cs" />
     <Compile Include="Battle Elements\SoundHelper.cs" />
-    <Compile Include="GameComponent1.cs" />
     <Compile Include="Helpers\ColorHelper.cs" />
     <Compile Include="Helpers\FontHelper.cs" />
     <Compile Include="Helpers\Math.cs" />
     <Compile Include="Helpers\Misc.cs" />
+    <Compile Include="Interfaces\BattleComponent.cs" />
     <Compile Include="Interfaces\IBattleChip.cs" />
     <Compile Include="Interfaces\IBattleEntities.cs" />
     <Compile Include="Helpers\InputHelper.cs" />
@@ -96,6 +96,7 @@
     <Compile Include="Structs.cs" />
     <Compile Include="Battle Elements\TiledBG.cs" />
     <Compile Include="Battle Elements\UserNavi.cs" />
+    <Compile Include="TestGameComponent.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

@@ -22,7 +22,17 @@
             this.X = X;
             this.Y = Y;
         }
-
     }
+
+    public enum CustomBarState
+    {
+        Full, Loading, Paused
+    }
+
+    public enum CustomBarModifiers
+    {
+        Normal, Slow, Fast
+    }
+
 
 }
