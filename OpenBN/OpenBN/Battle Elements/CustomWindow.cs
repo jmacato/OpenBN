@@ -161,7 +161,7 @@ namespace OpenBN
 
         public CustomWindow(Game parent) : base(parent)
         {
-            Fonts = ((BattleField)parent).Fonts;
+            Fonts = ((Battle)parent).Fonts;
             MaxHP = 9999;
             CurrentHP = MaxHP;
             LastHP = CurrentHP;

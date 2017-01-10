@@ -15,7 +15,7 @@ using System.Reflection;
 
 namespace OpenBN
 {
-    public class BattleField : Game, IParentComponent
+    public class Battle : Game, IParentComponent
     {
 
         #region Declares        
@@ -53,7 +53,7 @@ namespace OpenBN
 
         public new List<BattleComponent> Components { get; set; }
 
-        public BattleField()
+        public Battle()
         {
 
             IsFixedTimeStep = false;

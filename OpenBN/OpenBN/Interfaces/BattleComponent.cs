@@ -24,13 +24,13 @@ namespace OpenBN
 
         public BattleComponent(Game parent)
         {
-            this.spriteBatch = ((BattleField)parent).spriteBatch;
-            this.Content = ((BattleField)parent).Content;
-            this.Graphics = ((BattleField)parent).GraphicsDevice;
-            this.Input = ((BattleField)parent).Input;
+            this.spriteBatch = ((Battle)parent).spriteBatch;
+            this.Content = ((Battle)parent).Content;
+            this.Graphics = ((Battle)parent).GraphicsDevice;
+            this.Input = ((Battle)parent).Input;
 
-            if (((BattleField)parent).Components == null) ((BattleField)parent).Components = new List<BattleComponent>();
-            ((BattleField)parent).Components.Add(this);
+            if (((Battle)parent).Components == null) ((Battle)parent).Components = new List<BattleComponent>();
+            ((Battle)parent).Components.Add(this);
         }
 
         public virtual void Update(GameTime gameTime)
