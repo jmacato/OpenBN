@@ -36,10 +36,11 @@ namespace OpenBN
 
         delegate void RunGameTicks();
 
+        GameTime myGameTime;
 
         public Battle()
         {
-            IsFixedTimeStep = false;
+            //        IsFixedTimeStep = false;
 
             // Necessary enchantments to ward off the updater and focusing bugs
             // UUU LAA UUU LAA *summons cybeasts instead*
@@ -72,7 +73,7 @@ namespace OpenBN
             Window.ClientSizeChanged += Window_ClientSizeChanged;
         }
 
-           // public bool IsActive { get; private set; }
+        // public bool IsActive { get; private set; }
         public bool BGChanged { get; private set; }
         public new List<BattleComponent> Components { get; set; }
         public bool Initialized { get; private set; }
@@ -148,9 +149,9 @@ namespace OpenBN
             flash.RunWorkerAsync();
             UpdateViewbox();
             Initialized = true;
-
+            //IsFixedTimeStep = false;
             graphics.SynchronizeWithVerticalRetrace = false;
-
+           // this.TargetElapsedTime = TimeSpan.FromMilliseconds(1000 / 120);
             base.LoadContent();
         }
 
@@ -164,15 +165,15 @@ namespace OpenBN
             Debug.Print("GraphicsDevice_DeviceReset");
             //if (MainTimer.IsBusy)
             //{
-                graphics = new GraphicsDeviceManager(this);
-             ResetRenderTarget();
+          //  graphics = new GraphicsDeviceManager(this);
+          //  ResetRenderTarget();
             // //   this.IsFixedTimeStep = false;
-            
-            graphics.SynchronizeWithVerticalRetrace = false;
+
+            // graphics.SynchronizeWithVerticalRetrace = false;
 
             //}
         }
-        Stopwatch sw;
+        Stopwatch maintime = new Stopwatch();
 
         private void MainTimer_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -180,16 +181,22 @@ namespace OpenBN
             handler = RunTick;
             do
             {
+                maintime.Start();
                 try
                 {
-                    if (curdrawin == false)
+                   // if (curdrawin == false)
                         handler();
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     throw ex;
                 }
- 
-                Thread.Sleep(16);
+
+                do
+                {
+                    Thread.Sleep(TimeSpan.FromMilliseconds(1));
+                } while (maintime.Elapsed <= TimeSpan.FromMilliseconds(1000/60));
+                maintime.Reset();
             } while (true);
         }
 
@@ -197,7 +204,6 @@ namespace OpenBN
         {
             target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
         }
-        
 
         protected override void OnExiting(object sender, EventArgs e)
         {
@@ -293,8 +299,8 @@ namespace OpenBN
             Stage.showCust = true;
             Input.Halt = false;
             flash = null;
-    
-   
+
+
         }
 
         /// <summary>
@@ -304,7 +310,7 @@ namespace OpenBN
         {
             double dX = 1, dY = 1;
             double framedel = 1;
-            
+
             do
             {
                 // if (terminateGame) return;
@@ -358,28 +364,47 @@ namespace OpenBN
                 }
             } while (!terminateGame);
         }
+
         private void RunTick()
         {
-           // SuppressDraw();
-            Tick();
+
+            // SuppressDraw();
+            try
+            {
+                //SuppressDraw();
+                Update();
+                Tick();
+            }
+            catch (Exception ex)
+            {
+
+            }
+
         }
 
         bool curdrawin = false;
 
+        
         protected override void Update(GameTime gameTime)
         {
+            this.myGameTime = gameTime;
+            KbState = Keyboard.GetState();
+            base.Update(gameTime);
+        }
+
+        KeyboardState KbState;
+        void Update()
+        {
             MiscUpdates();
-            // if (IsActive)
+            if (IsActive)
             {
                 //Send fresh data to input handler
-                Input.Update(Keyboard.GetState(), gameTime);
-                UpdateComponents(gameTime);
+                Input.Update(KbState, myGameTime);
+                UpdateComponents(myGameTime);
                 HandleInputs();
             }
         }
-
-
-
+        
         private void HandleInputs()
         {
             var ks_z = Input.KbStream[Keys.Z];
@@ -435,16 +460,20 @@ namespace OpenBN
             //  if (!IsActive) { return; }
             // if (!bgUpdater.IsBusy) return;
             ////  if (delegatedDrawCall) { delegatedDrawCall = false; } else { base.Draw(gameTime); return; }
-            if (curdrawin)
-            {
-                GraphicsDevice.SetRenderTarget(null);
-                GraphicsDevice.Clear(Color.Black);
-                GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-               // base.Draw(gameTime);
-                return;
-            }
-            curdrawin = true;
+            //if (curdrawin)
+            //{
+            //  //  GraphicsDevice.SetRenderTarget(null);
+            // //   GraphicsDevice.Clear(Color.Black);
+            // //   GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            //     base.Draw(gameTime);
+            //    return;
+            //}
+            //curdrawin = true;
             //ResetRenderTarget();
+            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Clear(Color.Black);
+
+
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
@@ -461,7 +490,7 @@ namespace OpenBN
             DrawEnemyNames();
             DrawDebugText();
 
-           // Draw the flash
+            // Draw the flash
             if (flash_opacity > Math.Round(0f, 2))
             {
                 spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity);
@@ -475,7 +504,7 @@ namespace OpenBN
             GraphicsDevice.Clear(Color.Black);
             targetBatch.Draw(target, Viewbox, Color.White);
             targetBatch.End();
-            curdrawin = false;
+           // curdrawin = false;
 
             base.Draw(gameTime);
         }
@@ -620,7 +649,8 @@ namespace OpenBN
             DebugText += "CUSTOM {5,5}\r\n";
 
             DebugText = String.Format(DebugText, bgpos.X, bgpos.Y,
-                Math.Round(CustWindow.EmblemRot, 2),
+             //   Math.Round(CustWindow.EmblemRot, 2),
+             maintime.Elapsed.ToString(),
                 BG_SS.AnimationGroup.Values.First().PC.ToString().ToUpper()
                 , CustWindow.showCust.GetHashCode()
                 , Math.Round(CustWindow.CustBarProgress * 100, 2));
