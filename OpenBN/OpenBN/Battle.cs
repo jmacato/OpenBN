@@ -19,10 +19,24 @@ namespace OpenBN
     {
         private readonly Form myForm;
 
+        private static Battle instance;
+
+
+        public static Battle Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new Battle();
+                }
+                return instance;
+            }
+        }
+
         public Battle()
         {
             IsFixedTimeStep = false;
-
             // Necessary enchantments to ward off the updater and focusing bugs
             // UUU LAA UUU LAA *summons cybeasts instead*
             // PS: If monogame does focusing logic better, i'll definitely switch X|
@@ -45,9 +59,9 @@ namespace OpenBN
                 host.GetType()
                     .BaseType.GetField("Resume", BindingFlags.NonPublic | BindingFlags.Instance)
                     .SetValue(host, null);
+
                 myForm = (Form)Control.FromHandle(Window.Handle);
             }
-
 
             Initialize();
 
@@ -65,9 +79,10 @@ namespace OpenBN
             Window.ClientSizeChanged += Window_ClientSizeChanged;
         }
 
-        public bool IsGameActive { get; private set; }
+        // public bool IsActive { get; private set; }
         public bool BGChanged { get; private set; }
         public new List<BattleComponent> Components { get; set; }
+        public bool Initialized { get; private set; }
 
         private new void Initialize()
         {
@@ -79,7 +94,6 @@ namespace OpenBN
             desat = 1;
             displayEnemyNames = true;
             EnemyNames = new List<string>(3);
-            flash = new BackgroundWorker();
             flash_opacity = 1;
             inactiveWaitMs = 10;
             KeyLatch = new Dictionary<Keys, bool>();
@@ -95,6 +109,7 @@ namespace OpenBN
 
         protected override void LoadContent()
         {
+            if (Initialized) return;
             terminateGame = false;
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -119,7 +134,8 @@ namespace OpenBN
             Desaturate = Content.Load<Effect>("Shaders/Desaturate");
             Desaturate.Parameters["ColourAmount"].SetValue(1);
             LoadBG();
-
+            bgUpdater = new BackgroundWorker();
+            flash = new BackgroundWorker();
             //Assign bgwrkrs
             bgUpdater.DoWork += BgUpdater_DoWork;
             flash.DoWork += Flash_DoWork;
@@ -131,30 +147,23 @@ namespace OpenBN
 
             flash.RunWorkerAsync();
             UpdateViewbox();
-        }
+            Initialized = true;
 
-        protected override void OnDeactivated(object sender, EventArgs e)
-        {
-            ResetRenderTarget();
-            IsGameActive = false;
-        }
 
+            base.LoadContent();
+        }
+        
         private void ResetRenderTarget()
         {
             target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
         }
-
-        protected override void OnActivated(object sender, EventArgs e)
-        {
-            ResetRenderTarget();
-            IsGameActive = true;
-        }
+        
 
         protected override void OnExiting(object sender, EventArgs e)
         {
-            terminateGame = true;
-            mTimer.Dispose();
-            Content.Unload();
+            //  terminateGame = true;
+            //  mTimer.Dispose();
+            //  Content.Unload();
         }
 
         private void Window_ClientSizeChanged(object sender, EventArgs e)
@@ -182,41 +191,38 @@ namespace OpenBN
 
         private void MiscUpdates()
         {
-            if (!manualTick)
-            {
-                manualTickCount = 0;
-            }
-            if (IsGameActive)
-            {
-                if (desat < 1)
-                {
-                    desat += 0.1f;
-                    desat = Clamp(desat, 0, 1);
-                    Desaturate.Parameters["ColourAmount"].SetValue(desat);
-                    SoundEffect.MasterVolume = desat;
-                }
-            }
-            else
-            {
-                if (desat > 0)
-                {
-                    desat -= 0.1f;
-                    desat = Clamp(desat, 0, 1);
-                    Desaturate.Parameters["ColourAmount"].SetValue(desat);
-                    SoundEffect.MasterVolume = desat;
-                }
-            }
+
+            //if (IsActive)
+            //{
+            //    if (desat < 1)
+            //    {
+            //        desat += 0.1f;
+            //        desat = Clamp(desat, 0, 1);
+            //        Desaturate.Parameters["ColourAmount"].SetValue(desat);
+            //        SoundEffect.MasterVolume = desat;
+            //    }
+            //}
+            //else
+            //{
+            //    if (desat > 0)
+            //    {
+            //        desat -= 0.1f;
+            //        desat = Clamp(desat, 0, 1);
+            //        Desaturate.Parameters["ColourAmount"].SetValue(desat);
+            //        SoundEffect.MasterVolume = desat;
+            //    }
+            //}
 
             // Oh XNA, why thoust focusing logic is broken.
-            switch (myForm.WindowState)
-            {
-                case FormWindowState.Normal:
-                    IsGameActive = true;
-                    break;
-                case FormWindowState.Minimized:
-                    IsGameActive = false;
-                    break;
-            }
+            //switch (myForm.WindowState)
+            //{
+            //    case FormWindowState.Normal:
+            //        IsActive = true;
+            //        break;
+            //    case FormWindowState.Minimized:
+            //        IsActive = false;
+            //        break;
+            //}
         }
 
         /// <summary>
@@ -259,8 +265,11 @@ namespace OpenBN
 
             do
             {
-                if (terminateGame) return;
-                if (IsGameActive)
+                // if (terminateGame) return;
+
+                if (!manualTick)
+                    manualTickCount = 0;
+
                 {
                     if (BGChanged)
                     {
@@ -294,20 +303,25 @@ namespace OpenBN
                         }
                         scrollcnt++;
                     }
+                    //try
+                    //{
 
+                    //  if(!curdrawin)  Tick();
+                    //} catch (Exception ex)
+                    //{
+                    //    throw ex;
+                    //}
                     Thread.Sleep(16);
-                }
-                else
-                {
-                    Thread.Sleep(InactiveSleepTime);
                 }
             } while (!terminateGame);
         }
 
+        bool curdrawin = false;
+
         protected override void Update(GameTime gameTime)
         {
             MiscUpdates();
-            if (IsGameActive)
+            // if (IsActive)
             {
                 //Send fresh data to input handler
                 Input.Update(Keyboard.GetState(), gameTime);
@@ -315,6 +329,8 @@ namespace OpenBN
                 HandleInputs();
             }
         }
+
+
 
         private void HandleInputs()
         {
@@ -368,7 +384,9 @@ namespace OpenBN
 
         protected override void Draw(GameTime gameTime)
         {
-            //  if (!IsGameActive) { return; }
+            //  if (!IsActive) { return; }
+            curdrawin = true;
+            ResetRenderTarget();
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
@@ -382,8 +400,8 @@ namespace OpenBN
 
             DrawComponents();
             CustWindow.Draw();
-            DrawEnemyNames();
-            DrawDebugText();
+            //   DrawEnemyNames();
+            //  DrawDebugText();
 
             //Draw the flash
             if (flash_opacity > 0)
@@ -399,6 +417,9 @@ namespace OpenBN
             GraphicsDevice.Clear(Color.Black);
             spriteBatch.Draw(target, Viewbox, Color.White);
             spriteBatch.End();
+            curdrawin = false;
+            base.Draw(gameTime);
+
         }
 
         #region Declares        
@@ -409,8 +430,7 @@ namespace OpenBN
         private Rectangle defaultrect;
         public GraphicsDeviceManager graphics;
         public SpriteBatch spriteBatch;
-        private BackgroundWorker bgUpdater = new BackgroundWorker();
-        private BackgroundWorker flash = new BackgroundWorker();
+        private BackgroundWorker bgUpdater, flash;
         private Dictionary<Keys, bool> KeyLatch;
         private List<string> EnemyNames;
         public Inputs Input;
@@ -425,7 +445,7 @@ namespace OpenBN
         private readonly System.Windows.Forms.Timer mTimer;
         private float flash_opacity, desat;
         private bool terminateGame, displayEnemyNames, manualTick;
-        private int manualTickCount, inactiveWaitMs, scrollcnt, screenresscalar;
+        private int manualTickCount, inactiveWaitMs = 10, scrollcnt, screenresscalar;
         private Keys[] MonitoredKeys;
         private Keys[] ArrowKeys;
 

@@ -10,10 +10,8 @@ namespace OpenBN
         /// </summary>
         static void Main(string[] args)
         {
-            using (Battle game = new Battle())
-            {
-                game.Run();
-            }
+
+                Battle.Instance.Run();
         }
     }
 #endif
