@@ -17,7 +17,8 @@ namespace OpenBN
         ChipElements Element { get; set; }
         char Code { get; set; }
         Texture2D Icon { get; set; }
-
+        bool IsSelected { get; set; }
+        Point SlotRowCol { get; set; }
 
         void Execute(CustomWindow CW, Battle BT, Stage ST);
 
@@ -45,6 +46,10 @@ namespace OpenBN
         public GraphicsDevice Graphics { get; set; }
         public ContentManager Content { get; set; }
 
+        public bool IsSelected { get; set; }
+
+        public Point SlotRowCol { get; set; }
+
         public void Execute(CustomWindow CW, Battle BT, Stage ST)
         {
 
@@ -60,6 +65,7 @@ namespace OpenBN
             Element = elem;
             Code = code;
             Icon = iconprov.Icons[id];
+            IsSelected = false;
         }
     }
 
@@ -107,7 +113,7 @@ namespace OpenBN
             //Get the number of empty pixels
             foreach (Color clr in ColorData)
             {
-                if (clr == Color.FromNonPremultiplied(0, 240, 240,255))
+                if (clr == Color.FromNonPremultiplied(0, 240, 240, 255))
                 {
                     magentacnt++;
                 }
@@ -115,7 +121,7 @@ namespace OpenBN
 
             var i = (IconTexture.Height / 14);
             var j = (IconTexture.Width / 14);
-            
+
             RowCount = i;
             ColCount = j;
 
@@ -123,7 +129,8 @@ namespace OpenBN
             {
                 var empty = magentacnt / (14 * 14);
                 TotalTiles = i * j - empty;
-            } else
+            }
+            else
             {
                 TotalTiles = i * j;
             }
@@ -132,8 +139,8 @@ namespace OpenBN
             {
                 for (int i1 = 0; i1 < colCount; i1++)
                 {
-                    var r_x = (i1 ) * 14;
-                    var r_y = (j1 ) * 14;
+                    var r_x = (i1) * 14;
+                    var r_y = (j1) * 14;
                     var srcrect = new Rectangle(r_x, r_y, 14, 14);
                     var dstrect = new Rectangle(0, 0, 14, 14);
 
@@ -163,6 +170,9 @@ namespace OpenBN
         public GraphicsDevice Graphics { get; set; }
         public ContentManager Content { get; set; }
 
+        public bool IsSelected { get; set; }
+        public Point SlotRowCol { get; set; }
+
         public virtual void Execute(CustomWindow CW, Battle BT, Stage ST)
         {
 
@@ -183,7 +193,7 @@ namespace OpenBN
             }
 
             this.Content = Content;
-            Image = Content.Load<Texture2D>("BC/"+chipimage);
+            Image = Content.Load<Texture2D>("BC/" + chipimage);
             DisplayName = "";
             Element = ChipElements.NONE;
         }

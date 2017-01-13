@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,10 +16,40 @@ namespace OpenBN
 {
     public class Battle : Game, IParentComponent
     {
-        private readonly Form myForm;
 
+        #region Declares        
+        public Navi UserNavi;
+        public Size screenRes;
+        public Vector2 screenResVector, cancelX, cancelY, bgpos;
+        private Rectangle Viewbox;
+        private Rectangle defaultrect;
+        public GraphicsDeviceManager graphics;
+        public SpriteBatch spriteBatch, targetBatch;
+        private BackgroundWorker bgUpdater, flash, MainTimer;
+        public Dictionary<Keys, bool> KeyLatch;
+        private List<string> EnemyNames;
+        public Inputs Input;
+        public FontHelper Fonts;
+        private Stage Stage;
+        private TiledBackground myBackground;
+        private CustomWindow CustWindow;
+        private Texture2D flsh;
+        private RenderTarget2D target, EnemyNameCache;
+        private Sprite BG_SS;
+    //    private Effect Desaturate;
+        private float flash_opacity;
+        private bool terminateGame, displayEnemyNames;
+        private int scrollcnt, screenresscalar;
+        private Keys[] MonitoredKeys;
+        private Keys[] ArrowKeys;
+        private KeyboardState kbstate;
+        private Stopwatch totalGameTime = new Stopwatch();
+        private Stopwatch lastUpdate = new Stopwatch();
+        private delegate void RunGameTicks();
+        private GameTime myGameTime;
         private static Battle instance;
 
+        #endregion
 
         public static Battle Instance
         {
@@ -34,10 +63,6 @@ namespace OpenBN
             }
         }
 
-        delegate void RunGameTicks();
-
-        GameTime myGameTime;
-
         public Battle()
         {
             //        IsFixedTimeStep = false;
@@ -46,7 +71,7 @@ namespace OpenBN
             // UUU LAA UUU LAA *summons cybeasts instead*
             // PS: If monogame does focusing logic better, i'll definitely switch X|
 
-            myForm = (Form)Control.FromHandle(Window.Handle);
+           // myForm = (Form)Control.FromHandle(Window.Handle);
 
             graphics = new GraphicsDeviceManager(this);
             graphics.IsFullScreen = false;
@@ -64,10 +89,10 @@ namespace OpenBN
             Window.ClientSizeChanged += Window_ClientSizeChanged;
         }
 
-        // public bool IsActive { get; private set; }
         public bool BGChanged { get; private set; }
         public new List<BattleComponent> Components { get; set; }
         public bool Initialized { get; private set; }
+        public const int CONST_FRAMERATE = 120;
 
         private new void Initialize()
         {
@@ -77,19 +102,16 @@ namespace OpenBN
             cancelX = new Vector2(0, 1);
             cancelY = new Vector2(1, 0);
             defaultrect = new Rectangle(0, 0, 240, 160);
-            desat = 1;
             displayEnemyNames = true;
             EnemyNames = new List<string>(3);
             flash_opacity = 1;
-            inactiveWaitMs = 10;
             KeyLatch = new Dictionary<Keys, bool>();
-            manualTick = true;
-            manualTickCount = 0;
             screenResVector = new Vector2(240, 160);
             scrollcnt = 0;
             Viewbox = new Rectangle(0, 0, 240, 160);
             terminateGame = false;
-
+            totalGameTime = new Stopwatch();
+            lastUpdate = new Stopwatch();
             spriteBatch = new SpriteBatch(GraphicsDevice);
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
@@ -113,6 +135,7 @@ namespace OpenBN
             bgUpdater = new BackgroundWorker();
             flash = new BackgroundWorker();
             MainTimer = new BackgroundWorker();
+			UserNavi = new Navi(this, Stage);
 
             //Assign bgwrkrs
             bgUpdater.DoWork += BgUpdater_DoWork;
@@ -135,15 +158,11 @@ namespace OpenBN
             lastUpdate.Start();
         }
 
+
+
         protected override void LoadContent()
         {
             if (!Initialized) Initialize();
-
-
-            Desaturate = Content.Load<Effect>("Shaders/Desaturate");
-            Desaturate.Parameters["ColourAmount"].SetValue(1);
-
-            // this.TargetElapsedTime = TimeSpan.FromMilliseconds(1000 / 120);
             base.LoadContent();
         }
 
@@ -155,26 +174,14 @@ namespace OpenBN
         private void GraphicsDevice_DeviceReset(object sender, EventArgs e)
         {
             Debug.Print("GraphicsDevice_DeviceReset");
-
-            foreach(BattleComponent xx in Components)
+            foreach (BattleComponent xx in Components)
             {
                 xx.Graphics = GraphicsDevice;
             }
-
-            //if (MainTimer.IsBusy)
-            //{
-            //  graphics = new GraphicsDeviceManager(this);
-            //  ResetRenderTarget();
-            // //   this.IsFixedTimeStep = false;
-
-            // graphics.SynchronizeWithVerticalRetrace = false;
-
-            //}
         }
 
-        private void TimerProc(object state)
+        private void UpdaterCallback(object state)
         {
-            // The state object is the Timer object.
             var handler = new RunGameTicks(RunTick);
             handler = RunTick;
             handler();
@@ -182,50 +189,11 @@ namespace OpenBN
 
         private void MainTimer_DoWork(object sender, DoWorkEventArgs e)
         {
-            Stopwatch maintime = new Stopwatch();
+            System.Threading.Timer d = new System.Threading.Timer(new TimerCallback(UpdaterCallback));
+     
 
-            //Force blank the form even when dragged.
-
-
-            myForm.KeyDown += MyForm_KeyDown;
-            myForm.KeyUp += MyForm_KeyUp;
-
-
-
-            System.Threading.Timer d = new System.Threading.Timer(new TimerCallback(TimerProc));
-            d.Change(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000/120));
-            
-
-            //do
-            //{
-            //    maintime.Start();
-            //    try
-            //    {
-            //        // if (curdrawin == false)
-             
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        throw ex;
-            //    }
-                
-            //    do { Thread.Sleep(TimeSpan.FromTicks(1000)); }
-            //     while (maintime.ElapsedMilliseconds <= 16);
-            //    maintime.Reset();
-            //} while (true);
+            d.Change(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000 / CONST_FRAMERATE));
         }
-
-        private void MyForm_KeyUp(object sender, KeyEventArgs e)
-        {
-         //   throw new NotImplementedException();
-        }
-
-        private void MyForm_KeyDown(object sender, KeyEventArgs e)
-        {
-            kbstate = new KeyboardState((Keys)e.KeyValue);
-            Debug.Print(((Keys)e.KeyValue).ToString());
-        }
-
 
         private void ResetRenderTarget()
         {
@@ -237,7 +205,7 @@ namespace OpenBN
             UpdateViewbox();
             graphics.PreferredBackBufferHeight = Viewbox.Height;
             graphics.PreferredBackBufferWidth = Viewbox.Width;
-            graphics.ApplyChanges();
+            //graphics.ApplyChanges();
         }
 
         private void LoadBG()
@@ -255,20 +223,11 @@ namespace OpenBN
             BGChanged = true;
         }
 
-        /// <summary>
-        ///     Handles User Navi's controls
-        /// </summary>
-        /// <summary>
-        ///     Handles the flashing intro and SFX
-        /// </summary>
         private void Flash_DoWork(object sender, DoWorkEventArgs e)
         {
             flash_opacity = 1;
-            //PlaySfx(21);
-            //UserNavBgWrk.RunWorkerAsync();
-
             bgUpdater.RunWorkerAsync();
-            Thread.Sleep(1000); //-10% Opacity per frame
+            Thread.Sleep(1000);
             do
             {
                 flash_opacity -= 0.1f;
@@ -276,9 +235,6 @@ namespace OpenBN
             } while (flash_opacity >= 0);
 
             flsh.Dispose();
-
-            // PlayBgm(1);
-            //SixtyHzBgWrkr.RunWorkerAsync();
             CustWindow.Show();
             Stage.showCust = true;
             Input.Halt = false;
@@ -287,9 +243,6 @@ namespace OpenBN
 
         }
 
-        /// <summary>
-        ///     Handles the diagonally scrolling BG
-        /// </summary>
         private void BgUpdater_DoWork(object sender, DoWorkEventArgs e)
         {
             double dX = 1, dY = 1;
@@ -297,12 +250,6 @@ namespace OpenBN
 
             do
             {
-                // if (terminateGame) return;
-
-                //if (!manualTick)
-                //    manualTickCount = 0;
-
-
                 {
                     if (BGChanged)
                     {
@@ -312,7 +259,6 @@ namespace OpenBN
                         {
                             framedel = Convert.ToInt32(BG_SS.Metadata["FRAMEDELAY"]);
                             framedel = MyMath.Clamp(framedel, 2, 128);
-                            // debugTXT = "\r\n FM:" + framedel;
                         }
                         else
                         {
@@ -336,14 +282,6 @@ namespace OpenBN
                         }
                         scrollcnt++;
                     }
-                    //try
-                    //{
-
-                    //  if(!curdrawin)  Tick();
-                    //} catch (Exception ex)
-                    //{
-                    //    throw ex;
-                    //}
                     Thread.Sleep(16);
                 }
             } while (!terminateGame);
@@ -351,17 +289,9 @@ namespace OpenBN
 
         private void RunTick()
         {
-            if (lastUpdate.ElapsedMilliseconds > 60)
-            myForm.Invalidate(myForm.ClientRectangle);
             Update2();
-
-
         }
-
-        KeyboardState kbstate;
-
-
-
+        
         private void Update2()
         {
             myGameTime = new GameTime(totalGameTime.Elapsed, lastUpdate.Elapsed);
@@ -369,19 +299,6 @@ namespace OpenBN
             UpdateComponents(myGameTime);
             HandleInputs();
         }
-
-        Stopwatch totalGameTime =  new Stopwatch();
-        Stopwatch lastUpdate = new Stopwatch();
-
-        protected override void Update(GameTime gameTime)
-        {
-            //Send fresh data to input handler
-
-            kbstate = Keyboard.GetState();
-            lastUpdate.Restart();
-            base.Update(gameTime);
-        }
-        
         private void HandleInputs()
         {
             var ks_z = Input.KbStream[Keys.Z];
@@ -422,8 +339,9 @@ namespace OpenBN
                 case KeyState.Up:
                     if (KeyLatch[Keys.M])
                     {
-                        CustWindow.RotateEmblem();
-                        LoadBG();
+                     //   CustWindow.RotateEmblem();
+                        UserNavi.ChangeAnimation();
+                      //  LoadBG();
 
 
                         KeyLatch[Keys.M] = false;
@@ -432,11 +350,16 @@ namespace OpenBN
             }
         }
 
+        protected override void Update(GameTime gameTime)
+        {
+            kbstate = Keyboard.GetState();
+            lastUpdate.Restart();
+            base.Update(gameTime);
+        }
+
+
         protected override void Draw(GameTime gameTime)
         {
-
-            ResetRenderTarget();
-
 
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
@@ -460,11 +383,12 @@ namespace OpenBN
                 spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity);
             }
 
+
             spriteBatch.End();
             GraphicsDevice.SetRenderTarget(null);
 
             targetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone, Desaturate);
+                DepthStencilState.None, RasterizerState.CullNone);
             GraphicsDevice.Clear(Color.Black);
             targetBatch.Draw(target, Viewbox, Color.White);
             targetBatch.End();
@@ -473,36 +397,8 @@ namespace OpenBN
 
         }
 
-        #region Declares        
 
-        public Size screenRes;
-        public Vector2 screenResVector, cancelX, cancelY, bgpos;
-        private Rectangle Viewbox;
-        private Rectangle defaultrect;
-        public GraphicsDeviceManager graphics;
-        public SpriteBatch spriteBatch, targetBatch;
-        private BackgroundWorker bgUpdater, flash, MainTimer;
-        private Dictionary<Keys, bool> KeyLatch;
-        private List<string> EnemyNames;
-        public Inputs Input;
-        public FontHelper Fonts;
-        private Stage Stage;
-        private TiledBackground myBackground;
-        private CustomWindow CustWindow;
-        private Texture2D flsh;
-        private RenderTarget2D target, EnemyNameCache;
-        private Sprite BG_SS;
-        private Effect Desaturate;
-        private readonly System.Windows.Forms.Timer mTimer;
-        private float flash_opacity, desat;
-        private bool terminateGame, displayEnemyNames, manualTick;
-        private int manualTickCount, inactiveWaitMs = 10, scrollcnt, screenresscalar;
-        private Keys[] MonitoredKeys;
-        private Keys[] ArrowKeys;
-
-        #endregion
-
-        #region Helper Functions
+#region Helper Functions
 
         /// <summary>
         ///     Creates a rect with color fill, with option to create another texture.
@@ -669,6 +565,14 @@ namespace OpenBN
             }
         }
 
-        #endregion
+		protected override void OnExiting (object sender, EventArgs args)
+		{
+			Environment.Exit (0);
+			base.OnExiting (sender, args);
+		}
+
+#endregion
+
     }
+    
 }

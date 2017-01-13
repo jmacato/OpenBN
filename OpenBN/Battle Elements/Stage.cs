@@ -94,6 +94,7 @@ namespace OpenBN
         }
 
         Sprite StageRed, StageBlue;
+        internal static int StageFloorPadding = 5;
 
         public override void Update(GameTime gameTime)
         {

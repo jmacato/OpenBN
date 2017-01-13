@@ -173,24 +173,28 @@ namespace OpenBN
 
         public bool Next()
         {
+	
             if (!Active) return false;
             if (wait != 0) { wait--; return true; }
-            switch (Commands[PC].Cmd)
-            {
-                case AnimationCommands.SHOW:
-                    CurrentFrame = Frames[Commands[PC].Args];
-                    break;
-                case AnimationCommands.LOOP:
-                    PC = Commands.Keys.First();
-                    return true;
-                case AnimationCommands.STOP:
-                    Active = false;
-                    return false;
-                case AnimationCommands.WAIT:
-                    wait = Convert.ToInt32(Commands[PC].Args);
-                    break;
-            }
+			try{
+				switch (Commands[PC].Cmd)
+				{
+				case AnimationCommands.SHOW:
+					CurrentFrame = Frames[Commands[PC].Args];
+					break;
+				case AnimationCommands.LOOP:
+					PC = Commands.Keys.First();
+					return true;
+				case AnimationCommands.STOP:
+					Active = false;
+					return false;
+				case AnimationCommands.WAIT:
+					wait = Convert.ToInt32(Commands[PC].Args.Trim());
+					break;
+				}
 
+			} catch {
+			}
             PC++;
             PC = (int)MathHelper.Clamp(PC,0,Commands.Count);
             return false;

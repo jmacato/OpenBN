@@ -48,7 +48,6 @@ namespace OpenBN
             
             if (Halt) return;
 
-            if (oldKeyboardState == null) { oldKeyboardState = keyTrigger; return; }
 
             foreach (Keys u in oldKeyboardState.GetPressedKeys())
             {

@@ -10,155 +10,10 @@ namespace OpenBN
 {
     public class CustomWindow : BattleComponent
     {
-        public CustomWindow(Game parent) : base(parent)
-        {
-            Fonts = ((Battle) parent).Fonts;
-            MaxHP = 9999;
-            CurrentHP = MaxHP;
-            LastHP = CurrentHP;
-            showCust = false;
-
-            EmblemRot = MathHelper.TwoPi;
-            EmblemScalar = 1;
-            CustBarProgress = 0.0f;
-
-            SlotColumn = 1;
-            SlotRow = 1;
-            waitframe_l = 0;
-            waitframe_r = 0;
-            waitframe_u = 0;
-            waitframe_d = 0;
-
-            showCust = false;
-            IsEmblemRotating = false;
-
-            CustBarRect = new Rectangle(48, 0, 144, 16);
-            custPos = new Vector2(-120, 0);
-            CustTextures = new Dictionary<string, Rectangle>();
-
-            CBState = CustomBarState.Full;
-            CBModifier = CustomBarModifiers.Normal;
-            CBTime = new TimeSpan(0);
-
-            SlotType = new[,] {{1, 1, 1, 1, 1, 2}, {1, 1, 1, 0, 0, 0}};
-            SlotStatus = new int[2, 6];
-            Slots = new IBattleChip[2, 6];
-
-            Initialize();
-        }
-
-        public void Initialize()
-        {
-            CustomWin = new Sprite("Misc/Custwindow-SS.sasl", "Misc/Custwindow", Graphics, Content);
-            CustomBar = new Sprite("Misc/CustBar.sasl", "Misc/CustBar", Graphics, Content);
-
-            CWSrcRect = CustomWin.AnimationGroup["CUST"].Frames["CUSTWIN"];
-            HPBarSrcRect = CustomWin.AnimationGroup["CUST"].Frames["HPBAR"];
-
-            SetFocus("CHIPSLOT_1_1");
-
-            HPFontNorm = Fonts.List["HPFont"];
-            HPFontCrit = Fonts.List["HPFontMinus"];
-            HPFontRecv = Fonts.List["HPFontPlus"];
-            ChipCodesA = Fonts.List["ChipCodesA"];
-            ChipCodesB = Fonts.List["ChipCodesB"];
-            ChipDmg = Fonts.List["ChipDmg"];
-
-            HPFontNorm.Spacing = 1;
-            HPFontCrit.Spacing = 1;
-            HPFontRecv.Spacing = 1;
-            ChipCodesA.Spacing = 0;
-            ChipCodesB.Spacing = 0;
-
-            hpfnt = HPFontNorm;
-
-            Emblem = Content.Load<Texture2D>("Navi/MM/Emblem");
-            EmblemOrigin = new Vector2((float) Math.Ceiling((float) Emblem.Width),
-                (float) Math.Ceiling((float) Emblem.Height))/2;
-            EmblemPos = new Vector2(103, 11);
-            EmblemRot = 0;
-
-            var y = new ChipIconProvider(Content, Graphics);
-
-            Slots[0, 0] = new TestBattleChip(54, y, Content, "Static", 20, ChipElements.WIND, '@');
-            Slots[0, 1] = new TestBattleChip(69, y, Content, "PoisSeed", -2, ChipElements.NULL, '@');
-            Slots[0, 2] = new TestBattleChip(70, y, Content, "Sword", 80, ChipElements.SWORD, 'A');
-            Slots[0, 3] = new TestBattleChip(71, y, Content, "WideSwrd", 80, ChipElements.SWORD, 'B');
-            Slots[0, 4] = new TestBattleChip(72, y, Content, "LongSwrd", 100, ChipElements.SWORD, 'C');
-
-            Slots[1, 0] = new TestBattleChip(57, y, Content, "MachGun3", 70, ChipElements.TARGET, 'A');
-            Slots[1, 1] = new TestBattleChip(61, y, Content, "MegEnBom", 80, ChipElements.NULL, 'B');
-            Slots[1, 2] = new TestBattleChip(66, y, Content, "BugBomb", 100, ChipElements.NULL, 'C');
-
-            Slots[0, 5] = new CustomStatusBattleChip(1, Content);
-
-            for (var si = 0; si < Slots.GetLength(0); si++)
-                for (var sj = 0; sj < Slots.GetLength(1); sj++)
-                {
-                    var chkslot = Slots[si, sj];
-
-                    if (chkslot != null)
-                    {
-                        if (chkslot.GetType().Name != "CustomStatusBattleChip")
-                            SlotStatus[si, sj] = 1;
-                    }
-                }
-
-
-            DisplayBattleChip(Slots[0, 0]);
-            Initialized = true;
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-            //Custom Window transition update logic
-            UpdateTransition();
-            //HP Bar update logic
-            UpdateHPBar();
-            UpdateCustBar();
-            UpdateBtlMsg();
-
-            if (showCust)
-            {
-                //Emblem Rotation update logic
-                UpdateEmblem();
-                //Keyboard Handling logic
-                HandleInputs();
-            }
-            //Advance frames
-            CustomWin.AdvanceAllGroups();
-        }
-
-        public override void Draw()
-        {
-            base.Draw();
-            if (custPos.X != -120)
-            {
-                DrawCustWindow();
-                DrawChipSlots();
-                DrawEmblem();
-                DrawBattleChip();
-                DrawFocusRects();
-            }
-            DrawHPBar();
-            if (custPos.X == -120)
-                DrawCustBar();
-        }
-
-        private void ShowBattleMessage(string message)
-        {
-        }
-
-        private void UpdateBtlMsg()
-        {
-        }
-
-        private void DrawBtlMsg()
-        {
-        }
 
         #region Declares
+
+
 
         private const int OVERFLOW_MODULO = 1024;
 
@@ -172,14 +27,19 @@ namespace OpenBN
             waitframe_l,
             waitframe_r,
             waitframe_u,
-            waitframe_d;
+            waitframe_d,
+            waitframe_a,
+            waitframe_b,
+            selection_status;
 
         public string ChipCodeStr { get; set; }
 
         private IBattleChip SelectedChip;
-        private readonly IBattleChip[,] Slots;
+
+        private Stack<IBattleChip> SelectedStack;
+        private IBattleChip[,] Slots;
         private CustomBarState CBState;
-        private readonly CustomBarModifiers CBModifier;
+        private CustomBarModifiers CBModifier;
 
         /// <summary>
         ///     Determine the type of focusable object in the Custom Window
@@ -232,7 +92,195 @@ namespace OpenBN
 
         private Texture2D Emblem;
 
+        TimeSpan OldCustBarTimeSpan;
+        TimeSpan CustBarTimeSpan;
+
+
         #endregion
+
+        public CustomWindow(Game parent) : base(parent)
+        {
+            Fonts = ((Battle)parent).Fonts;
+            MaxHP = 9999;
+            CurrentHP = MaxHP;
+            LastHP = CurrentHP;
+            showCust = false;
+
+            EmblemRot = MathHelper.TwoPi;
+            EmblemScalar = 1;
+            CustBarProgress = 0.0f;
+
+            SlotColumn = 1;
+            SlotRow = 1;
+
+            waitframe_l = 6;
+            waitframe_r = 6;
+            waitframe_u = 6;
+            waitframe_d = 6;
+            waitframe_a = 6;
+            waitframe_b = 6;
+
+            selection_status = 0;
+
+            showCust = false;
+            IsEmblemRotating = false;
+
+            CustBarRect = new Rectangle(48, 0, 144, 16);
+            custPos = new Vector2(-120, 0);
+            CustTextures = new Dictionary<string, Rectangle>();
+
+            OldCustBarTimeSpan = DateTime.UtcNow.TimeOfDay;
+            CustBarTimeSpan = TimeSpan.Zero;
+
+            CBState = CustomBarState.Full;
+            CBModifier = CustomBarModifiers.Normal;
+            CBTime = new TimeSpan(0);
+
+            SlotType = new[,] { { 1, 1, 1, 1, 1, 2 }, { 1, 1, 1, 0, 0, 0 } };
+            SlotStatus = new int[2, 6];
+            Slots = new IBattleChip[2, 6];
+
+            Initialize();
+        }
+
+        public void Initialize()
+        {
+            CustomWin = new Sprite("Misc/Custwindow-SS.sasl", "Misc/Custwindow", Graphics, Content);
+            CustomBar = new Sprite("Misc/CustBar.sasl", "Misc/CustBar", Graphics, Content);
+
+            CWSrcRect = CustomWin.AnimationGroup["CUST"].Frames["CUSTWIN"];
+            HPBarSrcRect = CustomWin.AnimationGroup["CUST"].Frames["HPBAR"];
+
+            SetFocus("CHIPSLOT_1_1");
+
+            HPFontNorm = Fonts.List["HPFont"];
+            HPFontCrit = Fonts.List["HPFontMinus"];
+            HPFontRecv = Fonts.List["HPFontPlus"];
+            ChipCodesA = Fonts.List["ChipCodesA"];
+            ChipCodesB = Fonts.List["ChipCodesB"];
+            ChipDmg = Fonts.List["ChipDmg"];
+
+            HPFontNorm.Spacing = 1;
+            HPFontCrit.Spacing = 1;
+            HPFontRecv.Spacing = 1;
+            ChipCodesA.Spacing = 0;
+            ChipCodesB.Spacing = 0;
+
+            hpfnt = HPFontNorm;
+
+            Emblem = Content.Load<Texture2D>("Navi/MM/Emblem");
+            EmblemOrigin = new Vector2((float)Math.Ceiling((float)Emblem.Width),
+                (float)Math.Ceiling((float)Emblem.Height)) / 2;
+            EmblemPos = new Vector2(104, 12);
+            EmblemRot = 0;
+
+            var y = new ChipIconProvider(Content, Graphics);
+
+            Slots[0, 0] = new TestBattleChip(54, y, Content, "Static", 20, ChipElements.WIND, '@');
+            Slots[0, 1] = new TestBattleChip(69, y, Content, "PoisSeed", -2, ChipElements.NULL, '@');
+            Slots[0, 2] = new TestBattleChip(70, y, Content, "Sword", 80, ChipElements.SWORD, 'A');
+            Slots[0, 3] = new TestBattleChip(71, y, Content, "WideSwrd", 80, ChipElements.SWORD, 'B');
+            Slots[0, 4] = new TestBattleChip(72, y, Content, "LongSwrd", 100, ChipElements.SWORD, 'C');
+
+            Slots[1, 0] = new TestBattleChip(57, y, Content, "MachGun3", 70, ChipElements.TARGET, 'A');
+            Slots[1, 1] = new TestBattleChip(61, y, Content, "MegEnBom", 80, ChipElements.NULL, 'B');
+            Slots[1, 2] = new TestBattleChip(66, y, Content, "BugBomb", 100, ChipElements.NULL, 'C');
+
+            Slots[0, 5] = new CustomStatusBattleChip(selection_status, Content);
+
+            for (var si = 0; si < Slots.GetLength(0); si++)
+                for (var sj = 0; sj < Slots.GetLength(1); sj++)
+                {
+                    var chkslot = Slots[si, sj];
+
+                    if (chkslot != null)
+                    {
+                        if (chkslot.GetType().Name != "CustomStatusBattleChip")
+                            SlotStatus[si, sj] = 1;
+                    }
+                }
+
+
+            DisplayBattleChip(Slots[0, 0]);
+            SelectedStack = new Stack<IBattleChip>();
+            Initialized = true;
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+            //Custom Window transition update logic
+            UpdateTransition();
+            //HP Bar update logic
+            UpdateHPBar();
+            UpdateCustBar();
+            UpdateBtlMsg();
+
+            if (showCust)
+            {
+                //Emblem Rotation update logic
+                UpdateEmblem();
+                UpdateSelectedStack();
+                //Keyboard Handling logic
+                HandleInputs();
+            }
+            //Advance frames
+            CustomWin.AdvanceAllGroups();
+        }
+
+        private void UpdateSelectedStack()
+        {
+            //A bit hacky but its enough
+            selection_status = Clamp(SelectedStack.Count,0,1);
+
+
+            for (var si = 0; si < Slots.GetLength(0); si++)
+                for (var sj = 0; sj < Slots.GetLength(1); sj++)
+                {
+                    var chkslot = Slots[si, sj];
+
+                    if (chkslot != null)
+                    {
+                        if (chkslot.GetType().Name == "CustomStatusBattleChip")
+                            Slots[si, sj] = new CustomStatusBattleChip(selection_status, Content);
+                        if (SelectedChip.GetType().Name == "CustomStatusBattleChip")
+                        {
+                            SelectedChip = new CustomStatusBattleChip(selection_status, Content);
+                        }
+                    }
+                }
+
+
+        }
+
+        public override void Draw()
+        {
+            base.Draw();
+            if (custPos.X != -120)
+            {
+                DrawCustWindow();
+                DrawChipSlots();
+                DrawSelectedChipSlot();
+                DrawEmblem();
+                DrawBattleChip();
+                DrawFocusRects();
+            }
+            DrawHPBar();
+            if (custPos.X == -120)
+                DrawCustBar();
+        }
+
+        private void ShowBattleMessage(string message)
+        {
+        }
+
+        private void UpdateBtlMsg()
+        {
+        }
+
+        private void DrawBtlMsg()
+        {
+        }
 
         #region Update Subroutines
 
@@ -261,20 +309,22 @@ namespace OpenBN
                 var KEY_RIGHT = Input.KbStream[Keys.Right];
                 var KEY_UP = Input.KbStream[Keys.Up];
                 var KEY_DOWN = Input.KbStream[Keys.Down];
+                var KEY_A = Input.KbStream[Keys.A];
+                var KEY_B = Input.KbStream[Keys.S];
 
                 switch (KEY_LEFT.KeyState)
                 {
                     case KeyState.Down:
                         waitframe_l++;
-                    {
-                        if (waitframe_l%WAITCOUNT == 0)
                         {
-                            TraverseChipSlots(SlotRow, SlotColumn - 1);
+                            if (waitframe_l % WAITCOUNT == 0)
+                            {
+                                TraverseChipSlots(SlotRow, SlotColumn - 1);
+                            }
                         }
-                    }
                         break;
                     case KeyState.Up:
-                        waitframe_l = waitframe_l%OVERFLOW_MODULO;
+                        waitframe_l = waitframe_l % OVERFLOW_MODULO;
                         break;
                 }
 
@@ -282,13 +332,13 @@ namespace OpenBN
                 {
                     case KeyState.Down:
                         waitframe_r++;
-                        if (waitframe_r%WAITCOUNT == 0)
+                        if (waitframe_r % WAITCOUNT == 0)
                         {
                             TraverseChipSlots(SlotRow, SlotColumn + 1);
                         }
                         break;
                     case KeyState.Up:
-                        waitframe_r = waitframe_r%OVERFLOW_MODULO;
+                        waitframe_r = waitframe_r % OVERFLOW_MODULO;
                         break;
                 }
 
@@ -296,13 +346,13 @@ namespace OpenBN
                 {
                     case KeyState.Down:
                         waitframe_u++;
-                        if (waitframe_u%WAITCOUNT == 0)
+                        if (waitframe_u % WAITCOUNT == 0)
                         {
                             TraverseChipSlots(SlotRow - 1, SlotColumn);
                         }
                         break;
                     case KeyState.Up:
-                        waitframe_u = waitframe_u%OVERFLOW_MODULO;
+                        waitframe_u = waitframe_u % OVERFLOW_MODULO;
                         break;
                 }
 
@@ -310,16 +360,71 @@ namespace OpenBN
                 {
                     case KeyState.Down:
                         waitframe_d++;
-                        if (waitframe_d%WAITCOUNT == 0)
+                        if (waitframe_d % WAITCOUNT == 0)
                         {
                             TraverseChipSlots(SlotRow + 1, SlotColumn);
                         }
                         break;
                     case KeyState.Up:
-                        waitframe_d = waitframe_d%OVERFLOW_MODULO;
+                        waitframe_d = waitframe_d % OVERFLOW_MODULO;
                         break;
                 }
+
+                switch (KEY_B.KeyState)
+                {
+                    case KeyState.Down:
+                        if (Battle.Instance.KeyLatch[Keys.S] == false)
+                        {
+                            Battle.Instance.KeyLatch[Keys.S] = true;
+                        }
+                        break;
+                    case KeyState.Up:
+                        if (Battle.Instance.KeyLatch[Keys.S] == true)
+                        {
+                            DeselectChip(SlotRow - 1, SlotColumn - 1);
+                            Battle.Instance.KeyLatch[Keys.S] = false;
+                        }
+                        break;
+                }
+
+                switch (KEY_A.KeyState)
+                {
+                    case KeyState.Down:
+                        if (Battle.Instance.KeyLatch[Keys.A] == false)
+                        {
+                            Battle.Instance.KeyLatch[Keys.A] = true;
+                        }
+                        break;
+                    case KeyState.Up:
+                        if (Battle.Instance.KeyLatch[Keys.A] == true)
+                        {
+                            if (!Slots[SlotRow - 1, SlotColumn - 1].IsSelected)
+                                SelectChip(SlotRow - 1, SlotColumn - 1);
+
+                            Battle.Instance.KeyLatch[Keys.A] = false;
+                        }
+                        break;
+                }
+
             }
+        }
+
+        private void DeselectChip(int SlotRow, int SlotColumn)
+        {
+            if (SelectedStack.Count != 0)
+            {
+                var t = SelectedStack.Pop();
+                t.IsSelected = false;
+            }
+        }
+
+        private void SelectChip(int SlotRow, int SlotColumn)
+        {
+            if (SelectedStack.Count + 1 > 5) return;
+            if (Slots[SlotRow, SlotColumn].GetType().Name == "CustomStatusBattleChip") return;
+            RotateEmblem();
+            Slots[SlotRow, SlotColumn].IsSelected = true;
+            SelectedStack.Push(Slots[SlotRow, SlotColumn]);
         }
 
         private void TraverseChipSlots(int row, int col)
@@ -360,12 +465,12 @@ namespace OpenBN
                 EmblemRot = MyMath.Clamp(x, 0, MathHelper.TwoPi);
                 if (EmblemRot > MathHelper.Pi)
                 {
-                    EmblemScalar = MyMath.Map((float) x, MathHelper.TwoPi, 0, 1, 1.5f);
+                    EmblemScalar = MyMath.Map((float)x, MathHelper.TwoPi, 0, 1, 1.5f);
                     if (EmblemScalar == MathHelper.TwoPi) IsEmblemRotating = false;
                 }
                 else
                 {
-                    EmblemScalar = MyMath.Map((float) x, 0, MathHelper.TwoPi, 1.1f, 1.5f);
+                    EmblemScalar = MyMath.Map((float)x, 0, MathHelper.TwoPi, 1.1f, 1.5f);
                 }
             }
         }
@@ -385,7 +490,7 @@ namespace OpenBN
                     break;
             }
 
-            if (CurrentHP >= MaxHP*0.20)
+            if (CurrentHP >= MaxHP * 0.20)
                 HPState = 0;
             else
                 HPState = 1;
@@ -450,15 +555,15 @@ namespace OpenBN
 
         private void DrawCustWindow()
         {
-            var y = new Rectangle((int) custPos.X, 0, CWSrcRect.Width, CWSrcRect.Height);
+            var y = new Rectangle((int)custPos.X, 0, CWSrcRect.Width, CWSrcRect.Height);
             spriteBatch.Draw(CustomWin.texture, y, CWSrcRect, Color.White);
         }
 
         private void DrawHPBar()
         {
-            var hprct = new Rectangle((int) custPos.X + 122, 0, HPBarSrcRect.Width, HPBarSrcRect.Height);
+            var hprct = new Rectangle((int)custPos.X + 122, 0, HPBarSrcRect.Width, HPBarSrcRect.Height);
             spriteBatch.Draw(CustomWin.texture, hprct, HPBarSrcRect, Color.White);
-            var hptextX = (int) hpfnt.MeasureString(CurrentHP.ToString()).X;
+            var hptextX = (int)hpfnt.MeasureString(CurrentHP.ToString()).X;
             var hptxtrct = new Vector2(hprct.X + (hprct.Width - hptextX) - 6, hprct.Y);
             spriteBatch.DrawString(hpfnt,
                 CurrentHP.ToString(),
@@ -469,13 +574,13 @@ namespace OpenBN
         private void DrawEmblem()
         {
             spriteBatch.Draw(Emblem, new Rectangle(
-                (int) (custPos.X + EmblemPos.X), (int) EmblemPos.Y,
-                (int) Math.Ceiling(Emblem.Width*EmblemScalar),
-                (int) Math.Ceiling(Emblem.Height*EmblemScalar)
+                (int)(custPos.X + EmblemPos.X), (int)EmblemPos.Y,
+                (int)Math.Ceiling(Emblem.Width * EmblemScalar),
+                (int)Math.Ceiling(Emblem.Height * EmblemScalar)
                 ),
                 null,
                 Color.White,
-                (float) EmblemRot,
+                (float)EmblemRot,
                 EmblemOrigin,
                 SpriteEffects.None,
                 0);
@@ -492,8 +597,12 @@ namespace OpenBN
                         {
                             var rect = String.Format("CHIPSLOT_{0}_{1}", si + 1, sj + 1);
                             var destrect = RectFromString(CustomWin.Metadata[rect]);
-                            destrect = new Rectangle((int) custPos.X + destrect.X, destrect.Y, 14, 14);
-                            spriteBatch.Draw(Slots[si, sj].Icon, destrect, Color.White);
+
+                            if (!Slots[si, sj].IsSelected)
+                            {
+                                destrect = new Rectangle((int)custPos.X + destrect.X, destrect.Y, 14, 14);
+                                spriteBatch.Draw(Slots[si, sj].Icon, destrect, Color.White);
+                            }
 
                             var code = Slots[si, sj].Code.ToString();
                             var startpoint = new Vector2(custPos.X + destrect.X - 1, destrect.Y + destrect.Height);
@@ -503,14 +612,35 @@ namespace OpenBN
                 }
         }
 
+        private void DrawSelectedChipSlot()
+        {
+            IBattleChip[] stack = SelectedStack.ToArray();
+            Array.Reverse(stack);
+
+            if (stack.Length != 0)
+                for (int i = 0; i < stack.Length; i++)
+                {
+                    IBattleChip x = stack[i];
+                    var rect = String.Format("SELECTSLOT{0}", i + 1);
+                    var destrect = RectFromString(CustomWin.Metadata[rect]);
+                    destrect = new Rectangle((int)custPos.X + destrect.X, destrect.Y, 14, 14);
+
+                    var crumbsrc = CustomWin.AnimationGroup["CUST"].Frames["SEL_CRUMB"];
+                    var crumbdst = new Rectangle(destrect.X - 4, destrect.Y-2, crumbsrc.Width, crumbsrc.Height);
+                    spriteBatch.Draw(CustomWin.texture, crumbdst, crumbsrc, Color.White);
+                    spriteBatch.Draw(x.Icon, destrect, Color.White);
+
+                }
+        }
+
         private void DrawBattleChip()
         {
             if (SelectedChip != null)
             {
-                var img_vect = new Vector2((int) custPos.X + 16, 24);
-                var name_vect = new Vector2((int) custPos.X + 17, 9);
-                var code_vect = new Vector2((int) custPos.X + 16, 72);
-                var elem_vect = new Vector2((int) custPos.X + 25, 73);
+                var img_vect = new Vector2((int)custPos.X + 16, 24);
+                var name_vect = new Vector2((int)custPos.X + 17, 9);
+                var code_vect = new Vector2((int)custPos.X + 16, 72);
+                var elem_vect = new Vector2((int)custPos.X + 25, 73);
                 Rectangle ChipElem;
                 if (SelectedChip.Element != ChipElements.NONE)
                 {
@@ -536,7 +666,7 @@ namespace OpenBN
                 }
 
                 var Dmg_MS = 71 - ChipDmg.MeasureString(Dmg_Disp).X;
-                var dmg_vect = new Vector2((int) custPos.X + Dmg_MS, 75);
+                var dmg_vect = new Vector2((int)custPos.X + Dmg_MS, 75);
 
                 spriteBatch.Draw(SelectedChip.Image, img_vect, Color.White);
 
@@ -566,10 +696,10 @@ namespace OpenBN
             CBTime = TimeSpan.FromMilliseconds(0);
             CBState = CustomBarState.Loading;
         }
-        TimeSpan OldCustBarTimeSpan = DateTime.UtcNow.TimeOfDay, CustBarTimeSpan = TimeSpan.Zero;
+
         private void UpdateCustBar()
         {
-            var y =  DateTime.UtcNow.TimeOfDay - OldCustBarTimeSpan;
+            var y = DateTime.UtcNow.TimeOfDay - OldCustBarTimeSpan;
             CustomBar.AdvanceAllGroups();
             switch (CBModifier)
             {
@@ -596,7 +726,7 @@ namespace OpenBN
                 }
                 else
                 {
-                    CustBarProgress = (CBTime.TotalMilliseconds/(1000*10));
+                    CustBarProgress = (CBTime.TotalMilliseconds / (1000 * 10));
                 }
             }
             OldCustBarTimeSpan = DateTime.UtcNow.TimeOfDay;
@@ -606,8 +736,8 @@ namespace OpenBN
         private void DrawCustBar()
         {
             //    if (CBState == CustomBarState.Full)
-            spriteBatch.Draw(CustomBar.texture, CustBarRect, CustomBar.AnimationGroup["CUSTOMFULL"].CurrentFrame,Color.White);
-            var Prog = (int) Math.Floor(128*CustBarProgress);
+            spriteBatch.Draw(CustomBar.texture, CustBarRect, CustomBar.AnimationGroup["CUSTOMFULL"].CurrentFrame, Color.White);
+            var Prog = (int)Math.Floor(128 * CustBarProgress);
             switch (CBState)
             {
                 case CustomBarState.Full:
