@@ -13,10 +13,13 @@ namespace OpenBN
         internal Inputs Input { get; set; }
 
         internal bool Initialized { get; set; }
+        internal Battle Parent { get; set; }
+
         public GameTime gameTime { get; private set; }
 
         public BattleComponent(Game parent)
         {
+            this.Parent = (Battle)parent;
             this.spriteBatch = ((Battle)parent).spriteBatch;
             this.Content = ((Battle)parent).Content;
             this.Graphics = ((Battle)parent).GraphicsDevice;

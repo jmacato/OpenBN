@@ -757,13 +757,14 @@ namespace OpenBN
 
         public void Show()
         {
-            //  do { Thread.Sleep(10)}
+            Parent.FreezeObjects = true;
             showCust = true;
             ChipCodeStr = "";
         }
 
         public void Hide()
         {
+            Parent.FreezeObjects = false;
             showCust = false;
             ResetCustBar();
         }

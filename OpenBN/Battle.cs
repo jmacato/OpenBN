@@ -1,5 +1,3 @@
-#define __WINDOWS__
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -42,7 +40,7 @@ namespace OpenBN
         private Texture2D flsh;
         private RenderTarget2D target, EnemyNameCache;
         private Sprite BG_SS;
-    //    private Effect Desaturate;
+       private Effect Desaturate;
         private float flash_opacity;
         private bool terminateGame, displayEnemyNames;
         private int scrollcnt, screenresscalar;
@@ -55,6 +53,7 @@ namespace OpenBN
         private GameTime myGameTime;
         private static Battle instance;
         public static int CONST_FRAMERATE = 60;
+        internal bool FreezeObjects = false;
 
 #if __WINDOWS__
         bool manualTick;
@@ -95,19 +94,6 @@ namespace OpenBN
             // this.Window.AllowUserResizing = true;
             Window.ClientSizeChanged += Window_ClientSizeChanged;
 
-            mTimer = new Timer
-            {
-                Interval = (int)(TimeSpan.FromTicks(16667).TotalMilliseconds)
-            };
-
-            mTimer.Elapsed += (s, e) => {
-                Update(new GameTime());
-                readyToDraw = true;
-
-                    BeginDraw(); 
-            };
-
-
         }
 
 
@@ -136,6 +122,8 @@ namespace OpenBN
             spriteBatch = new SpriteBatch(GraphicsDevice);
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
+
+        //    Desaturate = Content.Load<Effect>("Shaders/Desaturate0");
 
             flsh = RectangleFill(new Rectangle(0, 0, screenRes.W, screenRes.H), ColorHelper.FromHex(0xF8F8F8), false);
 
@@ -179,7 +167,6 @@ namespace OpenBN
             Initialized = true;
             totalGameTime.Start();
             lastUpdate.Start();
-            mTimer.Start();
         }
         
         protected override void Initialize()
@@ -234,29 +221,6 @@ namespace OpenBN
             } while (!terminateGame);
         }
 
-
-
-    protected override bool BeginDraw()
-        {
-            if (readyToDraw)
-                return base.BeginDraw();
-            else
-                return false;
-        }
-
-        protected override void EndDraw()
-        {
-            if (readyToDraw)
-            {
-                readyToDraw = false;
-                base.EndDraw();
-            }
-        }
-
-        private void ResetRenderTarget()
-        {
-            target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
-        }
 
         private void Window_ClientSizeChanged(object sender, EventArgs e)
         {
@@ -343,13 +307,10 @@ namespace OpenBN
                 }
             } while (!terminateGame);
         }
-
-
+        
         private void RunTick()
         {
             Update2();
-
-
         }
 
         private void Update2()
@@ -364,6 +325,7 @@ namespace OpenBN
         {
             var ks_z = Input.KbStream[Keys.Z];
             var ks_m = Input.KbStream[Keys.M];
+
             switch (ks_z.KeyState)
             {
                 case KeyState.Down:
@@ -389,6 +351,7 @@ namespace OpenBN
                     }
                     break;
             }
+
             switch (ks_m.KeyState)
             {
                 case KeyState.Down:
@@ -400,25 +363,22 @@ namespace OpenBN
                 case KeyState.Up:
                     if (KeyLatch[Keys.M])
                     {
-                     //   CustWindow.RotateEmblem();
                         UserNavi.ChangeAnimation();
-                      //  LoadBG();
-
-
                         KeyLatch[Keys.M] = false;
                     }
                     break;
             }
+
         }
 
         protected override void Update(GameTime gameTime)
         {
             kbstate = Keyboard.GetState();
             lastUpdate.Restart();
-            if (!manualTick)
-            {
-                manualTickCount = 0;
-            }
+//            if (!manualTick)
+//            {
+//                manualTickCount = 0;
+//            }
             base.Update(gameTime);
         }
 
@@ -665,7 +625,7 @@ namespace OpenBN
 
 		protected override void OnExiting (object sender, EventArgs args)
 		{
-            mTimer.Dispose();
+          //  mTimer.Dispose();
             Environment.Exit (0);
 			base.OnExiting (sender, args);
 		}
