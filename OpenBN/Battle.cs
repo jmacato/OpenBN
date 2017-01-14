@@ -36,7 +36,6 @@ namespace OpenBN
         private Texture2D flsh;
         private RenderTarget2D target, EnemyNameCache;
         private Sprite BG_SS;
-    //    private Effect Desaturate;
         private float flash_opacity;
         private bool terminateGame, displayEnemyNames;
         private int scrollcnt, screenresscalar;
@@ -47,7 +46,7 @@ namespace OpenBN
         private Stopwatch lastUpdate = new Stopwatch();
         private delegate void RunGameTicks();
         private GameTime myGameTime;
-        private static Battle instance;
+        private static Battle instance;     
 
         #endregion
 
@@ -62,39 +61,27 @@ namespace OpenBN
                 return instance;
             }
         }
-
         public Battle()
         {
-            //        IsFixedTimeStep = false;
-
-            // Necessary enchantments to ward off the updater and focusing bugs
-            // UUU LAA UUU LAA *summons cybeasts instead*
-            // PS: If monogame does focusing logic better, i'll definitely switch X|
-
-           // myForm = (Form)Control.FromHandle(Window.Handle);
-
             graphics = new GraphicsDeviceManager(this);
             graphics.IsFullScreen = false;
             screenRes = new Size(240, 160);
             screenresscalar = 2;
 
-            //Set real screen resolution
             graphics.PreferredBackBufferWidth = screenRes.W * screenresscalar;
             graphics.PreferredBackBufferHeight = screenRes.H * screenresscalar;
 
             Window.Title = "OpenBN";
             Content.RootDirectory = "Content";
 
-            // this.Window.AllowUserResizing = true;
             Window.ClientSizeChanged += Window_ClientSizeChanged;
         }
 
         public bool BGChanged { get; private set; }
         public new List<BattleComponent> Components { get; set; }
         public bool Initialized { get; private set; }
-        public const int CONST_FRAMERATE = 120;
 
-        private new void Initialize()
+        private void InitializeFields()
         {
 
             bgpos = new Vector2(0, 0);
@@ -143,7 +130,6 @@ namespace OpenBN
             MainTimer.DoWork += MainTimer_DoWork;
             GraphicsDevice.DeviceLost += GraphicsDevice_DeviceLost;
             GraphicsDevice.DeviceReset += GraphicsDevice_DeviceReset;
-            MainTimer.RunWorkerAsync();
 
             foreach (var x in MonitoredKeys)
             {
@@ -152,17 +138,23 @@ namespace OpenBN
 
             flash.RunWorkerAsync();
             UpdateViewbox();
+
+
+            MainTimer.RunWorkerAsync();
+
             Initialized = true;
-            graphics.SynchronizeWithVerticalRetrace = true;
             totalGameTime.Start();
             lastUpdate.Start();
         }
 
-
-
+        protected override void Initialize()
+        {
+            base.Initialize();
+        }
+        
         protected override void LoadContent()
         {
-            if (!Initialized) Initialize();
+            if (!Initialized) InitializeFields();
             base.LoadContent();
         }
 
@@ -179,20 +171,23 @@ namespace OpenBN
                 xx.Graphics = GraphicsDevice;
             }
         }
-
-        private void UpdaterCallback(object state)
+        
+        private void MainTimer_DoWork(object sender, DoWorkEventArgs e)
         {
             var handler = new RunGameTicks(RunTick);
             handler = RunTick;
-            handler();
-        }
+            Stopwatch MT = new Stopwatch();
 
-        private void MainTimer_DoWork(object sender, DoWorkEventArgs e)
-        {
-            System.Threading.Timer d = new System.Threading.Timer(new TimerCallback(UpdaterCallback));
-     
-
-            d.Change(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000 / CONST_FRAMERATE));
+            do
+            {
+                MT.Start();
+                handler();
+                do
+                {
+                    Thread.Sleep(TimeSpan.FromMilliseconds(1.041666666666667));
+                } while (MT.Elapsed <= TimeSpan.FromTicks(166667));
+                MT.Reset();
+            } while (!terminateGame);
         }
 
         private void ResetRenderTarget()
@@ -205,7 +200,6 @@ namespace OpenBN
             UpdateViewbox();
             graphics.PreferredBackBufferHeight = Viewbox.Height;
             graphics.PreferredBackBufferWidth = Viewbox.Width;
-            //graphics.ApplyChanges();
         }
 
         private void LoadBG()
@@ -239,8 +233,6 @@ namespace OpenBN
             Stage.showCust = true;
             Input.Halt = false;
             flash = null;
-
-
         }
 
         private void BgUpdater_DoWork(object sender, DoWorkEventArgs e)
@@ -287,17 +279,22 @@ namespace OpenBN
             } while (!terminateGame);
         }
 
+
         private void RunTick()
         {
             Update2();
+
+  
+
         }
-        
+
         private void Update2()
         {
             myGameTime = new GameTime(totalGameTime.Elapsed, lastUpdate.Elapsed);
             Input.Update(kbstate, myGameTime);
             UpdateComponents(myGameTime);
             HandleInputs();
+
         }
         private void HandleInputs()
         {
@@ -356,11 +353,10 @@ namespace OpenBN
             lastUpdate.Restart();
             base.Update(gameTime);
         }
-
+        
 
         protected override void Draw(GameTime gameTime)
         {
-
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
@@ -392,7 +388,7 @@ namespace OpenBN
             GraphicsDevice.Clear(Color.Black);
             targetBatch.Draw(target, Viewbox, Color.White);
             targetBatch.End();
-            // curdrawin = false;
+
             base.Draw(gameTime);
 
         }
@@ -506,12 +502,10 @@ namespace OpenBN
             DebugText += "BGPOSY{1,4}\r\n";
             DebugText += "EMBROT{2,4}\r\n";
             DebugText += "CUSTOM {4:EN;4;DIS}\r\n";
-            DebugText += "CUSTOM {5,5}\r\n";
 
             DebugText = String.Format(DebugText, bgpos.X, bgpos.Y,
                 Math.Round(CustWindow.EmblemRot, 2),
                 BG_SS.AnimationGroup.Values.First().PC.ToString().ToUpper()
-                , CustWindow.showCust.GetHashCode()
                 , Math.Round(CustWindow.CustBarProgress * 100, 2));
 
             var FontVect = Font1.MeasureString(DebugText);
