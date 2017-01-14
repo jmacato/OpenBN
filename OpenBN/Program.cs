@@ -7,6 +7,7 @@
         /// </summary>
         static void Main(string[] args)
         {
+
             Battle.Instance.Run();
         }
     }

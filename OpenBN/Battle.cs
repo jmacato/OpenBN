@@ -1,3 +1,5 @@
+#define __WINDOWS__
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,7 +13,11 @@ using Microsoft.Xna.Framework.Input;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 using static OpenBN.MyMath;
 using System.Reflection;
-
+using System.Runtime.InteropServices;
+#if __WINDOWS__
+using Timer = System.Timers.Timer;
+using System.Windows.Forms;
+#endif
 namespace OpenBN
 {
     public class Battle : Game, IParentComponent
@@ -36,6 +42,7 @@ namespace OpenBN
         private Texture2D flsh;
         private RenderTarget2D target, EnemyNameCache;
         private Sprite BG_SS;
+    //    private Effect Desaturate;
         private float flash_opacity;
         private bool terminateGame, displayEnemyNames;
         private int scrollcnt, screenresscalar;
@@ -46,7 +53,15 @@ namespace OpenBN
         private Stopwatch lastUpdate = new Stopwatch();
         private delegate void RunGameTicks();
         private GameTime myGameTime;
-        private static Battle instance;     
+        private static Battle instance;
+        public static int CONST_FRAMERATE = 60;
+
+#if __WINDOWS__
+        bool manualTick;
+        int manualTickCount = 0;
+        Timer mTimer;
+        private bool readyToDraw;
+#endif
 
         #endregion
 
@@ -61,21 +76,40 @@ namespace OpenBN
                 return instance;
             }
         }
+
         public Battle()
         {
+
             graphics = new GraphicsDeviceManager(this);
             graphics.IsFullScreen = false;
             screenRes = new Size(240, 160);
             screenresscalar = 2;
 
+            //Set real screen resolution
             graphics.PreferredBackBufferWidth = screenRes.W * screenresscalar;
             graphics.PreferredBackBufferHeight = screenRes.H * screenresscalar;
 
             Window.Title = "OpenBN";
             Content.RootDirectory = "Content";
 
+            // this.Window.AllowUserResizing = true;
             Window.ClientSizeChanged += Window_ClientSizeChanged;
+
+            mTimer = new Timer
+            {
+                Interval = (int)(TimeSpan.FromTicks(16667).TotalMilliseconds)
+            };
+
+            mTimer.Elapsed += (s, e) => {
+                Update(new GameTime());
+                readyToDraw = true;
+
+                    BeginDraw(); 
+            };
+
+
         }
+
 
         public bool BGChanged { get; private set; }
         public new List<BattleComponent> Components { get; set; }
@@ -141,17 +175,18 @@ namespace OpenBN
 
 
             MainTimer.RunWorkerAsync();
-
+            graphics.SynchronizeWithVerticalRetrace = false;
             Initialized = true;
             totalGameTime.Start();
             lastUpdate.Start();
+            mTimer.Start();
         }
-
+        
         protected override void Initialize()
         {
             base.Initialize();
         }
-        
+
         protected override void LoadContent()
         {
             if (!Initialized) InitializeFields();
@@ -171,11 +206,19 @@ namespace OpenBN
                 xx.Graphics = GraphicsDevice;
             }
         }
-        
+
+        private void UpdaterCallback(object state)
+        {
+            var handler = new RunGameTicks(RunTick);
+            handler = RunTick;
+            handler();
+        }
+
         private void MainTimer_DoWork(object sender, DoWorkEventArgs e)
         {
             var handler = new RunGameTicks(RunTick);
             handler = RunTick;
+
             Stopwatch MT = new Stopwatch();
 
             do
@@ -184,10 +227,30 @@ namespace OpenBN
                 handler();
                 do
                 {
-                    Thread.Sleep(TimeSpan.FromMilliseconds(1.041666666666667));
+                    Thread.Sleep(TimeSpan.FromMilliseconds(4.1666666667));
+                    
                 } while (MT.Elapsed <= TimeSpan.FromTicks(166667));
                 MT.Reset();
             } while (!terminateGame);
+        }
+
+
+
+    protected override bool BeginDraw()
+        {
+            if (readyToDraw)
+                return base.BeginDraw();
+            else
+                return false;
+        }
+
+        protected override void EndDraw()
+        {
+            if (readyToDraw)
+            {
+                readyToDraw = false;
+                base.EndDraw();
+            }
         }
 
         private void ResetRenderTarget()
@@ -233,6 +296,8 @@ namespace OpenBN
             Stage.showCust = true;
             Input.Halt = false;
             flash = null;
+
+
         }
 
         private void BgUpdater_DoWork(object sender, DoWorkEventArgs e)
@@ -284,7 +349,6 @@ namespace OpenBN
         {
             Update2();
 
-  
 
         }
 
@@ -294,8 +358,8 @@ namespace OpenBN
             Input.Update(kbstate, myGameTime);
             UpdateComponents(myGameTime);
             HandleInputs();
-
         }
+
         private void HandleInputs()
         {
             var ks_z = Input.KbStream[Keys.Z];
@@ -351,17 +415,57 @@ namespace OpenBN
         {
             kbstate = Keyboard.GetState();
             lastUpdate.Restart();
+            if (!manualTick)
+            {
+                manualTickCount = 0;
+            }
             base.Update(gameTime);
         }
-        
+
+#if __WINDOWS__
+
+        private IntPtr _prevWndProc;
+        private NativeMethods.WndProc _hookProcDelegate;
+
+        public void Win32KeyboardEvents(GameWindow window)
+        {
+            _hookProcDelegate = HookProc;
+            _prevWndProc = (IntPtr)NativeMethods.SetWindowLong(window.Handle, NativeMethods.GWL_WNDPROC,
+                (int)Marshal.GetFunctionPointerForDelegate(_hookProcDelegate));
+        }
+
+        private IntPtr HookProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
+        {
+            IntPtr returnCode = NativeMethods.CallWindowProc(_prevWndProc, hWnd, msg, wParam, lParam);
+
+            switch (msg)
+            {
+                case NativeMethods.WM_NCRBUTTONDOWN:
+                    Debug.Print("WM_NCRBUTTONDOWN");
+                    break;
+
+                case NativeMethods.WM_NCLBUTTONDOWN:
+                    Debug.Print("WM_NCLBUTTONDOWN");
+                    break;
+                default:
+                    Debug.Print("DEF");
+
+                    break;
+
+            }
+
+            return returnCode;
+        }
+#endif
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.SetRenderTarget(target);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+        
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp,DepthStencilState.None, RasterizerState.CullNone);
+    
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone);
             if (BG_SS != null)
             {
                 myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0));
@@ -388,8 +492,8 @@ namespace OpenBN
             GraphicsDevice.Clear(Color.Black);
             targetBatch.Draw(target, Viewbox, Color.White);
             targetBatch.End();
-
             base.Draw(gameTime);
+
 
         }
 
@@ -561,7 +665,8 @@ namespace OpenBN
 
 		protected override void OnExiting (object sender, EventArgs args)
 		{
-			Environment.Exit (0);
+            mTimer.Dispose();
+            Environment.Exit (0);
 			base.OnExiting (sender, args);
 		}
 
