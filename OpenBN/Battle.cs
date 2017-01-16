@@ -20,7 +20,7 @@ namespace OpenBN
 {
     public class Battle : Game, IParentComponent
     {
-
+        public static string PublicDebug = "";
         #region Declares        
         public Navi UserNavi;
         public Size screenRes;
@@ -30,7 +30,7 @@ namespace OpenBN
         public GraphicsDeviceManager graphics;
         public SpriteBatch spriteBatch, targetBatch;
         private BackgroundWorker bgUpdater, flash, MainTimer;
-        public Dictionary<Keys, bool> KeyLatch;
+        public static Dictionary<Keys, bool> KeyLatch;
         private List<string> EnemyNames;
         public Inputs Input;
         public FontHelper Fonts;
@@ -40,7 +40,7 @@ namespace OpenBN
         private Texture2D flsh;
         private RenderTarget2D target, EnemyNameCache;
         private Sprite BG_SS;
-       private Effect Desaturate;
+        private Effect Desaturate;
         private float flash_opacity;
         private bool terminateGame, displayEnemyNames;
         private int scrollcnt, screenresscalar;
@@ -52,7 +52,7 @@ namespace OpenBN
         private delegate void RunGameTicks();
         private GameTime myGameTime;
         private static Battle instance;
-        public static int CONST_FRAMERATE = 60;
+        public static int CONST_FRAMERATE = 64;
         internal bool FreezeObjects = false;
 
 #if __WINDOWS__
@@ -216,7 +216,7 @@ namespace OpenBN
                 {
                     Thread.Sleep(TimeSpan.FromMilliseconds(4.1666666667));
                     
-                } while (MT.Elapsed <= TimeSpan.FromTicks(166667));
+                } while (MT.Elapsed <= TimeSpan.FromMilliseconds(1000/CONST_FRAMERATE));
                 MT.Reset();
             } while (!terminateGame);
         }
@@ -567,10 +567,13 @@ namespace OpenBN
             DebugText += "EMBROT{2,4}\r\n";
             DebugText += "CUSTOM {4:EN;4;DIS}\r\n";
 
+            
             DebugText = String.Format(DebugText, bgpos.X, bgpos.Y,
                 Math.Round(CustWindow.EmblemRot, 2),
                 BG_SS.AnimationGroup.Values.First().PC.ToString().ToUpper()
                 , Math.Round(CustWindow.CustBarProgress * 100, 2));
+
+            DebugText = PublicDebug.ToUpper().Replace("_", "");
 
             var FontVect = Font1.MeasureString(DebugText);
             //Calculate vectors
@@ -625,7 +628,6 @@ namespace OpenBN
 
 		protected override void OnExiting (object sender, EventArgs args)
 		{
-          //  mTimer.Dispose();
             Environment.Exit (0);
 			base.OnExiting (sender, args);
 		}

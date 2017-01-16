@@ -20,7 +20,7 @@ namespace OpenBN
 
         public override void Draw()
         {
-            if (!Initialized) return;
+            base.Draw();
             foreach (Panel Pnl in PanelArray)
             {
                 string AnimationGroupKey = "";
@@ -95,6 +95,8 @@ namespace OpenBN
 
         Sprite StageRed, StageBlue;
         internal static int StageFloorPadding = 5;
+        internal static int StagePanelHeight = 25;
+        internal static int StagePanelWidth = 40;
 
         public override void Update(GameTime gameTime)
         {

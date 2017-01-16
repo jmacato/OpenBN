@@ -96,7 +96,7 @@ namespace OpenBN
                     case "SET_ROW":
                         RowSize = Convert.ToInt32(x[1]);
                         break;
-
+                    
                     case "SHOW":
                         if (AnimationGroup.Count == 0) break;
                         i++;
@@ -112,6 +112,15 @@ namespace OpenBN
                         WT.Cmd = AnimationCommands.WAIT;
                         WT.Args = x[1];
                         TempCmd.Add(i, WT);
+                        break;
+
+                    case "STOP":
+                        if (AnimationGroup.Count == 0) break;
+                        i++;
+                        var SP = new AnimationCommand();
+                        SP.Cmd = AnimationCommands.STOP;
+                        SP.Args = "0";
+                        TempCmd.Add(i, SP);
                         break;
 
                     case "LOOP":
@@ -136,9 +145,9 @@ namespace OpenBN
 
         public void ResetAllGroups()
         {
-            foreach (string Anim in AnimationGroup.Keys)
+            foreach (Animation Anim in AnimationGroup.Values)
             {
-                AnimationGroup[Anim].PC = 1;
+                Anim.Reset();
             }
         }
 
@@ -170,7 +179,6 @@ namespace OpenBN
         }
 
         int wait = 0;
-
         public bool Next()
         {
 	
@@ -186,7 +194,7 @@ namespace OpenBN
 					PC = Commands.Keys.First();
 					return true;
 				case AnimationCommands.STOP:
-					Active = false;
+                    Active = false;
 					return false;
 				case AnimationCommands.WAIT:
 					wait = Convert.ToInt32(Commands[PC].Args.Trim());
@@ -198,6 +206,12 @@ namespace OpenBN
             PC++;
             PC = (int)MathHelper.Clamp(PC,0,Commands.Count);
             return false;
+        }
+
+        internal void Reset()
+        {
+            PC = 1;
+            Active = true;
         }
     }
 

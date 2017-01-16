@@ -16,6 +16,7 @@ namespace OpenBN
 
 
         private const int OVERFLOW_MODULO = 1024;
+        private const int WAITCOUNT = 5;
 
         public int
             HPState,
@@ -69,7 +70,8 @@ namespace OpenBN
             HPFontRecv,
             ChipCodesA,
             ChipCodesB,
-            ChipDmg;
+            ChipDmg,
+            BtlMsgFont;
 
         private readonly FontHelper Fonts;
 
@@ -113,12 +115,12 @@ namespace OpenBN
             SlotColumn = 1;
             SlotRow = 1;
 
-            waitframe_l = 6;
-            waitframe_r = 6;
-            waitframe_u = 6;
-            waitframe_d = 6;
-            waitframe_a = 6;
-            waitframe_b = 6;
+            waitframe_l = WAITCOUNT - 1;
+            waitframe_r = WAITCOUNT - 1;
+            waitframe_u = WAITCOUNT - 1;
+            waitframe_d = WAITCOUNT - 1;
+            waitframe_a = WAITCOUNT - 1;
+            waitframe_b = WAITCOUNT - 1;
 
             selection_status = 0;
 
@@ -158,7 +160,11 @@ namespace OpenBN
             HPFontRecv = Fonts.List["HPFontPlus"];
             ChipCodesA = Fonts.List["ChipCodesA"];
             ChipCodesB = Fonts.List["ChipCodesB"];
+                     
+
             ChipDmg = Fonts.List["ChipDmg"];
+            BtlMsgFont = Fonts.List["BattleMessage"];
+
 
             HPFontNorm.Spacing = 1;
             HPFontCrit.Spacing = 1;
@@ -231,7 +237,7 @@ namespace OpenBN
         private void UpdateSelectedStack()
         {
             //A bit hacky but its enough
-            selection_status = Clamp(SelectedStack.Count,0,1);
+            selection_status = Clamp(SelectedStack.Count, 0, 1);
 
 
             for (var si = 0; si < Slots.GetLength(0); si++)
@@ -270,16 +276,80 @@ namespace OpenBN
                 DrawCustBar();
         }
 
+        string BattleMessageText;
+        BtlMsgStatus BattleMsgStatus;
+
+        Vector2 BtlMsgAnchor = new Vector2(Battle.Instance.screenRes.W / 2, 72);
+        Vector2 BtlMsgOrigin = new Vector2(0,0);
+        Vector2 BtlMsgBounds = new Vector2(0, 0);
+        Vector2 BtlMsgScale = new Vector2(1, 1);
+
+        enum BtlMsgStatus
+        {
+            NONE,
+            GROW,
+            STAY,
+            SHRINK
+        }
+
+        public static float[] HeightScaleSpline = { 0.2857f, 0.3571f, 0.5f, 0.6428f, 1f, 1.15f, 1f, };
+        int BtlMsgWaitFrames = 10;
+        int BtlMsgCounter = 0;
+        bool BtlMsgDrawFlag = false;
+
         private void ShowBattleMessage(string message)
         {
+            var msg = message.ToUpper();
+            msg = msg.Replace(" ", "=");
+            BattleMessageText = String.Format("<{0}>", msg);
+
+            BtlMsgBounds = BtlMsgFont.MeasureString(BattleMessageText);
+            BtlMsgOrigin = BtlMsgBounds / 2;
+
+            BattleMsgStatus = BtlMsgStatus.GROW;
         }
 
         private void UpdateBtlMsg()
         {
+            switch (BattleMsgStatus)
+            {
+                case BtlMsgStatus.GROW:
+                    if(BtlMsgCounter < HeightScaleSpline.Length)
+                    {
+                        BtlMsgScale.Y = HeightScaleSpline[BtlMsgCounter];
+                        BtlMsgCounter++;
+                        BtlMsgDrawFlag = true;
+                    } else if (BtlMsgCounter > HeightScaleSpline.Length)
+                    {
+                        BtlMsgCounter = 0;
+                        BattleMsgStatus = BtlMsgStatus.STAY;
+                    }
+                    break;
+                case BtlMsgStatus.STAY:
+                    BtlMsgCounter++;
+                    if (BtlMsgCounter > BtlMsgWaitFrames)
+                    {
+                        BattleMsgStatus = BtlMsgStatus.SHRINK;
+                    }
+                    break;
+            }
         }
 
         private void DrawBtlMsg()
         {
+            if (BattleMsgStatus != BtlMsgStatus.NONE && BtlMsgDrawFlag)
+            {
+                spriteBatch.DrawString(
+                    BtlMsgFont, 
+                    BattleMessageText, 
+                    BtlMsgAnchor, 
+                    Color.White,
+                    0f, 
+                    BtlMsgOrigin,
+                    BtlMsgScale,
+                    SpriteEffects.None,
+                    0f);
+            }
         }
 
         #region Update Subroutines
@@ -302,7 +372,6 @@ namespace OpenBN
 
         private void HandleInputs()
         {
-            var WAITCOUNT = 7;
             if (Input != null)
             {
                 var KEY_LEFT = Input.KbStream[Keys.Left];
@@ -373,16 +442,16 @@ namespace OpenBN
                 switch (KEY_B.KeyState)
                 {
                     case KeyState.Down:
-                        if (Battle.Instance.KeyLatch[Keys.S] == false)
+                        if (Battle.KeyLatch[Keys.S] == false)
                         {
-                            Battle.Instance.KeyLatch[Keys.S] = true;
+                            Battle.KeyLatch[Keys.S] = true;
                         }
                         break;
                     case KeyState.Up:
-                        if (Battle.Instance.KeyLatch[Keys.S] == true)
+                        if (Battle.KeyLatch[Keys.S] == true)
                         {
                             DeselectChip(SlotRow - 1, SlotColumn - 1);
-                            Battle.Instance.KeyLatch[Keys.S] = false;
+                            Battle.KeyLatch[Keys.S] = false;
                         }
                         break;
                 }
@@ -390,18 +459,18 @@ namespace OpenBN
                 switch (KEY_A.KeyState)
                 {
                     case KeyState.Down:
-                        if (Battle.Instance.KeyLatch[Keys.A] == false)
+                        if (Battle.KeyLatch[Keys.A] == false)
                         {
-                            Battle.Instance.KeyLatch[Keys.A] = true;
+                            Battle.KeyLatch[Keys.A] = true;
                         }
                         break;
                     case KeyState.Up:
-                        if (Battle.Instance.KeyLatch[Keys.A] == true)
+                        if (Battle.KeyLatch[Keys.A] == true)
                         {
                             if (!Slots[SlotRow - 1, SlotColumn - 1].IsSelected)
                                 SelectChip(SlotRow - 1, SlotColumn - 1);
 
-                            Battle.Instance.KeyLatch[Keys.A] = false;
+                            Battle.KeyLatch[Keys.A] = false;
                         }
                         break;
                 }
@@ -411,7 +480,7 @@ namespace OpenBN
 
         private void DeselectChip(int SlotRow, int SlotColumn)
         {
-            if (SelectedStack.Count != 0)
+            if (SelectedStack.Count > 0)
             {
                 var t = SelectedStack.Pop();
                 t.IsSelected = false;
@@ -436,8 +505,6 @@ namespace OpenBN
 
             switch (CurSlotType)
             {
-                case 0:
-                    break;
                 case 1:
                     if (CurSlotStat != 0)
                     {
@@ -446,7 +513,6 @@ namespace OpenBN
                         SlotRow = TmpSlotRow;
                         SlotColumn = TmpSlotColumn;
                     }
-
                     break;
                 case 2:
                     SetFocus("OKBUTTON");
@@ -626,7 +692,7 @@ namespace OpenBN
                     destrect = new Rectangle((int)custPos.X + destrect.X, destrect.Y, 14, 14);
 
                     var crumbsrc = CustomWin.AnimationGroup["CUST"].Frames["SEL_CRUMB"];
-                    var crumbdst = new Rectangle(destrect.X - 4, destrect.Y-2, crumbsrc.Width, crumbsrc.Height);
+                    var crumbdst = new Rectangle(destrect.X - 4, destrect.Y - 2, crumbsrc.Width, crumbsrc.Height);
                     spriteBatch.Draw(CustomWin.texture, crumbdst, crumbsrc, Color.White);
                     spriteBatch.Draw(x.Icon, destrect, Color.White);
 
