@@ -36,48 +36,8 @@ namespace OpenBN
                         CurAG = StageRed;
                         break;
                 }
-                switch (Pnl.StgPnlTyp)
-                {
-                    case StagePnlType.NORMAL:
-                        AnimationGroupKey = "NORM" + Pnl.StgRowCol.X;
-                        break;
-                    case StagePnlType.HOLE:
-                        AnimationGroupKey = "HOLE" + Pnl.StgRowCol.X;
-                        break;
-                    case StagePnlType.HOLY:
-                        AnimationGroupKey = "HOLY" + Pnl.StgRowCol.X;
-                        break;
-                    case StagePnlType.BROKEN:
-                        AnimationGroupKey = "BROK" + Pnl.StgRowCol.X;
-                        break;
-                    case StagePnlType.CRACKED:
-                        AnimationGroupKey = "CRAK" + Pnl.StgRowCol.X;
-                        break;
-                    case StagePnlType.ICE:
-                        AnimationGroupKey = "ICED" + Pnl.StgRowCol.X;
-                        break;
-                    case StagePnlType.GRASS:
-                        AnimationGroupKey = "GRAS" + Pnl.StgRowCol.X;
-                        break;
-                    case StagePnlType.POISON:
-                        AnimationGroupKey = "POIS" + Pnl.StgRowCol.X;
-                        break;
-                    case StagePnlType.CONV_U:
-                        AnimationGroupKey = "CONV_U" + Pnl.StgRowCol.X;
-                        break;
-                    case StagePnlType.CONV_D:
-                        AnimationGroupKey = "CONV_D" + Pnl.StgRowCol.X;
-                        break;
-                    case StagePnlType.CONV_L:
-                        AnimationGroupKey = "CONV_L" + Pnl.StgRowCol.X;
-                        break;
-                    case StagePnlType.CONV_R:
-                        AnimationGroupKey = "CONV_R" + Pnl.StgRowCol.X;
-                        break;
-                    case StagePnlType.NONE:
-                        AnimationGroupKey = "NONE";
-                        break;
-                }
+
+                AnimationGroupKey = Pnl.StgPnlTyp.ToString() + Pnl.StgRowCol.X;
 
                 Rectangle text, bottomtext;
                 Rectangle rect, bottomrect;

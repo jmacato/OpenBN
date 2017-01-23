@@ -77,7 +77,7 @@ namespace OpenBN
         }
 
         /// <summary>
-        /// Changes the animation.
+        /// Cycles through the whole navi animation list.
         /// </summary>
         public void ChangeAnimation()
         {
@@ -91,7 +91,7 @@ namespace OpenBN
         }
 
         /// <summary>
-        /// Update the specified gameTime.
+        /// Update components
         /// </summary>
         /// <param name="gameTime">Game time.</param>
         public override void Update(GameTime gameTime)

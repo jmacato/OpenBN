@@ -47,7 +47,8 @@
 
     public enum CustomBarState
     {
-        Full, Loading, Paused
+        Full, Loading, Paused,
+        Empty
     }
 
     public enum CustomBarModifiers

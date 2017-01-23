@@ -34,7 +34,7 @@ namespace OpenBN
         private List<string> EnemyNames;
         public Inputs Input;
         public FontHelper Fonts;
-        private Stage Stage;
+        public Stage Stage;
         private TiledBackground myBackground;
         private CustomWindow CustWindow;
         private Texture2D flsh;
@@ -123,7 +123,7 @@ namespace OpenBN
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
 
-        //    Desaturate = Content.Load<Effect>("Shaders/Desaturate0");
+            //    Desaturate = Content.Load<Effect>("Shaders/Desaturate0");
 
             flsh = RectangleFill(new Rectangle(0, 0, screenRes.W, screenRes.H), ColorHelper.FromHex(0xF8F8F8), false);
 
@@ -132,6 +132,7 @@ namespace OpenBN
                 Keys.A, Keys.S, Keys.X, Keys.Z,
                 Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Q, Keys.W, Keys.R, Keys.M
             };
+
             ArrowKeys = new[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
 
             Fonts = new FontHelper(Content);
@@ -144,7 +145,7 @@ namespace OpenBN
             bgUpdater = new BackgroundWorker();
             flash = new BackgroundWorker();
             MainTimer = new BackgroundWorker();
-			UserNavi = new Navi(this, Stage);
+            UserNavi = new Navi(this, Stage);
 
             //Assign bgwrkrs
             bgUpdater.DoWork += BgUpdater_DoWork;
@@ -168,7 +169,7 @@ namespace OpenBN
             totalGameTime.Start();
             lastUpdate.Start();
         }
-        
+
         protected override void Initialize()
         {
             base.Initialize();
@@ -212,15 +213,19 @@ namespace OpenBN
             {
                 MT.Start();
                 handler();
-                do
-                {
-                    Thread.Sleep(TimeSpan.FromMilliseconds(4.1666666667));
-                    
-                } while (MT.Elapsed <= TimeSpan.FromMilliseconds(1000/CONST_FRAMERATE));
+                WaitFrame(MT);
                 MT.Reset();
             } while (!terminateGame);
         }
 
+
+        private void WaitFrame(Stopwatch MT)
+        {
+            do
+            {
+                Thread.Sleep(TimeSpan.FromMilliseconds(4.1666666667));
+            } while (MT.Elapsed <= TimeSpan.FromMilliseconds(1000 / CONST_FRAMERATE));
+        }
 
         private void Window_ClientSizeChanged(object sender, EventArgs e)
         {
@@ -307,7 +312,7 @@ namespace OpenBN
                 }
             } while (!terminateGame);
         }
-        
+
         private void RunTick()
         {
             Update2();
@@ -323,27 +328,27 @@ namespace OpenBN
 
         private void HandleInputs()
         {
-            var ks_z = Input.KbStream[Keys.Z];
-            var ks_m = Input.KbStream[Keys.M];
+            var ks_z = Input.KbStream[Keys.A];
+            //var ks_m = Input.KbStream[Keys.M];
 
             switch (ks_z.KeyState)
             {
                 case KeyState.Down:
-                    if (KeyLatch[Keys.Z] == false)
+                    if (KeyLatch[Keys.A] == false)
                     {
-                        KeyLatch[Keys.Z] = true;
+                        KeyLatch[Keys.A] = true;
                     }
                     break;
                 case KeyState.Up:
-                    if (KeyLatch[Keys.Z])
+                    if (KeyLatch[Keys.A])
                     {
-                        KeyLatch[Keys.Z] = false;
-                        if (CustWindow.showCust)
-                        {
-                            CustWindow.Hide();
-                            Stage.showCust = false;
-                        }
-                        else
+                        KeyLatch[Keys.A] = false;
+                        //if (CustWindow.showCust)
+                        //{
+                        //    CustWindow.Hide();
+                        //    Stage.showCust = false;
+                        //}
+                        //else
                         {
                             CustWindow.Show();
                             Stage.showCust = true;
@@ -352,79 +357,41 @@ namespace OpenBN
                     break;
             }
 
-            switch (ks_m.KeyState)
-            {
-                case KeyState.Down:
-                    if (KeyLatch[Keys.M] == false)
-                    {
-                        KeyLatch[Keys.M] = true;
-                    }
-                    break;
-                case KeyState.Up:
-                    if (KeyLatch[Keys.M])
-                    {
-                        UserNavi.ChangeAnimation();
-                        KeyLatch[Keys.M] = false;
-                    }
-                    break;
-            }
+            //switch (ks_m.KeyState)
+            //{
+            //    case KeyState.Down:
+            //        if (KeyLatch[Keys.M] == false)
+            //        {
+            //            KeyLatch[Keys.M] = true;
+            //        }
+            //        break;
+            //    case KeyState.Up:
+            //        if (KeyLatch[Keys.M])
+            //        {
+            //            UserNavi.ChangeAnimation();
+            //            KeyLatch[Keys.M] = false;
+            //        }
+            //        break;
+            //}
 
         }
 
         protected override void Update(GameTime gameTime)
         {
+            graphics.ApplyChanges();
             kbstate = Keyboard.GetState();
             lastUpdate.Restart();
-//            if (!manualTick)
-//            {
-//                manualTickCount = 0;
-//            }
             base.Update(gameTime);
         }
 
-#if __WINDOWS__
-
-        private IntPtr _prevWndProc;
-        private NativeMethods.WndProc _hookProcDelegate;
-
-        public void Win32KeyboardEvents(GameWindow window)
-        {
-            _hookProcDelegate = HookProc;
-            _prevWndProc = (IntPtr)NativeMethods.SetWindowLong(window.Handle, NativeMethods.GWL_WNDPROC,
-                (int)Marshal.GetFunctionPointerForDelegate(_hookProcDelegate));
-        }
-
-        private IntPtr HookProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
-        {
-            IntPtr returnCode = NativeMethods.CallWindowProc(_prevWndProc, hWnd, msg, wParam, lParam);
-
-            switch (msg)
-            {
-                case NativeMethods.WM_NCRBUTTONDOWN:
-                    Debug.Print("WM_NCRBUTTONDOWN");
-                    break;
-
-                case NativeMethods.WM_NCLBUTTONDOWN:
-                    Debug.Print("WM_NCLBUTTONDOWN");
-                    break;
-                default:
-                    Debug.Print("DEF");
-
-                    break;
-
-            }
-
-            return returnCode;
-        }
-#endif
+        bool passonce = false;
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.SetRenderTarget(target);
+            GraphicsDevice.Clear(Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255));
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-        
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp,DepthStencilState.None, RasterizerState.CullNone);
-    
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
             if (BG_SS != null)
             {
@@ -432,23 +399,27 @@ namespace OpenBN
                 myBackground.Draw(spriteBatch);
             }
 
-            DrawComponents();
-            CustWindow.Draw();
-            DrawEnemyNames();
-            DrawDebugText();
+            if (passonce)
+            {
+                DrawComponents();
+                CustWindow.Draw();
+                DrawEnemyNames();
+                DrawDebugText();
+            }
 
             // Draw the flash
             if (flash_opacity > Math.Round(0f, 2))
             {
                 spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity);
+                passonce = true;
             }
+
 
 
             spriteBatch.End();
             GraphicsDevice.SetRenderTarget(null);
 
-            targetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp,
-                DepthStencilState.None, RasterizerState.CullNone);
+            targetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
             GraphicsDevice.Clear(Color.Black);
             targetBatch.Draw(target, Viewbox, Color.White);
             targetBatch.End();
@@ -458,7 +429,7 @@ namespace OpenBN
         }
 
 
-#region Helper Functions
+        #region Helper Functions
 
         /// <summary>
         ///     Creates a rect with color fill, with option to create another texture.
@@ -567,7 +538,7 @@ namespace OpenBN
             DebugText += "EMBROT{2,4}\r\n";
             DebugText += "CUSTOM {4:EN;4;DIS}\r\n";
 
-            
+
             DebugText = String.Format(DebugText, bgpos.X, bgpos.Y,
                 Math.Round(CustWindow.EmblemRot, 2),
                 BG_SS.AnimationGroup.Values.First().PC.ToString().ToUpper()
@@ -626,14 +597,14 @@ namespace OpenBN
             }
         }
 
-		protected override void OnExiting (object sender, EventArgs args)
-		{
-            Environment.Exit (0);
-			base.OnExiting (sender, args);
-		}
+        protected override void OnExiting(object sender, EventArgs args)
+        {
+            Environment.Exit(0);
+            base.OnExiting(sender, args);
+        }
 
-#endregion
+        #endregion
 
     }
-    
+
 }
