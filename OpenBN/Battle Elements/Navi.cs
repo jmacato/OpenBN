@@ -14,7 +14,7 @@ namespace OpenBN
     /// <summary>
     /// Base class for In-battle Navis
     /// </summary>
-    public class Navi : BattleComponent
+    public class Navi : BattleModule
     {
         int Row, Column;
         private Sprite NaviSprite;
@@ -39,7 +39,7 @@ namespace OpenBN
             {
                 if (Parent != null)
                 {
-                    Freezed = (Parent.FreezeObjects);
+                    Freezed = ((Battle)Parent).FreezeObjects;
 
                 }
                 else

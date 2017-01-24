@@ -5,8 +5,9 @@ namespace OpenBN
 {
     interface IParentComponent
     {
-        List<BattleComponent> Components { get; set; }
+        List<BattleModule> Components { get; set; }
         void UpdateComponents(GameTime gameTime);
+
         void DrawComponents();
 
     }

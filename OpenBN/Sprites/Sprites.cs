@@ -13,7 +13,7 @@ using System.Text;
 /// </summary>
 namespace OpenBN
 {
-    class Sprite
+    public class Sprite
     {
         public Dictionary<string, Animation> AnimationGroup = new Dictionary<string, Animation>();
         public Dictionary<string, string> Metadata = new Dictionary<string, string>();

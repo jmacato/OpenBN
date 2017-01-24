@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace OpenBN
 {
 
-    public class Stage : BattleComponent
+    public class Stage : BattleModule
     {
         public Point StgPos { get; set; }
 

@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace OpenBN
 {
-    public class BattleComponent
+    public class BattleModule
     {
         internal SpriteBatch spriteBatch { get; set; }
         internal ContentManager Content { get; set; }
@@ -13,11 +13,11 @@ namespace OpenBN
         internal Inputs Input { get; set; }
 
         internal bool Initialized { get; set; }
-        internal Battle Parent { get; set; }
+        internal IParentComponent Parent { get; set; }
 
         public GameTime gameTime { get; private set; }
 
-        public BattleComponent(Game parent)
+        public BattleModule(Game parent)
         {
             this.Parent = (Battle)parent;
             this.spriteBatch = ((Battle)parent).spriteBatch;
@@ -25,7 +25,7 @@ namespace OpenBN
             this.Graphics = ((Battle)parent).GraphicsDevice;
             this.Input = ((Battle)parent).Input;
 
-            if (((Battle)parent).Components == null) ((Battle)parent).Components = new List<BattleComponent>();
+            if (((Battle)parent).Components == null) ((Battle)parent).Components = new List<BattleModule>();
             ((Battle)parent).Components.Add(this);
         }
 

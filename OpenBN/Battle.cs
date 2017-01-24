@@ -12,10 +12,7 @@ using Keys = Microsoft.Xna.Framework.Input.Keys;
 using static OpenBN.MyMath;
 using System.Reflection;
 using System.Runtime.InteropServices;
-#if __WINDOWS__
-using Timer = System.Timers.Timer;
-using System.Windows.Forms;
-#endif
+
 namespace OpenBN
 {
     public class Battle : Game, IParentComponent
@@ -53,14 +50,7 @@ namespace OpenBN
         private GameTime myGameTime;
         private static Battle instance;
         public static int CONST_FRAMERATE = 64;
-        internal bool FreezeObjects = false;
-
-#if __WINDOWS__
-        bool manualTick;
-        int manualTickCount = 0;
-        Timer mTimer;
-        private bool readyToDraw;
-#endif
+        public bool FreezeObjects = false;
 
         #endregion
 
@@ -98,7 +88,7 @@ namespace OpenBN
 
 
         public bool BGChanged { get; private set; }
-        public new List<BattleComponent> Components { get; set; }
+        public new List<BattleModule> Components { get; set; }
         public bool Initialized { get; private set; }
 
         private void InitializeFields()
@@ -189,7 +179,7 @@ namespace OpenBN
         private void GraphicsDevice_DeviceReset(object sender, EventArgs e)
         {
             Debug.Print("GraphicsDevice_DeviceReset");
-            foreach (BattleComponent xx in Components)
+            foreach (BattleModule xx in Components)
             {
                 xx.Graphics = GraphicsDevice;
             }
@@ -376,6 +366,11 @@ namespace OpenBN
 
         }
 
+        internal void UnfreezeObjects()
+        {
+            FreezeObjects = false;
+        }
+
         protected override void Update(GameTime gameTime)
         {
             graphics.ApplyChanges();
@@ -447,7 +442,6 @@ namespace OpenBN
 
             if (Draw)
             {
-                //They just wanna draw it
                 spriteBatch.Draw(pixel, Rect, Color.White);
             }
             else
