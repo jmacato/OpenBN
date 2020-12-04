@@ -74,10 +74,6 @@ namespace OpenBN
             screenRes = new Size(240, 160);
             screenresscalar = 2;
 
-            //Set real screen resolution
-            graphics.PreferredBackBufferWidth = screenRes.W * screenresscalar;
-            graphics.PreferredBackBufferHeight = screenRes.H * screenresscalar;
-
             Window.Title = "OpenBN";
             Content.RootDirectory = "Content";
 
@@ -162,6 +158,12 @@ namespace OpenBN
 
         protected override void Initialize()
         {
+            
+            //Set real screen resolution
+            graphics.PreferredBackBufferWidth = screenRes.W * screenresscalar;
+            graphics.PreferredBackBufferHeight = screenRes.H * screenresscalar;
+            graphics.ApplyChanges();
+            
             base.Initialize();
         }
 
@@ -222,6 +224,7 @@ namespace OpenBN
             UpdateViewbox();
             graphics.PreferredBackBufferHeight = Viewbox.Height;
             graphics.PreferredBackBufferWidth = Viewbox.Width;
+            graphics.ApplyChanges();
         }
 
         private void LoadBG()
