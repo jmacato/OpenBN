@@ -1,19 +1,9 @@
-﻿using System;
-using System.Threading;
-using System.Net.Sockets;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Diagnostics;
-using System.ComponentModel;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Media;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
 
-namespace OpenBN
+namespace OpenBN.Helpers
 {
     public class FontHelper
     {
@@ -22,9 +12,9 @@ namespace OpenBN
         public FontHelper(ContentManager Content)
         {
             List = new Dictionary<string, SpriteFont>();
-            DirectoryInfo dir = new DirectoryInfo(Content.RootDirectory + "/Fonts");
-            FileInfo[] files = dir.GetFiles("*.*");
-            foreach (FileInfo file in files)
+            var dir = new DirectoryInfo(Content.RootDirectory + "/Fonts");
+            var files = dir.GetFiles("*.*");
+            foreach (var file in files)
             {
                 var key = file.Name.Split('.')[0];
                 var val = Content.Load<SpriteFont>("Fonts/" + key);

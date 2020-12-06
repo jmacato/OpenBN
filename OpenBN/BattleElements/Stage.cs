@@ -1,7 +1,10 @@
-﻿using Microsoft.Xna.Framework;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using OpenBN.Interfaces;
+using OpenBN.Sprites;
+using Point = OpenBN.Interfaces.Point;
 
-namespace OpenBN
+namespace OpenBN.BattleElements
 {
 
     public class Stage : BattleModule
@@ -21,11 +24,11 @@ namespace OpenBN
         public override void Draw()
         {
             base.Draw();
-            foreach (Panel Pnl in PanelArray)
+            foreach (var Pnl in PanelArray)
             {
-                string AnimationGroupKey = "";
+                var AnimationGroupKey = "";
 
-                Sprite CurAG = StageRed;
+                var CurAG = StageRed;
 
                 switch (Pnl.StgPnlClr)
                 {
@@ -75,9 +78,9 @@ namespace OpenBN
             }
 
 
-            for (int i = 0; i < 3; i++) // For each row
+            for (var i = 0; i < 3; i++) // For each row
             {
-                for (int j = 0; j < 6; j++) // For each col
+                for (var j = 0; j < 6; j++) // For each col
                 {
                     //Get the linear index of the col/row pair
                     var u = GetIndex(i, j);
@@ -96,7 +99,7 @@ namespace OpenBN
 
         public Vector2 GetStageCoords(int row, int col, Vector2 offset)
         {
-            var y = ((row + 1) * 24) - 5;
+            var y = (row + 1) * 24 - 5;
             var i = new Vector2(PnlColPnt[col], y);
             var u = offset;
             return i + u + new Vector2(StgPos.X, StgPos.Y);
@@ -108,9 +111,9 @@ namespace OpenBN
             StageRed = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Red", Graphics, Content);
             StageBlue = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Blue", Graphics, Content);
 
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
-                for (int j = 0; j < 6; j++)
+                for (var j = 0; j < 6; j++)
                 {
                     //Get the linear index of the col/row pair
                     var u = GetIndex(i, j);
@@ -168,7 +171,7 @@ namespace OpenBN
             //  6 | 7 | 8 | 9 | 10| 11
             // 12 | 13| 14| 15| 16| 17
             // Hence the need of this formula :v
-            return (((i + 1) * 6) - 5) + (j - 1);
+            return (i + 1) * 6 - 5 + (j - 1);
         }
 
         public bool IsMoveAllowed(int i, int j)
@@ -186,14 +189,4 @@ namespace OpenBN
             return false;
         }
     }
-
-
-    public class Panel
-    {
-        public StagePnlColor StgPnlClr { get; set; }
-        public StagePnlType StgPnlTyp { get; set; }
-        public Point StgPnlPos { get; set; }
-        public Point StgRowCol { get; set; }
-    }
-
 }

@@ -1,18 +1,10 @@
 ﻿using System;
-using System.Threading;
-using System.Linq;
-using System.IO;
-using System.Diagnostics;
-using System.ComponentModel;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Audio;
 
-namespace OpenBN
+namespace OpenBN.Helpers
 {
     /// <summary>
     /// Handles inputs with downpress duration and
@@ -20,7 +12,7 @@ namespace OpenBN
     /// </summary>
     public class Inputs
     {
-        public Dictionary<Keys, ExtraKeyState> KbStream = new Dictionary<Keys, ExtraKeyState>();
+        public Dictionary<Keys, ExtraKeyState> KbStream = new();
 
         public Keys[] MonitKeys;
         KeyboardState oldKeyboardState;
@@ -28,7 +20,7 @@ namespace OpenBN
         public Inputs(Keys[] MonitoredKeys)
         {
             MonitKeys = MonitoredKeys;
-            foreach (Keys x in MonitoredKeys)
+            foreach (var x in MonitoredKeys)
             {
                 KbStream.Add(x, new ExtraKeyState(KeyState.Up));
             }
@@ -49,14 +41,14 @@ namespace OpenBN
             if (Halt) return;
 
 
-            foreach (Keys u in oldKeyboardState.GetPressedKeys())
+            foreach (var u in oldKeyboardState.GetPressedKeys())
             {
                 if (!KbStream.ContainsKey(u)) continue; 
                 if (keyTrigger.IsKeyUp(u)) KbStream[u].KeyState = KeyState.Up;
                 if (keyTrigger.IsKeyDown(u)) KbStream[u].KeyState = KeyState.Down;
             }
 
-            foreach (Keys x in keyTrigger.GetPressedKeys())
+            foreach (var x in keyTrigger.GetPressedKeys())
             {
                 if (KbStream.ContainsKey(x)) //Check if it is in the monitored keys list
                 {
@@ -82,7 +74,7 @@ namespace OpenBN
 
         public void InputHandled(Keys[] x)
         {
-            foreach(Keys y in x)
+            foreach(var y in x)
             {
                 if (KbStream.ContainsKey(y)) //Check if it is in the monitored keys list
                 {
@@ -102,20 +94,6 @@ namespace OpenBN
                 case KeyState.Up: return false;
                 default: throw new InvalidCastException();
             }
-        }
-
-    }
-
-    public class ExtraKeyState
-    {
-        public KeyState KeyState { get; set; }
-        public TimeSpan RegisterDuration { get; set; }
-        public double DurDelta { get; set; }
-        public double OldDelta { get; set; }
-
-        public ExtraKeyState(KeyState k)
-        {
-            KeyState = k;
         }
 
     }

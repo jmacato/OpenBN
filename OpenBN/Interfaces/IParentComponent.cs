@@ -1,7 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 
-namespace OpenBN
+namespace OpenBN.Interfaces
 {
     interface IParentComponent
     {

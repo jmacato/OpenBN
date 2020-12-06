@@ -1,37 +1,35 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 
 /// <summary>
 /// Sprite Animation Scripting Language Parser
 /// (c) Jumar Macato 2016  
 /// </summary>
-namespace OpenBN
+namespace OpenBN.Sprites
 {
     public class Sprite
     {
-        public Dictionary<string, Animation> AnimationGroup = new Dictionary<string, Animation>();
-        public Dictionary<string, string> Metadata = new Dictionary<string, string>();
-
-        private Dictionary<string, Rectangle> TempFrames = new Dictionary<string, Rectangle>();
-        private Dictionary<int, AnimationCommand> TempCmd = new Dictionary<int, AnimationCommand>();
-
-        public Texture2D texture { get; private set; }
+        public readonly Dictionary<string, Animation> AnimationGroup = new();
+        public readonly Dictionary<string, string> Metadata = new();
+        private readonly Dictionary<string, Rectangle> TempFrames = new();
+        private readonly Dictionary<int, AnimationCommand> TempCmd = new();
+        public Texture2D texture { get; }
+        
         public Sprite(string scriptdir, string texturedir, GraphicsDevice graphics, ContentManager CM)
         {
             var script = File.ReadAllText(CM.RootDirectory + "/" + scriptdir.Trim('/').Trim('\\'));
             int ColSize = 0, RowSize = 0;
-            var t = script.Split("\r\n".ToCharArray());
-            int i = 0; string curanimkey = "";                  
+            var t = script.Replace('\r',char.MinValue).Split("\n".ToCharArray());
+            var i = 0; var curanimkey = "";                  
 
             texture = CM.Load<Texture2D>(texturedir);
             
-            foreach (string y in t)
+            foreach (var y in t)
             {
                 var x = y.Trim().Trim('\t').Split(' ');
                 switch (x[0])
@@ -41,9 +39,9 @@ namespace OpenBN
                         var ptr = x[1];
                         var rectparams = x[2].Split(',');
 
-                        int r_x = 0, r_y = 0, r_w = 0, r_h = 0;
+                        int r_x, r_y, r_w, r_h;
 
-                        if ((rectparams.Count() == 2))
+                        if (rectparams.Length == 2)
                         {
                             var row = ColSize;
                             var col = RowSize;
@@ -51,8 +49,8 @@ namespace OpenBN
                             row = Convert.ToInt32(rectparams[0]);
                             col = Convert.ToInt32(rectparams[1]);
 
-                            r_x = (ColSize * (col-1));
-                            r_y = (RowSize * (row-1));
+                            r_x = ColSize * (col-1);
+                            r_y = RowSize * (row-1);
                             r_w = ColSize;
                             r_h = RowSize;
                         } else
@@ -105,6 +103,7 @@ namespace OpenBN
                         SH.Args = x[1];
                         TempCmd.Add(i, SH);
                         break;
+                    
                     case "WAIT":
                         if (AnimationGroup.Count == 0) break;
                         i++;
@@ -137,7 +136,7 @@ namespace OpenBN
 
         public void AdvanceAllGroups()
         {
-            foreach(string Anim in AnimationGroup.Keys)
+            foreach(var Anim in AnimationGroup.Keys)
             {
                 AnimationGroup[Anim].Next();
             }
@@ -145,7 +144,7 @@ namespace OpenBN
 
         public void ResetAllGroups()
         {
-            foreach (Animation Anim in AnimationGroup.Values)
+            foreach (var Anim in AnimationGroup.Values)
             {
                 Anim.Reset();
             }
@@ -157,77 +156,4 @@ namespace OpenBN
             TempFrames.Clear();
         }
     }
-
-
-
-    public class Animation
-    {
-        public Dictionary<string, Rectangle> Frames { get; set; }
-        public Dictionary<int, AnimationCommand> Commands { get; set; }
-        public Rectangle CurrentFrame { get; private set; }
-        public int PC { get; set; }
-        public string FirstFrame;
-        public bool Active { get; private set; }
-
-        public Animation()
-        {
-            FirstFrame = "";
-            PC = 1;
-            Commands = new Dictionary<int, AnimationCommand>();
-            Frames = new Dictionary<string, Rectangle>();
-            Active = true;
-        }
-
-        int wait = 0;
-        public bool Next()
-        {
-	
-            if (!Active) return false;
-            if (wait != 0) { wait--; return true; }
-			try{
-				switch (Commands[PC].Cmd)
-				{
-				case AnimationCommands.SHOW:
-					CurrentFrame = Frames[Commands[PC].Args];
-					break;
-				case AnimationCommands.LOOP:
-					PC = Commands.Keys.First();
-					return true;
-				case AnimationCommands.STOP:
-                    Active = false;
-					return false;
-				case AnimationCommands.WAIT:
-					wait = Convert.ToInt32(Commands[PC].Args.Trim());
-					break;
-				}
-
-			} catch {
-			}
-            PC++;
-            PC = (int)MathHelper.Clamp(PC,0,Commands.Count);
-            return false;
-        }
-
-        internal void Reset()
-        {
-            PC = 1;
-            Active = true;
-        }
-    }
-
-
-    public class AnimationCommand
-    {
-        public AnimationCommands Cmd { get; set; }
-        public string Args { get; set; }
-    }
-
-    public enum AnimationCommands
-    {
-        SHOW,
-        STOP,
-        WAIT,
-        LOOP
-    }
-
 }

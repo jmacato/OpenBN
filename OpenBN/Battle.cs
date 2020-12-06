@@ -9,9 +9,13 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
-using static OpenBN.MyMath;
+using static OpenBN.Helpers.MyMath;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using OpenBN.BattleElements;
+using OpenBN.Helpers;
+using OpenBN.Interfaces;
+using OpenBN.Sprites;
 
 namespace OpenBN
 {
@@ -44,8 +48,8 @@ namespace OpenBN
         private Keys[] MonitoredKeys;
         private Keys[] ArrowKeys;
         private KeyboardState kbstate;
-        private Stopwatch totalGameTime = new Stopwatch();
-        private Stopwatch lastUpdate = new Stopwatch();
+        private Stopwatch totalGameTime = new();
+        private Stopwatch lastUpdate = new();
         private delegate void RunGameTicks();
         private GameTime myGameTime;
         private static Battle instance;
@@ -201,7 +205,7 @@ namespace OpenBN
         private void GraphicsDevice_DeviceReset(object sender, EventArgs e)
         {
             Debug.Print("GraphicsDevice_DeviceReset");
-            foreach (BattleModule xx in Components)
+            foreach (var xx in Components)
             {
                 xx.Graphics = GraphicsDevice;
             }
@@ -219,7 +223,7 @@ namespace OpenBN
             var handler = new RunGameTicks(RunTick);
             handler = RunTick;
 
-            Stopwatch MT = new Stopwatch();
+            var MT = new Stopwatch();
 
             do
             {
@@ -252,7 +256,7 @@ namespace OpenBN
             string[] bgcodelist = { "AD", "CA", "GA", "SS", "SK", "GA_HP", "GV" };
             var rnd = new Random();
 
-            var bgcode = bgcodelist[rnd.Next(bgcodelist.Count())];
+            var bgcode = bgcodelist[rnd.Next(bgcodelist.Length)];
 
             if (BG_SS != null) BG_SS.Dispose();
 
@@ -504,7 +508,7 @@ namespace OpenBN
             }
             else
             {
-                for (var x = 0; x < colorData.Count(); x++)
+                for (var x = 0; x < colorData.Length; x++)
                 {
                     colorData[x] = Colr;
                 }
@@ -548,7 +552,7 @@ namespace OpenBN
                     var RectFill =
                         new Rectangle(
                             (int)(TextPos.X - TextOffset.X),
-                            (int)TextPos.Y + 2, (int)(FontVect.X) + 2,
+                            (int)TextPos.Y + 2, (int)FontVect.X + 2,
                             (int)FontVect.Y - 4);
 
                     //Fill background
@@ -559,7 +563,7 @@ namespace OpenBN
 
                     //Draw it
                     spriteBatch.DrawString(Font2, EnemyName, TextPos, Color.White);
-                    TextOffset += (FontVect * cancelX) + new Vector2(0, 1);
+                    TextOffset += FontVect * cancelX + new Vector2(0, 1);
                     Debug.Print("Drawn!");
                 }
                 GraphicsDevice.SetRenderTarget(null);
@@ -600,7 +604,7 @@ namespace OpenBN
 
             var FontVect = Font1.MeasureString(DebugText);
             //Calculate vectors
-            var InitTextPos = new Vector2(screenResVector.X - FontVect.X - 1, (screenResVector.Y / 2) - (FontVect.Y / 2));
+            var InitTextPos = new Vector2(screenResVector.X - FontVect.X - 1, screenResVector.Y / 2 - FontVect.Y / 2);
             var TextPos = InitTextPos;
             //Draw it
             spriteBatch.DrawString(Font1, DebugText, TextPos, Color.White * 0.5f);
@@ -627,8 +631,8 @@ namespace OpenBN
                 viewportWidth = Convert.ToInt16(viewportHeight * origratio);
             }
 
-            var viewportX = (GraphicsDevice.Viewport.Width / 2) - (viewportWidth / 2);
-            var viewportY = (GraphicsDevice.Viewport.Height / 2) - (viewportHeight / 2);
+            var viewportX = GraphicsDevice.Viewport.Width / 2 - viewportWidth / 2;
+            var viewportY = GraphicsDevice.Viewport.Height / 2 - viewportHeight / 2;
 
             Viewbox = new Rectangle(viewportX, viewportY, viewportWidth, viewportHeight);
         }

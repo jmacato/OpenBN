@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using OpenBN.Helpers;
+using OpenBN.Interfaces;
+using OpenBN.Sprites;
 using static OpenBN.Helpers.Misc;
-using static OpenBN.MyMath;
-using System.Threading;
-namespace OpenBN
+using static OpenBN.Helpers.MyMath;
+
+namespace OpenBN.BattleElements
 {
     public class CustomWindow : BattleModule
     {
@@ -17,10 +20,10 @@ namespace OpenBN
         public bool BtlMsgDrawFlag = false;
         public string BattleMessageText;
         public BtlMsgStatus BattleMsgStatus;
-        public Vector2 BtlMsgAnchor = new Vector2(Battle.Instance.screenRes.W / 2, 72);
-        public Vector2 BtlMsgOrigin = new Vector2(0, 0);
-        public Vector2 BtlMsgBounds = new Vector2(0, 0);
-        public Vector2 BtlMsgScale = new Vector2(1, 1);
+        public Vector2 BtlMsgAnchor = new(Battle.Instance.screenRes.W / 2, 72);
+        public Vector2 BtlMsgOrigin = new(0, 0);
+        public Vector2 BtlMsgBounds = new(0, 0);
+        public Vector2 BtlMsgScale = new(1, 1);
         public Keys[] HandledKeys;
         public List<Keys> LatchOnlyKeys;
         public int[] waitcounter;
@@ -317,9 +320,9 @@ namespace OpenBN
                 //Approx. 1 frameunit - 1/60th of a second
                 //Unless explicitly stated tho.
                 var KEY_WAIT_THRESHOLD_MS = 80;
-                for (int i = 0; i < HandledKeys.Length; i++)
+                for (var i = 0; i < HandledKeys.Length; i++)
                 {
-                    Keys Key = HandledKeys[i];
+                    var Key = HandledKeys[i];
                     var KEY_STREAM = Input.KbStream[Key];
                     switch (KEY_STREAM.KeyState)
                     {
@@ -509,8 +512,8 @@ namespace OpenBN
             var of = 4;
             var TL = new Vector2(x, y) - new Vector2(of, of);
             var TR = new Vector2(x + w - 8, y) - new Vector2(-of, of);
-            var BL = new Vector2((x + w) - 8, y + h - 8) - new Vector2(-of, -of);
-            var BR = new Vector2(x, (y + h) - 8) - new Vector2(of, -of);
+            var BL = new Vector2(x + w - 8, y + h - 8) - new Vector2(-of, -of);
+            var BR = new Vector2(x, y + h - 8) - new Vector2(of, -of);
             spriteBatch.Draw(CustomWin.texture, TL, TextTL, Color.White);
             spriteBatch.Draw(CustomWin.texture, TR, TextTR, Color.White);
             spriteBatch.Draw(CustomWin.texture, BL, TextBL, Color.White);
@@ -571,12 +574,12 @@ namespace OpenBN
         }
         private void DrawSelectedChipSlot()
         {
-            IBattleChip[] stack = SelectedStack.ToArray();
+            var stack = SelectedStack.ToArray();
             Array.Reverse(stack);
             if (stack.Length != 0)
-                for (int i = 0; i < stack.Length; i++)
+                for (var i = 0; i < stack.Length; i++)
                 {
-                    IBattleChip x = stack[i];
+                    var x = stack[i];
                     var rect = String.Format("SELECTSLOT{0}", i + 1);
                     var destrect = RectFromString(CustomWin.Metadata[rect]);
                     destrect = new Rectangle((int)custPos.X + destrect.X, destrect.Y, 14, 14);
@@ -671,7 +674,7 @@ namespace OpenBN
                 }
                 else
                 {
-                    CustBarProgress = (CBTime.TotalMilliseconds / (1000 * 10));
+                    CustBarProgress = CBTime.TotalMilliseconds / (1000 * 10);
                 }
             }
             OldCustBarTimeSpan = DateTime.UtcNow.TimeOfDay;

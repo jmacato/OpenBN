@@ -1,14 +1,12 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
+﻿using System;
+using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+using OpenBN.Interfaces;
+using OpenBN.Sprites;
 
-namespace OpenBN
+namespace OpenBN.BattleElements
 {
 
     /// <summary>
@@ -55,7 +53,7 @@ namespace OpenBN
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OpenBN.Navi"/> class.
+        /// Initializes a new instance of the <see cref="Navi"/> class.
         /// </summary>
         /// <param name="game">Game.</param>
         /// <param name="stage">Stage.</param>
@@ -117,8 +115,8 @@ namespace OpenBN
             var KEY_A = Input.KbStream[Keys.A];
             var KEY_B = Input.KbStream[Keys.S];
 
-            if ((KEY_LEFT.KeyState == KeyState.Down && KEY_RIGHT.KeyState == KeyState.Down)) return;
-            if ((KEY_UP.KeyState == KeyState.Down && KEY_DOWN.KeyState == KeyState.Down)) return;
+            if (KEY_LEFT.KeyState == KeyState.Down && KEY_RIGHT.KeyState == KeyState.Down) return;
+            if (KEY_UP.KeyState == KeyState.Down && KEY_DOWN.KeyState == KeyState.Down) return;
 
             switch (KEY_LEFT.KeyState)
             {
@@ -248,12 +246,12 @@ namespace OpenBN
         public override void Draw()
         {
             base.Draw();
-            Rectangle up = NaviSprite.AnimationGroup[CurrentAnimation].CurrentFrame;
+            var up = NaviSprite.AnimationGroup[CurrentAnimation].CurrentFrame;
 
-            var t = stage.StgPos.Y + (stage.PnlRowPnt[Row] + Stage.StagePanelHeight) - Stage.StageFloorPadding;
-            var o = 20 - (FirstFrameRect.Width / 2);
+            var t = stage.StgPos.Y + stage.PnlRowPnt[Row] + Stage.StagePanelHeight - Stage.StageFloorPadding;
+            var o = 20 - FirstFrameRect.Width / 2;
             var x = stage.StgPos.X + stage.PnlColPnt[Column] + o;
-            Rectangle destrect = new Rectangle(x, t, up.Width, up.Height);
+            var destrect = new Rectangle(x, t, up.Width, up.Height);
 
             spriteBatch.Draw(NaviSprite.texture, destrect, up, Color.White, 0,
                 new Vector2(0, up.Height),

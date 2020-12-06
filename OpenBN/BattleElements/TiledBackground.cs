@@ -1,14 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace OpenBN
+namespace OpenBN.BattleElements
 {
-    public interface IBackground
-    {
-        void Update(Rectangle screenRectangle);
-        void Draw(SpriteBatch spriteBatch);
-    }
-
     public class TiledBackground : IBackground
     {
         public Texture2D texture;
@@ -28,20 +22,20 @@ namespace OpenBN
 
         public void Update(Rectangle cameraRectangle)
         {
-            startCoord.X = ((cameraRectangle.X / curtextrect.Width) * curtextrect.Width) - cameraRectangle.X;
-            startCoord.Y = ((cameraRectangle.Y / curtextrect.Height) * curtextrect.Height) - cameraRectangle.Y;
+            startCoord.X = cameraRectangle.X / curtextrect.Width * curtextrect.Width - cameraRectangle.X;
+            startCoord.Y = cameraRectangle.Y / curtextrect.Height * curtextrect.Height - cameraRectangle.Y;
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            for (int i = -1; i < horizontalTileCount; i++)
+            for (var i = -1; i < horizontalTileCount; i++)
             {
-                for (int j = -1; j < verticalTileCount; j++)
+                for (var j = -1; j < verticalTileCount; j++)
                 {
                     spriteBatch.Draw(texture,
                     new Rectangle(
-                    (int)startCoord.X + (i * curtextrect.Width),
-                    (int)startCoord.Y + (j * curtextrect.Height),
+                    (int)startCoord.X + i * curtextrect.Width,
+                    (int)startCoord.Y + j * curtextrect.Height,
                     curtextrect.Width, curtextrect.Height), curtextrect,
                     Color.White);
                 }

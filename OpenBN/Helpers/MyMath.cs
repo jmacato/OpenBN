@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace OpenBN
+﻿namespace OpenBN.Helpers
 {
     public static class MyMath
     {
@@ -16,7 +11,7 @@ namespace OpenBN
 
         public static T ClampR<T>(T value, T min, T max, ref ClampStatus ClampStat) where T : System.IComparable<T>
         {
-            T result = value;
+            var result = value;
             ClampStat = ClampStatus.None;
             if (value.CompareTo(max) > 0)
             {
@@ -33,7 +28,7 @@ namespace OpenBN
 
         public static T Clamp<T>(T value, T min, T max) where T : System.IComparable<T>
         {
-            T result = value;
+            var result = value;
             if (value.CompareTo(max) > 0)
             {
                 result = max;
@@ -47,7 +42,7 @@ namespace OpenBN
 
         public static T InverseClamp<T>(T value, T min, T max) where T : System.IComparable<T>
         {
-            T result = value;
+            var result = value;
             if (value.CompareTo(max) > 0)
             {
                 result = min;
