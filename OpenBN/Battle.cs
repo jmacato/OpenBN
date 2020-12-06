@@ -109,8 +109,9 @@ namespace OpenBN
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
 
-            //    Desaturate = Content.Load<Effect>("Shaders/Desaturate0");
-
+              Desaturate = Content.Load<Effect>("Effects/Desaturate");
+              Desaturate.CurrentTechnique = Desaturate.Techniques["BasicColorDrawing"];
+              Desaturate.Parameters["percent"].SetValue(0f);
             flsh = RectangleFill(new Rectangle(0, 0, screenRes.W, screenRes.H), ColorHelper.FromHex(0xF8F8F8), false);
 
             MonitoredKeys = new[]
@@ -417,7 +418,7 @@ namespace OpenBN
             spriteBatch.End();
             GraphicsDevice.SetRenderTarget(null);
 
-            targetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
+            targetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, Desaturate);
             GraphicsDevice.Clear(Color.Black);
             targetBatch.Draw(target, Viewbox, Color.White);
             targetBatch.End();

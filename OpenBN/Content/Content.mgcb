@@ -13,697 +13,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin SFX/SFX-01.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-01.wav
-
-#begin SFX/SFX-02.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-02.wav
-
-#begin SFX/SFX-03.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-03.wav
-
-#begin SFX/SFX-04.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-04.wav
-
-#begin SFX/SFX-05.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-05.wav
-
-#begin SFX/SFX-06.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-06.wav
-
-#begin SFX/SFX-07.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-07.wav
-
-#begin SFX/SFX-08.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-08.wav
-
-#begin SFX/SFX-09.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-09.wav
-
-#begin SFX/SFX-10.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-10.wav
-
-#begin SFX/SFX-11.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-11.wav
-
-#begin SFX/SFX-12.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-12.wav
-
-#begin SFX/SFX-13.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-13.wav
-
-#begin SFX/SFX-14.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-14.wav
-
-#begin SFX/SFX-15.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-15.wav
-
-#begin SFX/SFX-16.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-16.wav
-
-#begin SFX/SFX-17.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-17.wav
-
-#begin SFX/SFX-18.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-18.wav
-
-#begin SFX/SFX-19.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-19.wav
-
-#begin SFX/SFX-20.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-20.wav
-
-#begin SFX/SFX-21.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-21.wav
-
-#begin SFX/SFX-22.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-22.wav
-
-#begin SFX/SFX-23.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-23.wav
-
-#begin SFX/SFX-24.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-24.wav
-
-#begin SFX/SFX-25.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-25.wav
-
-#begin SFX/SFX-26.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-26.wav
-
-#begin SFX/SFX-27.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-27.wav
-
-#begin SFX/SFX-28.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-28.wav
-
-#begin SFX/SFX-29.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-29.wav
-
-#begin SFX/SFX-30.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-30.wav
-
-#begin SFX/SFX-31.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-31.wav
-
-#begin SFX/SFX-32.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-32.wav
-
-#begin SFX/SFX-33.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-33.wav
-
-#begin SFX/SFX-34.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-34.wav
-
-#begin SFX/SFX-35.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-35.wav
-
-#begin SFX/SFX-36.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-36.wav
-
-#begin SFX/SFX-37.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-37.wav
-
-#begin SFX/SFX-38.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-38.wav
-
-#begin SFX/SFX-39.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-39.wav
-
-#begin SFX/SFX-40.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-40.wav
-
-#begin SFX/SFX-41.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-41.wav
-
-#begin SFX/SFX-42.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-42.wav
-
-#begin SFX/SFX-43.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-43.wav
-
-#begin SFX/SFX-44.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-44.wav
-
-#begin SFX/SFX-45.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-45.wav
-
-#begin SFX/SFX-46.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-46.wav
-
-#begin SFX/SFX-47.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-47.wav
-
-#begin SFX/SFX-48.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-48.wav
-
-#begin SFX/SFX-49.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-49.wav
-
-#begin SFX/SFX-50.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-50.wav
-
-#begin SFX/SFX-51.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-51.wav
-
-#begin SFX/SFX-52.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-52.wav
-
-#begin SFX/SFX-53.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-53.wav
-
-#begin SFX/SFX-54.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-54.wav
-
-#begin SFX/SFX-55.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-55.wav
-
-#begin SFX/SFX-56.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-56.wav
-
-#begin SFX/SFX-57.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-57.wav
-
-#begin SFX/SFX-58.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-58.wav
-
-#begin SFX/SFX-59.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-59.wav
-
-#begin SFX/SFX-60.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-60.wav
-
-#begin SFX/SFX-61.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-61.wav
-
-#begin SFX/SFX-62.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-62.wav
-
-#begin SFX/SFX-63.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-63.wav
-
-#begin SFX/SFX-64.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-64.wav
-
-#begin SFX/SFX-65.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-65.wav
-
-#begin SFX/SFX-66.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-66.wav
-
-#begin SFX/SFX-67.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-67.wav
-
-#begin SFX/SFX-68.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-68.wav
-
-#begin SFX/SFX-69.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-69.wav
-
-#begin SFX/SFX-70.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-70.wav
-
-#begin SFX/SFX-71.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-71.wav
-
-#begin SFX/SFX-72.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-72.wav
-
-#begin SFX/SFX-73.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-73.wav
-
-#begin SFX/SFX-74.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-74.wav
-
-#begin SFX/SFX-75.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-75.wav
-
-#begin SFX/SFX-76.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-76.wav
-
-#begin SFX/SFX-77.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-77.wav
-
-#begin SFX/SFX-78.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-78.wav
-
-#begin SFX/SFX-79.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-79.wav
-
-#begin SFX/SFX-80.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-80.wav
-
-#begin SFX/SFX-81.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-81.wav
-
-#begin SFX/SFX-82.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-82.wav
-
-#begin SFX/SFX-83.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-83.wav
-
-#begin SFX/SFX-84.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-84.wav
-
-#begin SFX/SFX-85.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-85.wav
-
-#begin SFX/SFX-86.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-86.wav
-
-#begin SFX/SFX-87.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:SFX/SFX-87.wav
-
-#begin BGM/BGM-01.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:BGM/BGM-01.wav
-
-#begin BGM/BGM-02.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:BGM/BGM-02.wav
-
-#begin Misc/Custwindow.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Misc/Custwindow.png
-
-#begin Fonts/ChipCodesA.png
-/importer:TextureImporter
-/processor:FontTextureProcessor
-/processorParam:FirstCharacter=@
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Color
-/build:Fonts/ChipCodesA.png
-
-#begin Fonts/ChipCodesB.png
-/importer:TextureImporter
-/processor:FontTextureProcessor
-/processorParam:FirstCharacter=@
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Color
-/build:Fonts/ChipCodesB.png
-
-#begin Fonts/ChipDesc.png
-/importer:TextureImporter
-/processor:FontTextureProcessor
-/processorParam:FirstCharacter= 
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Color
-/build:Fonts/ChipDesc.png
-
-#begin Fonts/HPFont.png
-/importer:TextureImporter
-/processor:FontTextureProcessor
-/processorParam:FirstCharacter=0
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Color
-/build:Fonts/HPFont.png
-
-#begin Fonts/HPFontMinus.png
-/importer:TextureImporter
-/processor:FontTextureProcessor
-/processorParam:FirstCharacter=0
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Color
-/build:Fonts/HPFontMinus.png
-
-#begin Fonts/HPFontPlus.png
-/importer:TextureImporter
-/processor:FontTextureProcessor
-/processorParam:FirstCharacter=0
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Color
-/build:Fonts/HPFontPlus.png
-
-#begin Fonts/Normal.png
-/importer:TextureImporter
-/processor:FontTextureProcessor
-/processorParam:FirstCharacter= 
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Color
-/build:Fonts/Normal.png
-
-#begin Fonts/Normal2.png
-/importer:TextureImporter
-/processor:FontTextureProcessor
-/processorParam:FirstCharacter= 
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Color
-/build:Fonts/Normal2.png
-
-#begin BG/AD/AD.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:BG/AD/AD.png
-
-#begin BattleObj/Stages/Stage.sasl
-/copy:BattleObj/Stages/Stage.sasl
-
-#begin BG/AD/BG.sasl
-/copy:BG/AD/BG.sasl
-
-#begin BG/GA/BG.sasl
-/copy:BG/GA/BG.sasl
-
-#begin BG/GA_HP/BG.sasl
-/copy:BG/GA_HP/BG.sasl
-
-#begin BG/GV/BG.sasl
-/copy:BG/GV/BG.sasl
-
-#begin Misc/CustBar.sasl
-/copy:Misc/CustBar.sasl
-
-#begin Misc/Custwindow-SS.sasl
-/copy:Misc/Custwindow-SS.sasl
-
-#begin Navi/MM/MM.sasl
-/copy:Navi/MM/MM.sasl
-
-#begin BG/CA/BG.sasl
-/copy:BG/CA/BG.sasl
-
-#begin BG/CA/CA.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:BG/CA/CA.png
-
-#begin BG/SK/BG.sasl
-/copy:BG/SK/BG.sasl
-
-#begin BG/SK/SK.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:BG/SK/SK.png
-
-#begin BG/SS/BG.sasl
-/copy:BG/SS/BG.sasl
-
-#begin BG/SS/SS.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:BG/SS/SS.png
-
 #begin BattleObj/Stages/Blue.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -728,53 +37,8 @@
 /processorParam:TextureFormat=Color
 /build:BattleObj/Stages/Red.png
 
-#begin Navi/MM/Emblem.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Navi/MM/Emblem.png
-
-#begin BG/GA/GA.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:BG/GA/GA.png
-
-#begin BG/GA_HP/GA_HP.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:BG/GA_HP/GA_HP.png
-
-#begin BG/GV/GV.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:BG/GV/GV.png
+#begin BattleObj/Stages/Stage.sasl
+/copy:BattleObj/Stages/Stage.sasl
 
 #begin BC/beast1.PNG
 /importer:TextureImporter
@@ -847,6 +111,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:BC/bugfrag_10.png
+
+#begin BC/ChipIcons.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=False
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:BC/ChipIcons.png
 
 #begin BC/doubleBeast.png
 /importer:TextureImporter
@@ -1903,6 +1179,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:BC/nav-tomahawk.png
+
+#begin BC/schip_secret01.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:BC/schip_secret01.png
+
+#begin BC/schip_secret02.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:BC/schip_secret02.png
 
 #begin BC/schip001.png
 /importer:TextureImporter
@@ -4304,7 +3604,7 @@
 /processorParam:TextureFormat=Color
 /build:BC/schip200.png
 
-#begin BC/schip_secret01.png
+#begin BG/AD/AD.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -4314,9 +3614,15 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:BC/schip_secret01.png
+/build:BG/AD/AD.png
 
-#begin BC/schip_secret02.png
+#begin BG/AD/BG.sasl
+/copy:BG/AD/BG.sasl
+
+#begin BG/CA/BG.sasl
+/copy:BG/CA/BG.sasl
+
+#begin BG/CA/CA.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -4326,27 +3632,106 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:BC/schip_secret02.png
+/build:BG/CA/CA.png
 
-#begin Fonts/ChipDmg.png
-/importer:TextureImporter
-/processor:FontTextureProcessor
-/processorParam:FirstCharacter=/
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Color
-/build:Fonts/ChipDmg.png
+#begin BG/GA_HP/BG.sasl
+/copy:BG/GA_HP/BG.sasl
 
-#begin BC/ChipIcons.png
+#begin BG/GA_HP/GA_HP.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
 /processorParam:ColorKeyEnabled=True
 /processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=False
+/processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:BC/ChipIcons.png
+/build:BG/GA_HP/GA_HP.png
+
+#begin BG/GA/BG.sasl
+/copy:BG/GA/BG.sasl
+
+#begin BG/GA/GA.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:BG/GA/GA.png
+
+#begin BG/GV/BG.sasl
+/copy:BG/GV/BG.sasl
+
+#begin BG/GV/GV.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:BG/GV/GV.png
+
+#begin BG/SK/BG.sasl
+/copy:BG/SK/BG.sasl
+
+#begin BG/SK/SK.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:BG/SK/SK.png
+
+#begin BG/SS/BG.sasl
+/copy:BG/SS/BG.sasl
+
+#begin BG/SS/SS.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:BG/SS/SS.png
+
+#begin BGM/BGM-01.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:BGM/BGM-01.wav
+
+#begin BGM/BGM-02.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:BGM/BGM-02.wav
+
+#begin Effects/Desaturate.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Desaturate.fx
+
+#begin Effects/Mosaicing.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Mosaicing.fx
 
 #begin Fonts/BattleMessage.png
 /importer:TextureImporter
@@ -4356,6 +3741,38 @@
 /processorParam:TextureFormat=Color
 /build:Fonts/BattleMessage.png
 
+#begin Fonts/ChipCodesA.png
+/importer:TextureImporter
+/processor:FontTextureProcessor
+/processorParam:FirstCharacter=@
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Color
+/build:Fonts/ChipCodesA.png
+
+#begin Fonts/ChipCodesB.png
+/importer:TextureImporter
+/processor:FontTextureProcessor
+/processorParam:FirstCharacter=@
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Color
+/build:Fonts/ChipCodesB.png
+
+#begin Fonts/ChipDesc.png
+/importer:TextureImporter
+/processor:FontTextureProcessor
+/processorParam:FirstCharacter= 
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Color
+/build:Fonts/ChipDesc.png
+
+#begin Fonts/ChipDmg.png
+/importer:TextureImporter
+/processor:FontTextureProcessor
+/processorParam:FirstCharacter=/
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Color
+/build:Fonts/ChipDmg.png
+
 #begin Fonts/Debug.png
 /importer:TextureImporter
 /processor:FontTextureProcessor
@@ -4363,6 +3780,46 @@
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Color
 /build:Fonts/Debug.png
+
+#begin Fonts/HPFont.png
+/importer:TextureImporter
+/processor:FontTextureProcessor
+/processorParam:FirstCharacter=0
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Color
+/build:Fonts/HPFont.png
+
+#begin Fonts/HPFontMinus.png
+/importer:TextureImporter
+/processor:FontTextureProcessor
+/processorParam:FirstCharacter=0
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Color
+/build:Fonts/HPFontMinus.png
+
+#begin Fonts/HPFontPlus.png
+/importer:TextureImporter
+/processor:FontTextureProcessor
+/processorParam:FirstCharacter=0
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Color
+/build:Fonts/HPFontPlus.png
+
+#begin Fonts/Normal.png
+/importer:TextureImporter
+/processor:FontTextureProcessor
+/processorParam:FirstCharacter= 
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Color
+/build:Fonts/Normal.png
+
+#begin Fonts/Normal2.png
+/importer:TextureImporter
+/processor:FontTextureProcessor
+/processorParam:FirstCharacter= 
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Color
+/build:Fonts/Normal2.png
 
 #begin Misc/CustBar.png
 /importer:TextureImporter
@@ -4376,6 +3833,36 @@
 /processorParam:TextureFormat=Color
 /build:Misc/CustBar.png
 
+#begin Misc/CustBar.sasl
+/copy:Misc/CustBar.sasl
+
+#begin Misc/Custwindow-SS.sasl
+/copy:Misc/Custwindow-SS.sasl
+
+#begin Misc/Custwindow.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Misc/Custwindow.png
+
+#begin Navi/MM/Emblem.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Navi/MM/Emblem.png
+
 #begin Navi/MM/MM.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -4387,4 +3874,529 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Navi/MM/MM.png
+
+#begin Navi/MM/MM.sasl
+/copy:Navi/MM/MM.sasl
+
+#begin SFX/SFX-01.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-01.wav
+
+#begin SFX/SFX-02.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-02.wav
+
+#begin SFX/SFX-03.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-03.wav
+
+#begin SFX/SFX-04.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-04.wav
+
+#begin SFX/SFX-05.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-05.wav
+
+#begin SFX/SFX-06.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-06.wav
+
+#begin SFX/SFX-07.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-07.wav
+
+#begin SFX/SFX-08.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-08.wav
+
+#begin SFX/SFX-09.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-09.wav
+
+#begin SFX/SFX-10.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-10.wav
+
+#begin SFX/SFX-11.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-11.wav
+
+#begin SFX/SFX-12.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-12.wav
+
+#begin SFX/SFX-13.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-13.wav
+
+#begin SFX/SFX-14.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-14.wav
+
+#begin SFX/SFX-15.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-15.wav
+
+#begin SFX/SFX-16.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-16.wav
+
+#begin SFX/SFX-17.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-17.wav
+
+#begin SFX/SFX-18.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-18.wav
+
+#begin SFX/SFX-19.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-19.wav
+
+#begin SFX/SFX-20.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-20.wav
+
+#begin SFX/SFX-21.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-21.wav
+
+#begin SFX/SFX-22.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-22.wav
+
+#begin SFX/SFX-23.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-23.wav
+
+#begin SFX/SFX-24.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-24.wav
+
+#begin SFX/SFX-25.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-25.wav
+
+#begin SFX/SFX-26.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-26.wav
+
+#begin SFX/SFX-27.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-27.wav
+
+#begin SFX/SFX-28.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-28.wav
+
+#begin SFX/SFX-29.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-29.wav
+
+#begin SFX/SFX-30.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-30.wav
+
+#begin SFX/SFX-31.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-31.wav
+
+#begin SFX/SFX-32.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-32.wav
+
+#begin SFX/SFX-33.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-33.wav
+
+#begin SFX/SFX-34.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-34.wav
+
+#begin SFX/SFX-35.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-35.wav
+
+#begin SFX/SFX-36.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-36.wav
+
+#begin SFX/SFX-37.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-37.wav
+
+#begin SFX/SFX-38.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-38.wav
+
+#begin SFX/SFX-39.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-39.wav
+
+#begin SFX/SFX-40.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-40.wav
+
+#begin SFX/SFX-41.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-41.wav
+
+#begin SFX/SFX-42.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-42.wav
+
+#begin SFX/SFX-43.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-43.wav
+
+#begin SFX/SFX-44.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-44.wav
+
+#begin SFX/SFX-45.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-45.wav
+
+#begin SFX/SFX-46.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-46.wav
+
+#begin SFX/SFX-47.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-47.wav
+
+#begin SFX/SFX-48.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-48.wav
+
+#begin SFX/SFX-49.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-49.wav
+
+#begin SFX/SFX-50.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-50.wav
+
+#begin SFX/SFX-51.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-51.wav
+
+#begin SFX/SFX-52.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-52.wav
+
+#begin SFX/SFX-53.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-53.wav
+
+#begin SFX/SFX-54.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-54.wav
+
+#begin SFX/SFX-55.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-55.wav
+
+#begin SFX/SFX-56.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-56.wav
+
+#begin SFX/SFX-57.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-57.wav
+
+#begin SFX/SFX-58.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-58.wav
+
+#begin SFX/SFX-59.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-59.wav
+
+#begin SFX/SFX-60.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-60.wav
+
+#begin SFX/SFX-61.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-61.wav
+
+#begin SFX/SFX-62.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-62.wav
+
+#begin SFX/SFX-63.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-63.wav
+
+#begin SFX/SFX-64.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-64.wav
+
+#begin SFX/SFX-65.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-65.wav
+
+#begin SFX/SFX-66.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-66.wav
+
+#begin SFX/SFX-67.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-67.wav
+
+#begin SFX/SFX-68.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-68.wav
+
+#begin SFX/SFX-69.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-69.wav
+
+#begin SFX/SFX-70.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-70.wav
+
+#begin SFX/SFX-71.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-71.wav
+
+#begin SFX/SFX-72.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-72.wav
+
+#begin SFX/SFX-73.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-73.wav
+
+#begin SFX/SFX-74.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-74.wav
+
+#begin SFX/SFX-75.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-75.wav
+
+#begin SFX/SFX-76.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-76.wav
+
+#begin SFX/SFX-77.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-77.wav
+
+#begin SFX/SFX-78.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-78.wav
+
+#begin SFX/SFX-79.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-79.wav
+
+#begin SFX/SFX-80.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-80.wav
+
+#begin SFX/SFX-81.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-81.wav
+
+#begin SFX/SFX-82.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-82.wav
+
+#begin SFX/SFX-83.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-83.wav
+
+#begin SFX/SFX-84.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-84.wav
+
+#begin SFX/SFX-85.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-85.wav
+
+#begin SFX/SFX-86.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-86.wav
+
+#begin SFX/SFX-87.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SFX/SFX-87.wav
 
