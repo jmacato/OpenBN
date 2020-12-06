@@ -114,9 +114,23 @@ namespace OpenBN
             targetBatch = new SpriteBatch(GraphicsDevice);
             target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
 
-              Desaturate = Content.Load<Effect>("Effects/Desaturate");
-              Desaturate.CurrentTechnique = Desaturate.Techniques["BasicColorDrawing"];
-              Desaturate.Parameters["percent"].SetValue(1f);
+            // Desaturate = Content.Load<Effect>("Effects/Mosaicing");
+            // Desaturate.CurrentTechnique = Desaturate.Techniques["Mosaic"];
+            //
+            // Desaturate.Parameters["TextureW"].SetValue(240);
+            // Desaturate.Parameters["TextureH"].SetValue(160);
+            // Desaturate.Parameters["CellSizeW"].SetValue(1);
+            // Desaturate.Parameters["CellSizeH"].SetValue(1);
+            
+            // Desaturate = Content.Load<Effect>("Effects/Mosaicing");
+            // Desaturate.CurrentTechnique = Desaturate.Techniques["Mosaic"];
+            //
+            // Desaturate.Parameters["TextureW"].SetValue(240);
+            // Desaturate.Parameters["TextureH"].SetValue(160);
+            // Desaturate.Parameters["CellSizeW"].SetValue(1);
+            // Desaturate.Parameters["CellSizeH"].SetValue(1);
+
+               
             flsh = RectangleFill(new Rectangle(0, 0, screenRes.W, screenRes.H), ColorHelper.FromHex(0xF8F8F8), false);
 
             MonitoredKeys = new[]
@@ -283,7 +297,7 @@ namespace OpenBN
                         if (BG_SS.Metadata.ContainsKey("FRAMEDELAY"))
                         {
                             framedel = Convert.ToInt32(BG_SS.Metadata["FRAMEDELAY"]);
-                            framedel = MyMath.Clamp(framedel, 2, 128);
+                            framedel = Clamp(framedel, 2, 128);
                         }
                         else
                         {
@@ -397,7 +411,7 @@ namespace OpenBN
                     {
                         desat += 0.1f;
                         desat = MathHelper.Clamp(desat, 0, 1);
-                        Desaturate.Parameters["percent"].SetValue(desat);
+                        // Desaturate.Parameters["percent"].SetValue(desat);
                         // SoundEffect.MasterVolume = desat;
                     }
                     //
@@ -411,7 +425,7 @@ namespace OpenBN
                     {
                         desat -= 0.1f;
                         desat = MathHelper.Clamp(desat, 0, 1);
-                        Desaturate.Parameters["percent"].SetValue(desat);
+                        // Desaturate.Parameters["percent"].SetValue(desat);
                         // SoundEffect.MasterVolume = desat;
                     }
                     //
@@ -458,7 +472,7 @@ namespace OpenBN
             spriteBatch.End();
             GraphicsDevice.SetRenderTarget(null);
 
-            targetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, Desaturate);
+            targetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
             GraphicsDevice.Clear(Color.Black);
             targetBatch.Draw(target, Viewbox, Color.White);
             targetBatch.End();
