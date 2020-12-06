@@ -2,7 +2,7 @@ namespace OpenBN.Interfaces
 {
     public enum ChipElements
     {
-        FIRE, AQUA, THUNDER, WOOD, SWORD, WIND,
-        TARGET, BLOCK, MODIFIER, WRECK, NULL, NONE
+        Fire, Aqua, Thunder, Wood, Sword, Wind,
+        Target, Block, Modifier, Wreck, Null, None
     }
 }

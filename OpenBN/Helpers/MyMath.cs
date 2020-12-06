@@ -9,19 +9,19 @@
             Max
         }
 
-        public static T ClampR<T>(T value, T min, T max, ref ClampStatus ClampStat) where T : System.IComparable<T>
+        public static T ClampR<T>(T value, T min, T max, ref ClampStatus clampStat) where T : System.IComparable<T>
         {
             var result = value;
-            ClampStat = ClampStatus.None;
+            clampStat = ClampStatus.None;
             if (value.CompareTo(max) > 0)
             {
                 result = max;
-                ClampStat = ClampStatus.Max;
+                clampStat = ClampStatus.Max;
             }
             if (value.CompareTo(min) < 0)
             {
                 result = min;
-                ClampStat = ClampStatus.Min;
+                clampStat = ClampStatus.Min;
             }
             return result;
         }

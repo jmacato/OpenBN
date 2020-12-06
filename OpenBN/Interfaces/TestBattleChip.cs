@@ -12,23 +12,23 @@ namespace OpenBN.Interfaces
         public int Damage { get; set; }
         public ChipElements Element { get; set; }
         public char Code { get; set; }
-        public SpriteBatch SB { get; set; }
+        public SpriteBatch Sb { get; set; }
         public GraphicsDevice Graphics { get; set; }
         public ContentManager Content { get; set; }
         public bool IsSelected { get; set; }
 
         public Point SlotRowCol { get; set; }
 
-        public void Execute(CustomWindow CW, Battle BT, Stage ST)
+        public void Execute(CustomWindow cw, Battle bt, Stage st)
         {
 
         }
 
-        public TestBattleChip(int id, ChipIconProvider iconprov, ContentManager Content, string dspn, int dmg, ChipElements elem, char code)
+        public TestBattleChip(int id, ChipIconProvider iconprov, ContentManager content, string dspn, int dmg, ChipElements elem, char code)
         {
 
-            this.Content = Content;
-            Image = Content.Load<Texture2D>("BC/schip" + id.ToString().PadLeft(3, '0'));
+            this.Content = content;
+            Image = content.Load<Texture2D>("BC/schip" + id.ToString().PadLeft(3, '0'));
             DisplayName = dspn;
             Damage = dmg;
             Element = elem;

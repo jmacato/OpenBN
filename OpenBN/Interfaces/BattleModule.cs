@@ -8,7 +8,7 @@ namespace OpenBN.Interfaces
 {
     public class BattleModule
     {
-        internal SpriteBatch spriteBatch { get; set; }
+        internal SpriteBatch SpriteBatch { get; set; }
         internal ContentManager Content { get; set; }
         internal GraphicsDevice Graphics { get; set; }
         internal Inputs Input { get; set; }
@@ -16,12 +16,12 @@ namespace OpenBN.Interfaces
         internal bool Initialized { get; set; }
         internal IParentComponent Parent { get; set; }
 
-        public GameTime gameTime { get; private set; }
+        public GameTime GameTime { get; private set; }
 
         public BattleModule(Game parent)
         {
             this.Parent = (Battle)parent;
-            this.spriteBatch = ((Battle)parent).spriteBatch;
+            this.SpriteBatch = ((Battle)parent).SpriteBatch;
             this.Content = ((Battle)parent).Content;
             this.Graphics = ((Battle)parent).GraphicsDevice;
             this.Input = ((Battle)parent).Input;
@@ -33,7 +33,7 @@ namespace OpenBN.Interfaces
         public virtual void Update(GameTime gameTime)
         {
             if (!Initialized) return;
-            this.gameTime = gameTime;
+            this.GameTime = gameTime;
         }
 
         public virtual void Draw()

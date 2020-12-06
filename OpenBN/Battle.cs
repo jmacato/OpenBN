@@ -24,36 +24,36 @@ namespace OpenBN
         public static string PublicDebug = "";
         #region Declares        
         public Navi UserNavi;
-        public Size screenRes;
-        public Vector2 screenResVector, cancelX, cancelY, bgpos;
-        private Rectangle Viewbox;
-        private Rectangle defaultrect;
-        public GraphicsDeviceManager graphics;
-        public SpriteBatch spriteBatch, targetBatch;
-        private BackgroundWorker bgUpdater, flash, MainTimer;
+        public Size ScreenRes;
+        public Vector2 ScreenResVector, CancelX, CancelY, Bgpos;
+        private Rectangle _viewbox;
+        private Rectangle _defaultrect;
+        public GraphicsDeviceManager Graphics;
+        public SpriteBatch SpriteBatch, TargetBatch;
+        private BackgroundWorker _bgUpdater, _flash, _mainTimer;
         public static Dictionary<Keys, bool> KeyLatch;
-        private List<string> EnemyNames;
+        private List<string> _enemyNames;
         public Inputs Input;
         public FontHelper Fonts;
         public Stage Stage;
-        private TiledBackground myBackground;
-        private CustomWindow CustWindow;
-        private Texture2D flsh;
-        private RenderTarget2D target, EnemyNameCache;
-        private Sprite BG_SS;
-        private Effect Desaturate;
-        private float flash_opacity;
-        private bool terminateGame, displayEnemyNames;
-        private int scrollcnt, screenresscalar;
-        private Keys[] MonitoredKeys;
-        private Keys[] ArrowKeys;
-        private KeyboardState kbstate;
-        private Stopwatch totalGameTime = new();
-        private Stopwatch lastUpdate = new();
+        private TiledBackground _myBackground;
+        private CustomWindow _custWindow;
+        private Texture2D _flsh;
+        private RenderTarget2D _target, _enemyNameCache;
+        private Sprite _bgSs;
+        private Effect _desaturate;
+        private float _flashOpacity;
+        private bool _terminateGame, _displayEnemyNames;
+        private int _scrollcnt, _screenresscalar;
+        private Keys[] _monitoredKeys;
+        private Keys[] _arrowKeys;
+        private KeyboardState _kbstate;
+        private Stopwatch _totalGameTime = new();
+        private Stopwatch _lastUpdate = new();
         private delegate void RunGameTicks();
-        private GameTime myGameTime;
-        private static Battle instance;
-        public static int CONST_FRAMERATE = 64;
+        private GameTime _myGameTime;
+        private static Battle _instance;
+        public static int ConstFramerate = 64;
         public bool FreezeObjects = false;
 
         #endregion
@@ -62,21 +62,21 @@ namespace OpenBN
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new Battle();
+                    _instance = new Battle();
                 }
-                return instance;
+                return _instance;
             }
         }
 
         public Battle()
         {
 
-            graphics = new GraphicsDeviceManager(this);
-            graphics.IsFullScreen = false;
-            screenRes = new Size(240, 160);
-            screenresscalar = 2;
+            Graphics = new GraphicsDeviceManager(this);
+            Graphics.IsFullScreen = false;
+            ScreenRes = new Size(240, 160);
+            _screenresscalar = 2;
 
             Window.Title = "OpenBN";
             Content.RootDirectory = "Content";
@@ -92,31 +92,31 @@ namespace OpenBN
         }
 
 
-        public bool BGChanged { get; private set; }
+        public bool BgChanged { get; private set; }
         public new List<BattleModule> Components { get; set; }
         public bool Initialized { get; private set; }
 
         private void InitializeFields()
         {
 
-            bgpos = new Vector2(0, 0);
-            bgUpdater = new BackgroundWorker();
-            cancelX = new Vector2(0, 1);
-            cancelY = new Vector2(1, 0);
-            defaultrect = new Rectangle(0, 0, 240, 160);
-            displayEnemyNames = true;
-            EnemyNames = new List<string>(3);
-            flash_opacity = 1;
+            Bgpos = new Vector2(0, 0);
+            _bgUpdater = new BackgroundWorker();
+            CancelX = new Vector2(0, 1);
+            CancelY = new Vector2(1, 0);
+            _defaultrect = new Rectangle(0, 0, 240, 160);
+            _displayEnemyNames = true;
+            _enemyNames = new List<string>(3);
+            _flashOpacity = 1;
             KeyLatch = new Dictionary<Keys, bool>();
-            screenResVector = new Vector2(240, 160);
-            scrollcnt = 0;
-            Viewbox = new Rectangle(0, 0, 240, 160);
-            terminateGame = false;
-            totalGameTime = new Stopwatch();
-            lastUpdate = new Stopwatch();
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-            targetBatch = new SpriteBatch(GraphicsDevice);
-            target = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
+            ScreenResVector = new Vector2(240, 160);
+            _scrollcnt = 0;
+            _viewbox = new Rectangle(0, 0, 240, 160);
+            _terminateGame = false;
+            _totalGameTime = new Stopwatch();
+            _lastUpdate = new Stopwatch();
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            TargetBatch = new SpriteBatch(GraphicsDevice);
+            _target = new RenderTarget2D(GraphicsDevice, ScreenRes.W, ScreenRes.H);
 
             // Desaturate = Content.Load<Effect>("Effects/Mosaicing");
             // Desaturate.CurrentTechnique = Desaturate.Techniques["Mosaic"];
@@ -135,58 +135,58 @@ namespace OpenBN
             // Desaturate.Parameters["CellSizeH"].SetValue(1);
 
                
-            flsh = RectangleFill(new Rectangle(0, 0, screenRes.W, screenRes.H), ColorHelper.FromHex(0xF8F8F8), false);
+            _flsh = RectangleFill(new Rectangle(0, 0, ScreenRes.W, ScreenRes.H), ColorHelper.FromHex(0xF8F8F8), false);
 
-            MonitoredKeys = new[]
+            _monitoredKeys = new[]
             {
                 Keys.A, Keys.S, Keys.X, Keys.Z,
                 Keys.Up, Keys.Down, Keys.Left, Keys.Right, Keys.Q, Keys.W, Keys.R, Keys.M
             };
 
-            ArrowKeys = new[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
+            _arrowKeys = new[] { Keys.Up, Keys.Down, Keys.Left, Keys.Right };
 
             Fonts = new FontHelper(Content);
-            Input = new Inputs(MonitoredKeys);
+            Input = new Inputs(_monitoredKeys);
             Input.Halt = true;
 
             Stage = new Stage(this);
-            CustWindow = new CustomWindow(this);
-            LoadBG();
-            bgUpdater = new BackgroundWorker();
-            flash = new BackgroundWorker();
-            MainTimer = new BackgroundWorker();
+            _custWindow = new CustomWindow(this);
+            LoadBg();
+            _bgUpdater = new BackgroundWorker();
+            _flash = new BackgroundWorker();
+            _mainTimer = new BackgroundWorker();
             UserNavi = new Navi(this, Stage);
 
             //Assign bgwrkrs
-            bgUpdater.DoWork += BgUpdater_DoWork;
-            flash.DoWork += Flash_DoWork;
-            MainTimer.DoWork += MainTimer_DoWork;
+            _bgUpdater.DoWork += BgUpdater_DoWork;
+            _flash.DoWork += Flash_DoWork;
+            _mainTimer.DoWork += MainTimer_DoWork;
             GraphicsDevice.DeviceLost += GraphicsDevice_DeviceLost;
             GraphicsDevice.DeviceReset += GraphicsDevice_DeviceReset;
 
-            foreach (var x in MonitoredKeys)
+            foreach (var x in _monitoredKeys)
             {
                 KeyLatch.Add(x, false);
             }
 
-            flash.RunWorkerAsync();
+            _flash.RunWorkerAsync();
             UpdateViewbox();
 
 
-            MainTimer.RunWorkerAsync();
-            graphics.SynchronizeWithVerticalRetrace = false;
+            _mainTimer.RunWorkerAsync();
+            Graphics.SynchronizeWithVerticalRetrace = false;
             Initialized = true;
-            totalGameTime.Start();
-            lastUpdate.Start();
+            _totalGameTime.Start();
+            _lastUpdate.Start();
         }
 
         protected override void Initialize()
         {
             
             //Set real screen resolution
-            graphics.PreferredBackBufferWidth = screenRes.W * screenresscalar;
-            graphics.PreferredBackBufferHeight = screenRes.H * screenresscalar;
-            graphics.ApplyChanges();
+            Graphics.PreferredBackBufferWidth = ScreenRes.W * _screenresscalar;
+            Graphics.PreferredBackBufferHeight = ScreenRes.H * _screenresscalar;
+            Graphics.ApplyChanges();
             
             base.Initialize();
         }
@@ -223,65 +223,65 @@ namespace OpenBN
             var handler = new RunGameTicks(RunTick);
             handler = RunTick;
 
-            var MT = new Stopwatch();
+            var mt = new Stopwatch();
 
             do
             {
-                MT.Start();
+                mt.Start();
                 handler();
-                WaitFrame(MT);
-                MT.Reset();
-            } while (!terminateGame);
+                WaitFrame(mt);
+                mt.Reset();
+            } while (!_terminateGame);
         }
 
 
-        private void WaitFrame(Stopwatch MT)
+        private void WaitFrame(Stopwatch mt)
         {
             do
             {
                 Thread.Sleep(TimeSpan.FromMilliseconds(4.1666666667));
-            } while (MT.Elapsed <= TimeSpan.FromMilliseconds(1000 / CONST_FRAMERATE));
+            } while (mt.Elapsed <= TimeSpan.FromMilliseconds(1000 / ConstFramerate));
         }
 
         private void Window_ClientSizeChanged(object sender, EventArgs e)
         {
             UpdateViewbox();
-            graphics.PreferredBackBufferHeight = Viewbox.Height;
-            graphics.PreferredBackBufferWidth = Viewbox.Width;
-            graphics.ApplyChanges();
+            Graphics.PreferredBackBufferHeight = _viewbox.Height;
+            Graphics.PreferredBackBufferWidth = _viewbox.Width;
+            Graphics.ApplyChanges();
         }
 
-        private void LoadBG()
+        private void LoadBg()
         {
             string[] bgcodelist = { "AD", "CA", "GA", "SS", "SK", "GA_HP", "GV" };
             var rnd = new Random();
 
             var bgcode = bgcodelist[rnd.Next(bgcodelist.Length)];
 
-            if (BG_SS != null) BG_SS.Dispose();
+            if (_bgSs != null) _bgSs.Dispose();
 
-            BG_SS = new Sprite("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);
-            myBackground = new TiledBackground(BG_SS.AnimationGroup.Values.First().CurrentFrame, 240, 160, BG_SS.texture);
-            myBackground.startCoord = bgpos;
-            BGChanged = true;
+            _bgSs = new Sprite("/BG/" + bgcode + "/BG.sasl", "BG/" + bgcode + "/" + bgcode, GraphicsDevice, Content);
+            _myBackground = new TiledBackground(_bgSs.AnimationGroup.Values.First().CurrentFrame, 240, 160, _bgSs.Texture);
+            _myBackground.StartCoord = Bgpos;
+            BgChanged = true;
         }
 
         private void Flash_DoWork(object sender, DoWorkEventArgs e)
         {
-            flash_opacity = 1;
-            bgUpdater.RunWorkerAsync();
+            _flashOpacity = 1;
+            _bgUpdater.RunWorkerAsync();
             Thread.Sleep(1000);
             do
             {
-                flash_opacity -= 0.1f;
+                _flashOpacity -= 0.1f;
                 Thread.Sleep(30);
-            } while (flash_opacity >= 0);
+            } while (_flashOpacity >= 0);
 
-            flsh.Dispose();
-            CustWindow.Show();
-            Stage.showCust = true;
+            _flsh.Dispose();
+            _custWindow.Show();
+            Stage.ShowCust = true;
             Input.Halt = false;
-            flash = null;
+            _flash = null;
 
 
         }
@@ -294,40 +294,40 @@ namespace OpenBN
             do
             {
                 {
-                    if (BGChanged)
+                    if (BgChanged)
                     {
-                        dX = Convert.ToDouble(BG_SS.Metadata["DX"]);
-                        dY = Convert.ToDouble(BG_SS.Metadata["DY"]);
-                        if (BG_SS.Metadata.ContainsKey("FRAMEDELAY"))
+                        dX = Convert.ToDouble(_bgSs.Metadata["DX"]);
+                        dY = Convert.ToDouble(_bgSs.Metadata["DY"]);
+                        if (_bgSs.Metadata.ContainsKey("FRAMEDELAY"))
                         {
-                            framedel = Convert.ToInt32(BG_SS.Metadata["FRAMEDELAY"]);
+                            framedel = Convert.ToInt32(_bgSs.Metadata["FRAMEDELAY"]);
                             framedel = Clamp(framedel, 2, 128);
                         }
                         else
                         {
                             framedel = 2;
                         }
-                        BGChanged = false;
+                        BgChanged = false;
                     }
 
-                    BG_SS.AnimationGroup.Values.First().Next();
-                    myBackground.curtextrect = BG_SS.AnimationGroup.Values.First().CurrentFrame;
-                    var bgFrameBounds = BG_SS.AnimationGroup.Values.First().CurrentFrame;
+                    _bgSs.AnimationGroup.Values.First().Next();
+                    _myBackground.Curtextrect = _bgSs.AnimationGroup.Values.First().CurrentFrame;
+                    var bgFrameBounds = _bgSs.AnimationGroup.Values.First().CurrentFrame;
 
                     if (!(dX == 0 & dY == 0))
                     {
-                        if (scrollcnt % framedel == 0)
+                        if (_scrollcnt % framedel == 0)
                         {
-                            bgpos.X = (int)(Math.Ceiling(bgpos.X + dX) % bgFrameBounds.Width);
-                            if (bgpos.X % 2 != 0)
-                                bgpos.Y = (int)(Math.Ceiling(bgpos.Y + dY) % bgFrameBounds.Height);
-                            scrollcnt = 0;
+                            Bgpos.X = (int)(Math.Ceiling(Bgpos.X + dX) % bgFrameBounds.Width);
+                            if (Bgpos.X % 2 != 0)
+                                Bgpos.Y = (int)(Math.Ceiling(Bgpos.Y + dY) % bgFrameBounds.Height);
+                            _scrollcnt = 0;
                         }
-                        scrollcnt++;
+                        _scrollcnt++;
                     }
                     Thread.Sleep(16);
                 }
-            } while (!terminateGame);
+            } while (!_terminateGame);
         }
 
         private void RunTick()
@@ -337,18 +337,18 @@ namespace OpenBN
 
         private void Update2()
         {
-            myGameTime = new GameTime(totalGameTime.Elapsed, lastUpdate.Elapsed);
-            Input.Update(kbstate, myGameTime);
-            UpdateComponents(myGameTime);
+            _myGameTime = new GameTime(_totalGameTime.Elapsed, _lastUpdate.Elapsed);
+            Input.Update(_kbstate, _myGameTime);
+            UpdateComponents(_myGameTime);
             HandleInputs();
         }
 
         private void HandleInputs()
         {
-            var ks_z = Input.KbStream[Keys.A];
+            var ksZ = Input.KbStream[Keys.A];
             //var ks_m = Input.KbStream[Keys.M];
 
-            switch (ks_z.KeyState)
+            switch (ksZ.KeyState)
             {
                 case KeyState.Down:
                     if (KeyLatch[Keys.A] == false)
@@ -367,8 +367,8 @@ namespace OpenBN
                         //}
                         //else
                         {
-                            CustWindow.Show();
-                            Stage.showCust = true;
+                            _custWindow.Show();
+                            Stage.ShowCust = true;
                         }
                     }
                     break;
@@ -400,9 +400,9 @@ namespace OpenBN
 
         protected override void Update(GameTime gameTime)
         {
-            graphics.ApplyChanges();
-            kbstate = Keyboard.GetState();
-            lastUpdate.Restart();
+            Graphics.ApplyChanges();
+            _kbstate = Keyboard.GetState();
+            _lastUpdate.Restart();
             CheckIfActive();
             base.Update(gameTime);
         }
@@ -411,10 +411,10 @@ namespace OpenBN
         {
             if (IsActive)
                 {
-                    if (desat < 1)
+                    if (_desat < 1)
                     {
-                        desat += 0.1f;
-                        desat = MathHelper.Clamp(desat, 0, 1);
+                        _desat += 0.1f;
+                        _desat = MathHelper.Clamp(_desat, 0, 1);
                         // Desaturate.Parameters["percent"].SetValue(desat);
                         // SoundEffect.MasterVolume = desat;
                     }
@@ -425,10 +425,10 @@ namespace OpenBN
                 }
                 else
                 {
-                    if (desat > 0)
+                    if (_desat > 0)
                     {
-                        desat -= 0.1f;
-                        desat = MathHelper.Clamp(desat, 0, 1);
+                        _desat -= 0.1f;
+                        _desat = MathHelper.Clamp(_desat, 0, 1);
                         // Desaturate.Parameters["percent"].SetValue(desat);
                         // SoundEffect.MasterVolume = desat;
                     }
@@ -440,46 +440,46 @@ namespace OpenBN
                 }
         }
 
-        bool passonce = false;
-        private float desat;
+        bool _passonce = false;
+        private float _desat;
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.SetRenderTarget(target);
+            GraphicsDevice.SetRenderTarget(_target);
             GraphicsDevice.Clear(Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255));
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
+            SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
 
-            if (BG_SS != null)
+            if (_bgSs != null)
             {
-                myBackground.Update(new Rectangle((int)bgpos.X, (int)bgpos.Y, 0, 0));
-                myBackground.Draw(spriteBatch);
+                _myBackground.Update(new Rectangle((int)Bgpos.X, (int)Bgpos.Y, 0, 0));
+                _myBackground.Draw(SpriteBatch);
             }
 
-            if (passonce)
+            if (_passonce)
             {
                 DrawComponents();
-                CustWindow.Draw();
+                _custWindow.Draw();
                 DrawEnemyNames();
                 DrawDebugText();
             }
 
             // Draw the flash
-            if (flash_opacity > Math.Round(0f, 2))
+            if (_flashOpacity > Math.Round(0f, 2))
             {
-                spriteBatch.Draw(flsh, defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * flash_opacity);
-                passonce = true;
+                SpriteBatch.Draw(_flsh, _defaultrect, Color.FromNonPremultiplied(0xF8, 0xF8, 0xf8, 255) * _flashOpacity);
+                _passonce = true;
             }
 
 
 
-            spriteBatch.End();
+            SpriteBatch.End();
             GraphicsDevice.SetRenderTarget(null);
 
-            targetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
+            TargetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone);
             GraphicsDevice.Clear(Color.Black);
-            targetBatch.Draw(target, Viewbox, Color.White);
-            targetBatch.End();
+            TargetBatch.Draw(_target, _viewbox, Color.White);
+            TargetBatch.End();
             base.Draw(gameTime);
 
 
@@ -491,26 +491,26 @@ namespace OpenBN
         /// <summary>
         ///     Creates a rect with color fill, with option to create another texture.
         /// </summary>
-        /// <param name="Rect">Parameters of the target rect</param>
-        /// <param name="Colr">The color to fill</param>
+        /// <param name="rect">Parameters of the target rect</param>
+        /// <param name="colr">The color to fill</param>
         /// <returns></returns>
-        private Texture2D RectangleFill(Rectangle Rect, Color Colr, bool Draw = true)
+        private Texture2D RectangleFill(Rectangle rect, Color colr, bool draw = true)
         {
             // Make a 1x1 texture named pixel.  
-            var pixel = new Texture2D(GraphicsDevice, Rect.Width, Rect.Height);
+            var pixel = new Texture2D(GraphicsDevice, rect.Width, rect.Height);
             // Create a 1D array of color data to fill the pixel texture with.  
-            var colorData = new Color[Rect.Width * Rect.Height];
+            var colorData = new Color[rect.Width * rect.Height];
             // Set the texture data with our color information.  
 
-            if (Draw)
+            if (draw)
             {
-                spriteBatch.Draw(pixel, Rect, Color.White);
+                SpriteBatch.Draw(pixel, rect, Color.White);
             }
             else
             {
                 for (var x = 0; x < colorData.Length; x++)
                 {
-                    colorData[x] = Colr;
+                    colorData[x] = colr;
                 }
                 pixel.SetData(colorData);
             }
@@ -525,55 +525,55 @@ namespace OpenBN
         /// </summary>
         private void DrawEnemyNames()
         {
-            if (!displayEnemyNames)
+            if (!_displayEnemyNames)
             {
                 return;
             }
-            if (EnemyNameCache == null)
+            if (_enemyNameCache == null)
             {
                 //Load Font
-                var Font2 = Fonts.List["Normal2"];
+                var font2 = Fonts.List["Normal2"];
                 // Do this frame-expensive operations once
-                EnemyNameCache = new RenderTarget2D(GraphicsDevice, screenRes.W, screenRes.H);
-                GraphicsDevice.SetRenderTarget(EnemyNameCache);
+                _enemyNameCache = new RenderTarget2D(GraphicsDevice, ScreenRes.W, ScreenRes.H);
+                GraphicsDevice.SetRenderTarget(_enemyNameCache);
                 GraphicsDevice.Clear(Color.Transparent);
 
-                var TextOffset = new Vector2(-Font2.MeasureString("{").X, 0);
+                var textOffset = new Vector2(-font2.MeasureString("{").X, 0);
 
-                for (var i = 0; i < EnemyNames.Count; i++)
+                for (var i = 0; i < _enemyNames.Count; i++)
                 {
-                    var EnemyName = EnemyNames[i];
+                    var enemyName = _enemyNames[i];
                     //Measure text length and store to vector
-                    var FontVect = Font2.MeasureString(EnemyName);
+                    var fontVect = font2.MeasureString(enemyName);
 
                     //Calculate vectors
-                    var InitTextPos = (screenResVector - FontVect) * cancelY - new Vector2(2, -2);
-                    var TextPos = TextOffset + InitTextPos;
-                    var RectFill =
+                    var initTextPos = (ScreenResVector - fontVect) * CancelY - new Vector2(2, -2);
+                    var textPos = textOffset + initTextPos;
+                    var rectFill =
                         new Rectangle(
-                            (int)(TextPos.X - TextOffset.X),
-                            (int)TextPos.Y + 2, (int)FontVect.X + 2,
-                            (int)FontVect.Y - 4);
+                            (int)(textPos.X - textOffset.X),
+                            (int)textPos.Y + 2, (int)fontVect.X + 2,
+                            (int)fontVect.Y - 4);
 
                     //Fill background
-                    RectangleFill(RectFill, ColorHelper.FromHex(0x282828));
+                    RectangleFill(rectFill, ColorHelper.FromHex(0x282828));
 
                     // { character is the chevron chr. in the Normal2 font.
-                    EnemyName = "{" + EnemyName;
+                    enemyName = "{" + enemyName;
 
                     //Draw it
-                    spriteBatch.DrawString(Font2, EnemyName, TextPos, Color.White);
-                    TextOffset += FontVect * cancelX + new Vector2(0, 1);
+                    SpriteBatch.DrawString(font2, enemyName, textPos, Color.White);
+                    textOffset += fontVect * CancelX + new Vector2(0, 1);
                     Debug.Print("Drawn!");
                 }
                 GraphicsDevice.SetRenderTarget(null);
-                spriteBatch.Draw(EnemyNameCache, new Rectangle(0, 0, EnemyNameCache.Width, EnemyNameCache.Height),
+                SpriteBatch.Draw(_enemyNameCache, new Rectangle(0, 0, _enemyNameCache.Width, _enemyNameCache.Height),
                     Color.White);
             }
             else
             {
                 //Draw ze cache
-                spriteBatch.Draw(EnemyNameCache, new Rectangle(0, 0, EnemyNameCache.Width, EnemyNameCache.Height),
+                SpriteBatch.Draw(_enemyNameCache, new Rectangle(0, 0, _enemyNameCache.Width, _enemyNameCache.Height),
                     Color.White);
             }
         }
@@ -584,30 +584,30 @@ namespace OpenBN
         /// </summary>
         private void DrawDebugText()
         {
-            var Font1 = Fonts.List["Debug"];
-            Font1.Spacing = 0;
+            var font1 = Fonts.List["Debug"];
+            font1.Spacing = 0;
 
-            var DebugText = "";
-            DebugText += "BGPRGC{3,4}\r\n";
-            DebugText += "BGPOSX{0,4}\r\n";
-            DebugText += "BGPOSY{1,4}\r\n";
-            DebugText += "EMBROT{2,4}\r\n";
-            DebugText += "CUSTOM {4:EN;4;DIS}\r\n";
+            var debugText = "";
+            debugText += "BGPRGC{3,4}\r\n";
+            debugText += "BGPOSX{0,4}\r\n";
+            debugText += "BGPOSY{1,4}\r\n";
+            debugText += "EMBROT{2,4}\r\n";
+            debugText += "CUSTOM {4:EN;4;DIS}\r\n";
 
 
-            DebugText = String.Format(DebugText, bgpos.X, bgpos.Y,
-                Math.Round(CustWindow.EmblemRot, 2),
-                BG_SS.AnimationGroup.Values.First().PC.ToString().ToUpper()
-                , Math.Round(CustWindow.CustBarProgress * 100, 2));
+            debugText = String.Format(debugText, Bgpos.X, Bgpos.Y,
+                Math.Round(_custWindow.EmblemRot, 2),
+                _bgSs.AnimationGroup.Values.First().Pc.ToString().ToUpper()
+                , Math.Round(_custWindow.CustBarProgress * 100, 2));
 
-            DebugText = PublicDebug.ToUpper().Replace("_", "");
+            debugText = PublicDebug.ToUpper().Replace("_", "");
 
-            var FontVect = Font1.MeasureString(DebugText);
+            var fontVect = font1.MeasureString(debugText);
             //Calculate vectors
-            var InitTextPos = new Vector2(screenResVector.X - FontVect.X - 1, screenResVector.Y / 2 - FontVect.Y / 2);
-            var TextPos = InitTextPos;
+            var initTextPos = new Vector2(ScreenResVector.X - fontVect.X - 1, ScreenResVector.Y / 2 - fontVect.Y / 2);
+            var textPos = initTextPos;
             //Draw it
-            spriteBatch.DrawString(Font1, DebugText, TextPos, Color.White * 0.5f);
+            SpriteBatch.DrawString(font1, debugText, textPos, Color.White * 0.5f);
         }
 
         /// <summary>
@@ -634,7 +634,7 @@ namespace OpenBN
             var viewportX = GraphicsDevice.Viewport.Width / 2 - viewportWidth / 2;
             var viewportY = GraphicsDevice.Viewport.Height / 2 - viewportHeight / 2;
 
-            Viewbox = new Rectangle(viewportX, viewportY, viewportWidth, viewportHeight);
+            _viewbox = new Rectangle(viewportX, viewportY, viewportWidth, viewportHeight);
         }
 
         public void UpdateComponents(GameTime gameTime)

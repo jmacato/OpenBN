@@ -15,9 +15,9 @@ namespace OpenBN.Interfaces
         bool IsSelected { get; set; }
         Point SlotRowCol { get; set; }
 
-        void Execute(CustomWindow CW, Battle BT, Stage ST);
+        void Execute(CustomWindow cw, Battle bt, Stage st);
 
-        SpriteBatch SB { get; set; }
+        SpriteBatch Sb { get; set; }
         GraphicsDevice Graphics { get; set; }
         ContentManager Content { get; set; }
     }

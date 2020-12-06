@@ -14,23 +14,23 @@ namespace OpenBN.BattleElements
     /// </summary>
     public class Navi : BattleModule
     {
-        int Row, Column;
-        private Sprite NaviSprite;
-        private string CurrentAnimation;
+        int _row, _column;
+        private Sprite _naviSprite;
+        private string _currentAnimation;
         public bool AnimationFinished;
-        private Stage stage;
-        private Rectangle FirstFrameRect;
-        public int waitframe_l,
-                waitframe_r,
-                waitframe_u,
-                waitframe_d,
-                waitframe_a,
-                waitframe_b;
+        private Stage _stage;
+        private Rectangle _firstFrameRect;
+        public int WaitframeL,
+                WaitframeR,
+                WaitframeU,
+                WaitframeD,
+                WaitframeA,
+                WaitframeB;
 
-        private const int OVERFLOW_MODULO = 1024;
-        private const int WAITCOUNT = 4;
+        private const int OverflowModulo = 1024;
+        private const int Waitcount = 4;
 
-        private bool _Freezed;
+        private bool _freezed;
         public bool Freezed
         {
             get
@@ -44,11 +44,11 @@ namespace OpenBN.BattleElements
                 {
                     Freezed = false;
                 }
-                return _Freezed;
+                return _freezed;
             }
             set
             {
-                _Freezed = value;
+                _freezed = value;
             }
         }
 
@@ -59,19 +59,19 @@ namespace OpenBN.BattleElements
         /// <param name="stage">Stage.</param>
         public Navi(Game game, Stage stage) : base(game)
         {
-            CurrentAnimation = "MM";
-            Row = 1;
-            Column = 1;
-            NaviSprite = new Sprite("Navi/MM/MM.sasl", "Navi/MM/MM", Graphics, Content);
-            this.stage = stage;
-            FirstFrameRect = NaviSprite.AnimationGroup.Values.First().Frames.Values.First();
+            _currentAnimation = "MM";
+            _row = 1;
+            _column = 1;
+            _naviSprite = new Sprite("Navi/MM/MM.sasl", "Navi/MM/MM", Graphics, Content);
+            this._stage = stage;
+            _firstFrameRect = _naviSprite.AnimationGroup.Values.First().Frames.Values.First();
 
-            waitframe_l = WAITCOUNT - 1;
-            waitframe_r = WAITCOUNT - 1;
-            waitframe_u = WAITCOUNT - 1;
-            waitframe_d = WAITCOUNT - 1;
-            waitframe_a = WAITCOUNT - 1;
-            waitframe_b = WAITCOUNT - 1;
+            WaitframeL = Waitcount - 1;
+            WaitframeR = Waitcount - 1;
+            WaitframeU = Waitcount - 1;
+            WaitframeD = Waitcount - 1;
+            WaitframeA = Waitcount - 1;
+            WaitframeB = Waitcount - 1;
         }
 
         /// <summary>
@@ -82,10 +82,10 @@ namespace OpenBN.BattleElements
             var rand = new Random();
             int r;
             string t;
-            r = rand.Next(0, NaviSprite.AnimationGroup.Keys.Count - 1);
-            t = NaviSprite.AnimationGroup.Keys.ToArray()[r];
-            CurrentAnimation = t; // "MM_FIRE_RECOIL";
-            NaviSprite.ResetAllGroups();
+            r = rand.Next(0, _naviSprite.AnimationGroup.Keys.Count - 1);
+            t = _naviSprite.AnimationGroup.Keys.ToArray()[r];
+            _currentAnimation = t; // "MM_FIRE_RECOIL";
+            _naviSprite.ResetAllGroups();
         }
 
         /// <summary>
@@ -96,11 +96,11 @@ namespace OpenBN.BattleElements
         {
             if (Freezed) { base.Update(gameTime); return; }
             UpdateTeleport();
-            NaviSprite.AnimationGroup[CurrentAnimation].Next();
-            this.AnimationFinished = !NaviSprite.AnimationGroup[CurrentAnimation].Active;
+            _naviSprite.AnimationGroup[_currentAnimation].Next();
+            this.AnimationFinished = !_naviSprite.AnimationGroup[_currentAnimation].Active;
             HandleInputs();
 
-            Battle.PublicDebug = CurrentAnimation;
+            Battle.PublicDebug = _currentAnimation;
 
             base.Update(gameTime);
         }
@@ -108,131 +108,131 @@ namespace OpenBN.BattleElements
         public void HandleInputs()
         {
 
-            var KEY_LEFT = Input.KbStream[Keys.Left];
-            var KEY_RIGHT = Input.KbStream[Keys.Right];
-            var KEY_UP = Input.KbStream[Keys.Up];
-            var KEY_DOWN = Input.KbStream[Keys.Down];
-            var KEY_A = Input.KbStream[Keys.A];
-            var KEY_B = Input.KbStream[Keys.S];
+            var keyLeft = Input.KbStream[Keys.Left];
+            var keyRight = Input.KbStream[Keys.Right];
+            var keyUp = Input.KbStream[Keys.Up];
+            var keyDown = Input.KbStream[Keys.Down];
+            var keyA = Input.KbStream[Keys.A];
+            var keyB = Input.KbStream[Keys.S];
 
-            if (KEY_LEFT.KeyState == KeyState.Down && KEY_RIGHT.KeyState == KeyState.Down) return;
-            if (KEY_UP.KeyState == KeyState.Down && KEY_DOWN.KeyState == KeyState.Down) return;
+            if (keyLeft.KeyState == KeyState.Down && keyRight.KeyState == KeyState.Down) return;
+            if (keyUp.KeyState == KeyState.Down && keyDown.KeyState == KeyState.Down) return;
 
-            switch (KEY_LEFT.KeyState)
+            switch (keyLeft.KeyState)
             {
                 case KeyState.Down:
-                    waitframe_l++;
+                    WaitframeL++;
                     {
-                        if (waitframe_l % WAITCOUNT == 0)
+                        if (WaitframeL % Waitcount == 0)
                         {
                             NavigateStage(0, -1);
                         }
                     }
                     break;
                 case KeyState.Up:
-                    waitframe_l = waitframe_l % OVERFLOW_MODULO;
+                    WaitframeL = WaitframeL % OverflowModulo;
                     break;
             }
 
-            switch (KEY_RIGHT.KeyState)
+            switch (keyRight.KeyState)
             {
                 case KeyState.Down:
-                    waitframe_r++;
-                    if (waitframe_r % WAITCOUNT == 0)
+                    WaitframeR++;
+                    if (WaitframeR % Waitcount == 0)
                     {
                         NavigateStage(0,1);
                     }
                     break;
                 case KeyState.Up:
-                    waitframe_r = waitframe_r % OVERFLOW_MODULO;
+                    WaitframeR = WaitframeR % OverflowModulo;
                     break;
             }
 
-            switch (KEY_UP.KeyState)
+            switch (keyUp.KeyState)
             {
                 case KeyState.Down:
-                    waitframe_u++;
-                    if (waitframe_u % WAITCOUNT == 0)
+                    WaitframeU++;
+                    if (WaitframeU % Waitcount == 0)
                     {
                         NavigateStage(-1,0);
                     }
                     break;
                 case KeyState.Up:
-                    waitframe_u = waitframe_u % OVERFLOW_MODULO;
+                    WaitframeU = WaitframeU % OverflowModulo;
                     break;
             }
 
-            switch (KEY_DOWN.KeyState)
+            switch (keyDown.KeyState)
             {
                 case KeyState.Down:
-                    waitframe_d++;
-                    if (waitframe_d % WAITCOUNT == 0)
+                    WaitframeD++;
+                    if (WaitframeD % Waitcount == 0)
                     {
                         NavigateStage(1,0);
                     }
                     break;
                 case KeyState.Up:
-                    waitframe_d = waitframe_d % OVERFLOW_MODULO;
+                    WaitframeD = WaitframeD % OverflowModulo;
                     break;
             }
         }
 
 
 
-        private void NavigateStage(int NextRow, int NextColumn)
+        private void NavigateStage(int nextRow, int nextColumn)
         {
-            if(CurrentTeleportState == TeleportState.NONE)
+            if(_currentTeleportState == TeleportState.None)
             {
-                var r = Row + NextRow;
-                var c = Column + NextColumn;
+                var r = _row + nextRow;
+                var c = _column + nextColumn;
 
-                if (r < 0 | r > stage.PnlRowPnt.Count -1 )
+                if (r < 0 | r > _stage.PnlRowPnt.Count -1 )
                     return;
-                if (c < 0 | c > stage.PnlColPnt.Count -1 )
+                if (c < 0 | c > _stage.PnlColPnt.Count -1 )
                    return;
 
-                NewRow = r;
-                NewCol = c;
-                CurrentTeleportState = TeleportState.STATE_1;
+                _newRow = r;
+                _newCol = c;
+                _currentTeleportState = TeleportState.State1;
             }
         }
 
-        int NewRow = 0, NewCol = 0;
-        TeleportState CurrentTeleportState;
+        int _newRow = 0, _newCol = 0;
+        TeleportState _currentTeleportState;
 
         enum TeleportState
         {
-            NONE,
-            STATE_1,
-            STATE_2,
-            STATE_3
+            None,
+            State1,
+            State2,
+            State3
         }
 
         private void UpdateTeleport()
         {
-            var x = NaviSprite.AnimationGroup[CurrentAnimation];
+            var x = _naviSprite.AnimationGroup[_currentAnimation];
 
-            switch (CurrentTeleportState)
+            switch (_currentTeleportState)
             {
-                case TeleportState.STATE_1:
-                    CurrentAnimation = "MM_TELEPORT1";
-                    CurrentTeleportState = TeleportState.STATE_2;
+                case TeleportState.State1:
+                    _currentAnimation = "MM_TELEPORT1";
+                    _currentTeleportState = TeleportState.State2;
                     break;
-                case TeleportState.STATE_2:
+                case TeleportState.State2:
                     if (!x.Active)
                     {
-                        CurrentAnimation = "MM_TELEPORT2";
-                        Row = NewRow;
-                        Column = NewCol;
-                        CurrentTeleportState = TeleportState.STATE_3;
+                        _currentAnimation = "MM_TELEPORT2";
+                        _row = _newRow;
+                        _column = _newCol;
+                        _currentTeleportState = TeleportState.State3;
                     }
                     break;
-                case TeleportState.STATE_3:
+                case TeleportState.State3:
                     if (!x.Active)
                     {
-                        CurrentTeleportState = TeleportState.NONE;
-                        NaviSprite.ResetAllGroups();
-                        CurrentAnimation = "MM";
+                        _currentTeleportState = TeleportState.None;
+                        _naviSprite.ResetAllGroups();
+                        _currentAnimation = "MM";
                     }
                     break;
             }
@@ -246,14 +246,14 @@ namespace OpenBN.BattleElements
         public override void Draw()
         {
             base.Draw();
-            var up = NaviSprite.AnimationGroup[CurrentAnimation].CurrentFrame;
+            var up = _naviSprite.AnimationGroup[_currentAnimation].CurrentFrame;
 
-            var t = stage.StgPos.Y + stage.PnlRowPnt[Row] + Stage.StagePanelHeight - Stage.StageFloorPadding;
-            var o = 20 - FirstFrameRect.Width / 2;
-            var x = stage.StgPos.X + stage.PnlColPnt[Column] + o;
+            var t = _stage.StgPos.Y + _stage.PnlRowPnt[_row] + Stage.StagePanelHeight - Stage.StageFloorPadding;
+            var o = 20 - _firstFrameRect.Width / 2;
+            var x = _stage.StgPos.X + _stage.PnlColPnt[_column] + o;
             var destrect = new Rectangle(x, t, up.Width, up.Height);
 
-            spriteBatch.Draw(NaviSprite.texture, destrect, up, Color.White, 0,
+            SpriteBatch.Draw(_naviSprite.Texture, destrect, up, Color.White, 0,
                 new Vector2(0, up.Height),
                 SpriteEffects.None, 0);
         }

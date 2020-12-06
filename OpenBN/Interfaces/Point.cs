@@ -5,10 +5,10 @@ namespace OpenBN.Interfaces
         public int X;
         public int Y;
 
-        public Point(int X, int Y) : this()
+        public Point(int x, int y) : this()
         {
-            this.X = X;
-            this.Y = Y;
+            this.X = x;
+            this.Y = y;
         }
     }
 }

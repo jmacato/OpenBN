@@ -16,18 +16,18 @@ namespace OpenBN.Sprites
     {
         public readonly Dictionary<string, Animation> AnimationGroup = new();
         public readonly Dictionary<string, string> Metadata = new();
-        private readonly Dictionary<string, Rectangle> TempFrames = new();
-        private readonly Dictionary<int, AnimationCommand> TempCmd = new();
-        public Texture2D texture { get; }
+        private readonly Dictionary<string, Rectangle> _tempFrames = new();
+        private readonly Dictionary<int, AnimationCommand> _tempCmd = new();
+        public Texture2D Texture { get; }
         
-        public Sprite(string scriptdir, string texturedir, GraphicsDevice graphics, ContentManager CM)
+        public Sprite(string scriptdir, string texturedir, GraphicsDevice graphics, ContentManager cm)
         {
-            var script = File.ReadAllText(CM.RootDirectory + "/" + scriptdir.Trim('/').Trim('\\'));
-            int ColSize = 0, RowSize = 0;
+            var script = File.ReadAllText(cm.RootDirectory + "/" + scriptdir.Trim('/').Trim('\\'));
+            int colSize = 0, rowSize = 0;
             var t = script.Replace('\r',char.MinValue).Split("\n".ToCharArray());
             var i = 0; var curanimkey = "";                  
 
-            texture = CM.Load<Texture2D>(texturedir);
+            Texture = cm.Load<Texture2D>(texturedir);
             
             foreach (var y in t)
             {
@@ -39,47 +39,47 @@ namespace OpenBN.Sprites
                         var ptr = x[1];
                         var rectparams = x[2].Split(',');
 
-                        int r_x, r_y, r_w, r_h;
+                        int rX, rY, rW, rH;
 
                         if (rectparams.Length == 2)
                         {
-                            var row = ColSize;
-                            var col = RowSize;
+                            var row = colSize;
+                            var col = rowSize;
 
                             row = Convert.ToInt32(rectparams[0]);
                             col = Convert.ToInt32(rectparams[1]);
 
-                            r_x = ColSize * (col-1);
-                            r_y = RowSize * (row-1);
-                            r_w = ColSize;
-                            r_h = RowSize;
+                            rX = colSize * (col-1);
+                            rY = rowSize * (row-1);
+                            rW = colSize;
+                            rH = rowSize;
                         } else
                         {
-                            r_x = Convert.ToInt16(rectparams[0]);
-                            r_y = Convert.ToInt16(rectparams[1]);
-                            r_w = Convert.ToInt16(rectparams[2]);
-                            r_h = Convert.ToInt16(rectparams[3]);
+                            rX = Convert.ToInt16(rectparams[0]);
+                            rY = Convert.ToInt16(rectparams[1]);
+                            rW = Convert.ToInt16(rectparams[2]);
+                            rH = Convert.ToInt16(rectparams[3]);
                         }
                          
-                        var srcrect = new Rectangle(r_x,r_y,r_w,r_h);
-                        TempFrames.Add(ptr, srcrect);
+                        var srcrect = new Rectangle(rX,rY,rW,rH);
+                        _tempFrames.Add(ptr, srcrect);
                         break;
 
                     case "BEGIN":
                         i=0;
-                        var AA = new Animation();
+                        var aa = new Animation();
                         curanimkey = x[1];
-                        AnimationGroup.Add(curanimkey, AA);
+                        AnimationGroup.Add(curanimkey, aa);
                         break;
 
                     case "END":
                         i=0;
-                        AnimationGroup[curanimkey].Frames = TempFrames;
-                        AnimationGroup[curanimkey].Commands = TempCmd;
+                        AnimationGroup[curanimkey].Frames = _tempFrames;
+                        AnimationGroup[curanimkey].Commands = _tempCmd;
                         AnimationGroup[curanimkey].FirstFrame = AnimationGroup[curanimkey].Frames.Keys.First();
                         AnimationGroup[curanimkey].Next();
-                        TempFrames = new Dictionary<string, Rectangle>();
-                        TempCmd = new Dictionary<int, AnimationCommand>();                        
+                        _tempFrames = new Dictionary<string, Rectangle>();
+                        _tempCmd = new Dictionary<int, AnimationCommand>();                        
                         curanimkey = "";
                         break;
 
@@ -88,47 +88,47 @@ namespace OpenBN.Sprites
                         break;
 
                     case "SET_COL":
-                        ColSize = Convert.ToInt32(x[1]);
+                        colSize = Convert.ToInt32(x[1]);
                         break;
 
                     case "SET_ROW":
-                        RowSize = Convert.ToInt32(x[1]);
+                        rowSize = Convert.ToInt32(x[1]);
                         break;
                     
                     case "SHOW":
                         if (AnimationGroup.Count == 0) break;
                         i++;
-                        var SH = new AnimationCommand();
-                        SH.Cmd = AnimationCommands.SHOW;
-                        SH.Args = x[1];
-                        TempCmd.Add(i, SH);
+                        var sh = new AnimationCommand();
+                        sh.Cmd = AnimationCommands.Show;
+                        sh.Args = x[1];
+                        _tempCmd.Add(i, sh);
                         break;
                     
                     case "WAIT":
                         if (AnimationGroup.Count == 0) break;
                         i++;
-                        var WT = new AnimationCommand();
-                        WT.Cmd = AnimationCommands.WAIT;
-                        WT.Args = x[1];
-                        TempCmd.Add(i, WT);
+                        var wt = new AnimationCommand();
+                        wt.Cmd = AnimationCommands.Wait;
+                        wt.Args = x[1];
+                        _tempCmd.Add(i, wt);
                         break;
 
                     case "STOP":
                         if (AnimationGroup.Count == 0) break;
                         i++;
-                        var SP = new AnimationCommand();
-                        SP.Cmd = AnimationCommands.STOP;
-                        SP.Args = "0";
-                        TempCmd.Add(i, SP);
+                        var sp = new AnimationCommand();
+                        sp.Cmd = AnimationCommands.Stop;
+                        sp.Args = "0";
+                        _tempCmd.Add(i, sp);
                         break;
 
                     case "LOOP":
                         if (AnimationGroup.Count == 0) break;
                         i++;
-                        var LP = new AnimationCommand();
-                        LP.Cmd = AnimationCommands.LOOP;
-                        LP.Args = TempFrames.Keys.First();
-                        TempCmd.Add(i, LP);
+                        var lp = new AnimationCommand();
+                        lp.Cmd = AnimationCommands.Loop;
+                        lp.Args = _tempFrames.Keys.First();
+                        _tempCmd.Add(i, lp);
                         break;
                 }
             }
@@ -136,24 +136,24 @@ namespace OpenBN.Sprites
 
         public void AdvanceAllGroups()
         {
-            foreach(var Anim in AnimationGroup.Keys)
+            foreach(var anim in AnimationGroup.Keys)
             {
-                AnimationGroup[Anim].Next();
+                AnimationGroup[anim].Next();
             }
         }
 
         public void ResetAllGroups()
         {
-            foreach (var Anim in AnimationGroup.Values)
+            foreach (var anim in AnimationGroup.Values)
             {
-                Anim.Reset();
+                anim.Reset();
             }
         }
 
         internal void Dispose()
         {
-            TempCmd.Clear();
-            TempFrames.Clear();
+            _tempCmd.Clear();
+            _tempFrames.Clear();
         }
     }
 }

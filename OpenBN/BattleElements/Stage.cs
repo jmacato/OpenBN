@@ -15,48 +15,48 @@ namespace OpenBN.BattleElements
         public List<int> PnlRowPnt, PnlColPnt;
         public Point BottomLeftPnt;
         public List<Panel> PanelArray;
-        List<StagePnlColor> DefaultPnlColr;
-        List<StagePnlType> DefaultPnlType;
+        List<StagePnlColor> _defaultPnlColr;
+        List<StagePnlType> _defaultPnlType;
 
-        public bool showCust { get; set; }
-        public int lolxy = 71;
+        public bool ShowCust { get; set; }
+        public int Lolxy = 71;
 
         public override void Draw()
         {
             base.Draw();
-            foreach (var Pnl in PanelArray)
+            foreach (var pnl in PanelArray)
             {
-                var AnimationGroupKey = "";
+                var animationGroupKey = "";
 
-                var CurAG = StageRed;
+                var curAg = _stageRed;
 
-                switch (Pnl.StgPnlClr)
+                switch (pnl.StgPnlClr)
                 {
                     case StagePnlColor.Blue:
-                        CurAG = StageBlue;
+                        curAg = _stageBlue;
                         break;
                     case StagePnlColor.Red:
-                        CurAG = StageRed;
+                        curAg = _stageRed;
                         break;
                 }
 
-                AnimationGroupKey = Pnl.StgPnlTyp.ToString() + Pnl.StgRowCol.X;
+                animationGroupKey = pnl.StgPnlTyp.ToString() + pnl.StgRowCol.X;
 
                 Rectangle text, bottomtext;
                 Rectangle rect, bottomrect;
-                text = CurAG.AnimationGroup[AnimationGroupKey].CurrentFrame;
-                rect = new Rectangle(Pnl.StgPnlPos.X, Pnl.StgPnlPos.Y, text.Width, text.Height);
-                if (Pnl.StgRowCol.X == 2 & Pnl.StgPnlTyp != StagePnlType.NONE)
+                text = curAg.AnimationGroup[animationGroupKey].CurrentFrame;
+                rect = new Rectangle(pnl.StgPnlPos.X, pnl.StgPnlPos.Y, text.Width, text.Height);
+                if (pnl.StgRowCol.X == 2 & pnl.StgPnlTyp != StagePnlType.None)
                 {
-                    bottomtext = CurAG.AnimationGroup["BOTTOM"].CurrentFrame;
-                    bottomrect = new Rectangle(Pnl.StgPnlPos.X, Pnl.StgPnlPos.Y + text.Height, bottomtext.Width, bottomtext.Height);
-                    spriteBatch.Draw(CurAG.texture, bottomrect, bottomtext, Color.White);
+                    bottomtext = curAg.AnimationGroup["BOTTOM"].CurrentFrame;
+                    bottomrect = new Rectangle(pnl.StgPnlPos.X, pnl.StgPnlPos.Y + text.Height, bottomtext.Width, bottomtext.Height);
+                    SpriteBatch.Draw(curAg.Texture, bottomrect, bottomtext, Color.White);
                 }
-                spriteBatch.Draw(CurAG.texture, rect, text, Color.White);
+                SpriteBatch.Draw(curAg.Texture, rect, text, Color.White);
             }
         }
 
-        Sprite StageRed, StageBlue;
+        Sprite _stageRed, _stageBlue;
         internal static int StageFloorPadding = 5;
         internal static int StagePanelHeight = 25;
         internal static int StagePanelWidth = 40;
@@ -66,15 +66,15 @@ namespace OpenBN.BattleElements
             //Animate the panels if necessary
             base.Update(gameTime);
 
-            if (showCust)
+            if (ShowCust)
             {
-                lolxy = (int)MathHelper.Clamp(lolxy + 2, 71, 87);
-                StgPos = new Point(0, lolxy);
+                Lolxy = (int)MathHelper.Clamp(Lolxy + 2, 71, 87);
+                StgPos = new Point(0, Lolxy);
             }
             else
             {
-                lolxy = (int)MathHelper.Clamp(lolxy - 2, 71, 87);
-                StgPos = new Point(0, lolxy);
+                Lolxy = (int)MathHelper.Clamp(Lolxy - 2, 71, 87);
+                StgPos = new Point(0, Lolxy);
             }
 
 
@@ -85,15 +85,15 @@ namespace OpenBN.BattleElements
                     //Get the linear index of the col/row pair
                     var u = GetIndex(i, j);
                     //Designate colors accrd. to DefaultPnlColr
-                    var x = DefaultPnlColr[u];
+                    var x = _defaultPnlColr[u];
                     //Designate specific pos with offset of the StgPos
                     var y = new Point(PnlColPnt[j] + StgPos.X, PnlRowPnt[i] + StgPos.Y);
                     PanelArray[u].StgPnlPos = y;
                 }
             }
 
-            StageRed.AdvanceAllGroups();
-            StageBlue.AdvanceAllGroups();
+            _stageRed.AdvanceAllGroups();
+            _stageBlue.AdvanceAllGroups();
 
         }
 
@@ -108,8 +108,8 @@ namespace OpenBN.BattleElements
         public void Initialize()
         {
             StgPos = new Point(0, 71);
-            StageRed = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Red", Graphics, Content);
-            StageBlue = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Blue", Graphics, Content);
+            _stageRed = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Red", Graphics, Content);
+            _stageBlue = new Sprite("BattleObj/Stages/Stage.sasl", "BattleObj/Stages/Blue", Graphics, Content);
 
             for (var i = 0; i < 3; i++)
             {
@@ -118,11 +118,11 @@ namespace OpenBN.BattleElements
                     //Get the linear index of the col/row pair
                     var u = GetIndex(i, j);
                     //Designate colors accrd. to DefaultPnlColr
-                    var x = DefaultPnlColr[u];
+                    var x = _defaultPnlColr[u];
                     //Designate specific pos with offset of the StgPos
                     var y = new Point(PnlColPnt[j] + StgPos.X, PnlRowPnt[i] + StgPos.Y);
                     //Set panel type, could be modified on code
-                    var z = DefaultPnlType[u];
+                    var z = _defaultPnlType[u];
 
                     var e = new Point(i, j);
                     var q = new Panel()
@@ -142,14 +142,14 @@ namespace OpenBN.BattleElements
         public Stage(Game parent) : base(parent)
         {
 
-            DefaultPnlType = new List<StagePnlType>
+            _defaultPnlType = new List<StagePnlType>
             {
-                StagePnlType.NORMAL,StagePnlType.ICE,StagePnlType.GRASS,StagePnlType.POISON,StagePnlType.HOLY,StagePnlType.HOLE,
-                StagePnlType.NORMAL,StagePnlType.ICE,StagePnlType.GRASS,StagePnlType.POISON,StagePnlType.HOLY,StagePnlType.HOLE,
-                StagePnlType.NORMAL,StagePnlType.ICE,StagePnlType.GRASS,StagePnlType.POISON,StagePnlType.HOLY,StagePnlType.HOLE,
+                StagePnlType.Normal,StagePnlType.Ice,StagePnlType.Grass,StagePnlType.Poison,StagePnlType.Holy,StagePnlType.Hole,
+                StagePnlType.Normal,StagePnlType.Ice,StagePnlType.Grass,StagePnlType.Poison,StagePnlType.Holy,StagePnlType.Hole,
+                StagePnlType.Normal,StagePnlType.Ice,StagePnlType.Grass,StagePnlType.Poison,StagePnlType.Holy,StagePnlType.Hole,
             };
 
-            DefaultPnlColr = new List<StagePnlColor>
+            _defaultPnlColr = new List<StagePnlColor>
             {
                 StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,
                 StagePnlColor.Red,StagePnlColor.Red,StagePnlColor.Red ,StagePnlColor.Blue,StagePnlColor.Blue,StagePnlColor.Blue,

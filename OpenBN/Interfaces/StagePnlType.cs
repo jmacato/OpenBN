@@ -2,17 +2,17 @@ namespace OpenBN.Interfaces
 {
     public enum StagePnlType
     {
-        NORMAL,
-        CRACKED,
-        BROKEN,
-        POISON,
-        ICE,
-        GRASS,
-        HOLE,
-        HOLY,
-        CONV_D, CONV_U,
-        CONV_L, CONV_R,
-        VOLCANO,
-        NONE
+        Normal,
+        Cracked,
+        Broken,
+        Poison,
+        Ice,
+        Grass,
+        Hole,
+        Holy,
+        ConvD, ConvU,
+        ConvL, ConvR,
+        Volcano,
+        None
     }
 }

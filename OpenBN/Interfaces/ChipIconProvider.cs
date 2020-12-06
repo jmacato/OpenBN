@@ -9,45 +9,45 @@ namespace OpenBN.Interfaces
     {
 
         //Fields
-        Texture2D IconTexture;
-        ContentManager Content;
-        GraphicsDevice Graphics;
-        int rowCount, colCount, totalTiles;
+        Texture2D _iconTexture;
+        ContentManager _content;
+        GraphicsDevice _graphics;
+        int _rowCount, _colCount, _totalTiles;
         public List<Texture2D> Icons;
 
         //Properties
         public int RowCount
         {
-            get { return rowCount; }
-            private set { rowCount = value; }
+            get { return _rowCount; }
+            private set { _rowCount = value; }
         }
 
         public int ColCount
         {
-            get => colCount;
-            private set { colCount = value; }
+            get => _colCount;
+            private set { _colCount = value; }
         }
 
         public int TotalTiles
         {
-            get { return totalTiles; }
-            private set { totalTiles = value; }
+            get { return _totalTiles; }
+            private set { _totalTiles = value; }
         }
 
         //Methods
-        public ChipIconProvider(ContentManager Content, GraphicsDevice Graphics)
+        public ChipIconProvider(ContentManager content, GraphicsDevice graphics)
         {
             Icons = new List<Texture2D>();
-            this.Graphics = Graphics;
-            this.Content = Content;
+            this._graphics = graphics;
+            this._content = content;
             var magentacnt = 0;
 
-            IconTexture = Content.Load<Texture2D>("BC/ChipIcons");
-            var ColorData = new Color[IconTexture.Width * IconTexture.Height];
-            IconTexture.GetData<Color>(ColorData);
+            _iconTexture = content.Load<Texture2D>("BC/ChipIcons");
+            var colorData = new Color[_iconTexture.Width * _iconTexture.Height];
+            _iconTexture.GetData<Color>(colorData);
 
             //Get the number of empty pixels
-            foreach (var clr in ColorData)
+            foreach (var clr in colorData)
             {
                 if (clr == Color.FromNonPremultiplied(0, 240, 240, 255))
                 {
@@ -55,8 +55,8 @@ namespace OpenBN.Interfaces
                 }
             }
 
-            var i = IconTexture.Height / 14;
-            var j = IconTexture.Width / 14;
+            var i = _iconTexture.Height / 14;
+            var j = _iconTexture.Width / 14;
 
             RowCount = i;
             ColCount = j;
@@ -70,22 +70,22 @@ namespace OpenBN.Interfaces
             {
                 TotalTiles = i * j;
             }
-            Icons.Add(new Texture2D(Graphics, 14, 14));
-            for (var j1 = 0; j1 < rowCount; j1++)
+            Icons.Add(new Texture2D(graphics, 14, 14));
+            for (var j1 = 0; j1 < _rowCount; j1++)
             {
-                for (var i1 = 0; i1 < colCount; i1++)
+                for (var i1 = 0; i1 < _colCount; i1++)
                 {
-                    var r_x = i1 * 14;
-                    var r_y = j1 * 14;
-                    var srcrect = new Rectangle(r_x, r_y, 14, 14);
+                    var rX = i1 * 14;
+                    var rY = j1 * 14;
+                    var srcrect = new Rectangle(rX, rY, 14, 14);
                     var dstrect = new Rectangle(0, 0, 14, 14);
 
-                    var Trgt = new Texture2D(Graphics, 14, 14);
+                    var trgt = new Texture2D(graphics, 14, 14);
                     var colors = new Color[14 * 14];
 
-                    IconTexture.GetData<Color>(0, srcrect, colors, 0, 14 * 14);
-                    Trgt.SetData<Color>(colors);
-                    Icons.Add(Trgt);
+                    _iconTexture.GetData<Color>(0, srcrect, colors, 0, 14 * 14);
+                    trgt.SetData<Color>(colors);
+                    Icons.Add(trgt);
                 }
 
             }

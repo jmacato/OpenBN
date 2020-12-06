@@ -9,15 +9,15 @@ namespace OpenBN.Helpers
     {
        public Dictionary<string, SpriteFont> List { get; private set; }
 
-        public FontHelper(ContentManager Content)
+        public FontHelper(ContentManager content)
         {
             List = new Dictionary<string, SpriteFont>();
-            var dir = new DirectoryInfo(Content.RootDirectory + "/Fonts");
+            var dir = new DirectoryInfo(content.RootDirectory + "/Fonts");
             var files = dir.GetFiles("*.*");
             foreach (var file in files)
             {
                 var key = file.Name.Split('.')[0];
-                var val = Content.Load<SpriteFont>("Fonts/" + key);
+                var val = content.Load<SpriteFont>("Fonts/" + key);
                 val.Spacing = 1;
                 List.Add(key, val);
             }

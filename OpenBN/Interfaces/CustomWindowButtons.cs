@@ -6,7 +6,7 @@ namespace OpenBN.Interfaces
 {
     public class CustomWindowButtons : IBattleChip
     {
-        private CustomWindow.ButtonDelegate ExecutionDelegate;
+        private CustomWindow.ButtonDelegate _executionDelegate;
 
         public Texture2D Image { get; set; }
         public Texture2D Icon { get; set; }
@@ -15,24 +15,24 @@ namespace OpenBN.Interfaces
         public int Damage { get; set; }
         public ChipElements Element { get; set; }
         public char Code { get; set; }
-        public SpriteBatch SB { get; set; }
+        public SpriteBatch Sb { get; set; }
         public GraphicsDevice Graphics { get; set; }
         public ContentManager Content { get; set; }
 
         public bool IsSelected { get; set; }
         public Point SlotRowCol { get; set; }
 
-        int setStatus = 0;
+        int _setStatus = 0;
         public int SetStatus {
             get
             {
-                return setStatus;
+                return _setStatus;
             }
             set
             {
                 var chipimage = "";
-                setStatus = value;
-                switch (setStatus)
+                _setStatus = value;
+                switch (_setStatus)
                 {
                     case 0:
                         chipimage = "info_nodata";
@@ -46,15 +46,15 @@ namespace OpenBN.Interfaces
         }
 
 
-        public virtual void Execute(CustomWindow CW, Battle BT, Stage ST)
+        public virtual void Execute(CustomWindow cw, Battle bt, Stage st)
         {
-            ExecutionDelegate();
+            _executionDelegate();
         }
 
-        public CustomWindowButtons(int id, ContentManager Content, CustomWindow.ButtonDelegate ButtonsDelegate) 
+        public CustomWindowButtons(int id, ContentManager content, CustomWindow.ButtonDelegate buttonsDelegate) 
         {
             var chipimage = "";
-            ExecutionDelegate = ButtonsDelegate;
+            _executionDelegate = buttonsDelegate;
             switch (id)
             {
                 case 0:
@@ -65,10 +65,10 @@ namespace OpenBN.Interfaces
                     break;
             }
 
-            this.Content = Content;
-            Image = Content.Load<Texture2D>("BC/" + chipimage);
+            this.Content = content;
+            Image = content.Load<Texture2D>("BC/" + chipimage);
             DisplayName = "";
-            Element = ChipElements.NONE;
+            Element = ChipElements.None;
         }
     }
 }

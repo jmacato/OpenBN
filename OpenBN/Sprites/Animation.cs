@@ -10,52 +10,52 @@ namespace OpenBN.Sprites
         public Dictionary<string, Rectangle> Frames { get; set; }
         public Dictionary<int, AnimationCommand> Commands { get; set; }
         public Rectangle CurrentFrame { get; private set; }
-        public int PC { get; set; }
+        public int Pc { get; set; }
         public string FirstFrame;
         public bool Active { get; private set; }
 
         public Animation()
         {
             FirstFrame = "";
-            PC = 1;
+            Pc = 1;
             Commands = new Dictionary<int, AnimationCommand>();
             Frames = new Dictionary<string, Rectangle>();
             Active = true;
         }
 
-        int wait = 0;
+        int _wait = 0;
         public bool Next()
         {
 	
             if (!Active) return false;
-            if (wait != 0) { wait--; return true; }
+            if (_wait != 0) { _wait--; return true; }
             try{
-                switch (Commands[PC].Cmd)
+                switch (Commands[Pc].Cmd)
                 {
-                    case AnimationCommands.SHOW:
-                        CurrentFrame = Frames[Commands[PC].Args];
+                    case AnimationCommands.Show:
+                        CurrentFrame = Frames[Commands[Pc].Args];
                         break;
-                    case AnimationCommands.LOOP:
-                        PC = Commands.Keys.First();
+                    case AnimationCommands.Loop:
+                        Pc = Commands.Keys.First();
                         return true;
-                    case AnimationCommands.STOP:
+                    case AnimationCommands.Stop:
                         Active = false;
                         return false;
-                    case AnimationCommands.WAIT:
-                        wait = Convert.ToInt32(Commands[PC].Args.Trim());
+                    case AnimationCommands.Wait:
+                        _wait = Convert.ToInt32(Commands[Pc].Args.Trim());
                         break;
                 }
 
             } catch {
             }
-            PC++;
-            PC = (int)MathHelper.Clamp(PC,0,Commands.Count);
+            Pc++;
+            Pc = (int)MathHelper.Clamp(Pc,0,Commands.Count);
             return false;
         }
 
         internal void Reset()
         {
-            PC = 1;
+            Pc = 1;
             Active = true;
         }
     }

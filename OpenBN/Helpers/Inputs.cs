@@ -15,12 +15,12 @@ namespace OpenBN.Helpers
         public Dictionary<Keys, ExtraKeyState> KbStream = new();
 
         public Keys[] MonitKeys;
-        KeyboardState oldKeyboardState;
+        KeyboardState _oldKeyboardState;
 
-        public Inputs(Keys[] MonitoredKeys)
+        public Inputs(Keys[] monitoredKeys)
         {
-            MonitKeys = MonitoredKeys;
-            foreach (var x in MonitoredKeys)
+            MonitKeys = monitoredKeys;
+            foreach (var x in monitoredKeys)
             {
                 KbStream.Add(x, new ExtraKeyState(KeyState.Up));
             }
@@ -41,7 +41,7 @@ namespace OpenBN.Helpers
             if (Halt) return;
 
 
-            foreach (var u in oldKeyboardState.GetPressedKeys())
+            foreach (var u in _oldKeyboardState.GetPressedKeys())
             {
                 if (!KbStream.ContainsKey(u)) continue; 
                 if (keyTrigger.IsKeyUp(u)) KbStream[u].KeyState = KeyState.Up;
@@ -69,7 +69,7 @@ namespace OpenBN.Helpers
                 }
             }
 
-            oldKeyboardState = keyTrigger;
+            _oldKeyboardState = keyTrigger;
         }
 
         public void InputHandled(Keys[] x)

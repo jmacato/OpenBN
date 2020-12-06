@@ -5,10 +5,10 @@
         public int W;
         public int H;
 
-        public Size(int W, int H) : this()
+        public Size(int w, int h) : this()
         {
-            this.W = W;
-            this.H = H;
+            this.W = w;
+            this.H = h;
         }
     }
 }
