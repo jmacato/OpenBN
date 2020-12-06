@@ -79,7 +79,12 @@ namespace OpenBN
 
             // this.Window.AllowUserResizing = true;
             Window.ClientSizeChanged += Window_ClientSizeChanged;
-
+            Window.AllowUserResizing = true;
+            
+            
+            // Mosaicing is done as follows ->
+            // 15 frames duration, 0->14 pixels X/Y for objects
+            // 0->
         }
 
 
@@ -111,7 +116,7 @@ namespace OpenBN
 
               Desaturate = Content.Load<Effect>("Effects/Desaturate");
               Desaturate.CurrentTechnique = Desaturate.Techniques["BasicColorDrawing"];
-              Desaturate.Parameters["percent"].SetValue(0f);
+              Desaturate.Parameters["percent"].SetValue(1f);
             flsh = RectangleFill(new Rectangle(0, 0, screenRes.W, screenRes.H), ColorHelper.FromHex(0xF8F8F8), false);
 
             MonitoredKeys = new[]
@@ -380,10 +385,45 @@ namespace OpenBN
             graphics.ApplyChanges();
             kbstate = Keyboard.GetState();
             lastUpdate.Restart();
+            CheckIfActive();
             base.Update(gameTime);
         }
 
+        private void CheckIfActive()
+        {
+            if (IsActive)
+                {
+                    if (desat < 1)
+                    {
+                        desat += 0.1f;
+                        desat = MathHelper.Clamp(desat, 0, 1);
+                        Desaturate.Parameters["percent"].SetValue(desat);
+                        // SoundEffect.MasterVolume = desat;
+                    }
+                    //
+                    // if (!mute && bgminst != null)
+                    //     if (bgminst.State == SoundState.Paused) bgminst.Resume();
+                    // Thread.Sleep(16);
+                }
+                else
+                {
+                    if (desat > 0)
+                    {
+                        desat -= 0.1f;
+                        desat = MathHelper.Clamp(desat, 0, 1);
+                        Desaturate.Parameters["percent"].SetValue(desat);
+                        // SoundEffect.MasterVolume = desat;
+                    }
+                    //
+                    // if (!mute && bgminst != null)
+                    //     if (bgminst.State == SoundState.Playing) bgminst.Pause();
+                    //
+                    // Thread.Sleep(16);
+                }
+        }
+
         bool passonce = false;
+        private float desat;
 
         protected override void Draw(GameTime gameTime)
         {
